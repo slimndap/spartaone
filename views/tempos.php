@@ -34,7 +34,7 @@ if (!empty($selectedPaceRow['label'])) {
         ['label' => '10K tempo', 'value' => $selectedPaceRow['ten_k'] ?? '', 'value_class' => 'pace-10k'],
         ['label' => 'Halve marathon tempo', 'value' => $selectedPaceRow['half_marathon'] ?? '', 'value_class' => 'pace-hm'],
         ['label' => 'Marathon tempo', 'value' => $selectedPaceRow['marathon'] ?? '', 'value_class' => 'pace-m'],
-        ['label' => 'Aerobe-range', 'value' => $selectedPaceRow['aerobe'] ?? '', 'value_class' => 'pace-aerobe'],
+        ['label' => 'Aeroob-range', 'value' => $selectedPaceRow['aerobe'] ?? '', 'value_class' => 'pace-aerobe'],
     ];
     foreach ($paceCards as $card) {
         if (trim((string)$card['value']) === '') {

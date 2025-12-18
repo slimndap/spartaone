@@ -99,11 +99,11 @@ foreach ($sortedDates as $dateKey):
                 <div class="mb-2">
                     <label class="form-label form-label-sm mb-1">Tempos</label>
                     <?php
-                    $availableTempos = ['3K', '5K', '10K', 'Half Marathon', 'Marathon', 'Aerobe', 'Recovery'];
+                    $availableTempos = ['3K', '5K', '10K', 'Half Marathon', 'Marathon', 'Aeroob', 'Recovery'];
                     $entryTempos = $entry['tempos'] ?? [];
                     foreach ($availableTempos as $tempoOption): ?>
                         <div class="form-check form-check-sm">
-                            <input class="form-check-input" type="checkbox" name="tempos[]" value="<?php echo htmlspecialchars($tempoOption, ENT_QUOTES, 'UTF-8'); ?>" <?php echo in_array($tempoOption, $entryTempos, true) ? 'checked' : ''; ?> id="tempo_<?php echo htmlspecialchars($dateKey, ENT_QUOTES, 'UTF-8'); ?>_<?php echo (int)$editIdx; ?>_<?php echo htmlspecialchars($tempoOption, ENT_QUOTES, 'UTF-8'); ?>">
+                            <input class="form-check-input" type="checkbox" name="tempos[]" value="<?php echo htmlspecialchars($tempoOption, ENT_QUOTES, 'UTF-8'); ?>" <?php echo (in_array($tempoOption, $entryTempos, true) || ($tempoOption === 'Aeroob' && in_array('Aerobe', $entryTempos, true))) ? 'checked' : ''; ?> id="tempo_<?php echo htmlspecialchars($dateKey, ENT_QUOTES, 'UTF-8'); ?>_<?php echo (int)$editIdx; ?>_<?php echo htmlspecialchars($tempoOption, ENT_QUOTES, 'UTF-8'); ?>">
                             <label class="form-check-label" for="tempo_<?php echo htmlspecialchars($dateKey, ENT_QUOTES, 'UTF-8'); ?>_<?php echo (int)$editIdx; ?>_<?php echo htmlspecialchars($tempoOption, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($tempoOption, ENT_QUOTES, 'UTF-8'); ?></label>
                         </div>
                     <?php endforeach; ?>

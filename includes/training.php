@@ -13,7 +13,7 @@ function parse_training_csv_with_openai(string $csvText): array
         return ['error' => 'OPENAI_API_KEY is not configured on the server.'];
     }
 
-    $allowedTempos = ['3K', '5K', '10K', 'Half Marathon', 'Marathon', 'Aerobe', 'Recovery'];
+    $allowedTempos = ['3K', '5K', '10K', 'Half Marathon', 'Marathon', 'Aeroob', 'Recovery'];
 
     $payload = [
         'model' => 'gpt-5.2',
@@ -26,7 +26,7 @@ function parse_training_csv_with_openai(string $csvText): array
                 'role' => 'user',
                 'content' => implode("\n", [
                     'Input is CSV text with columns like Date, Activity, Distance, Notes.',
-                    'Return strictly JSON with this shape: {"trainings":[{"date":"YYYY-MM-DD","entries":[{"title":"string","activity":"string","distance":"string","notes":"string","tempos":["3K","5K","10K","Half Marathon","Marathon","Aerobe","Recovery"]}]}]}',
+                    'Return strictly JSON with this shape: {"trainings":[{"date":"YYYY-MM-DD","entries":[{"title":"string","activity":"string","distance":"string","notes":"string","tempos":["3K","5K","10K","Half Marathon","Marathon","Aeroob","Recovery"]}]}]}',
                     'Parse each row; put any extra columns into notes. Normalize date to YYYY-MM-DD.',
                     'Fill "tempos" with zero or more of the allowed options based on the activity description; use an empty array if none apply.',
                     'Notes must be empty string unless the CSV explicitly has notes content for that row.',
@@ -96,6 +96,10 @@ function parse_training_csv_with_openai(string $csvText): array
             $item = (string)$item;
             if ($item === '') {
                 continue;
+            }
+            // Normalize legacy label.
+            if ($item === 'Aerobe') {
+                $item = 'Aeroob';
             }
             if (in_array($item, $allowedTempos, true) && !in_array($item, $filtered, true)) {
                 $filtered[] = $item;

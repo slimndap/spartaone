@@ -93,9 +93,11 @@ foreach ($entries as $idx => $entry) {
                     <i class="bi bi-arrow-right me-1"></i><?php echo htmlspecialchars($distance, ENT_QUOTES, 'UTF-8'); ?>
                 </span>
             <?php endif; ?>
-            <?php foreach ($tempos as $tempo): ?>
+            <?php foreach ($tempos as $tempo):
+                $tempoLabel = $tempo === 'Aerobe' ? 'Aeroob' : $tempo;
+            ?>
                 <span class="home-pill">
-                    <?php echo htmlspecialchars($tempo, ENT_QUOTES, 'UTF-8'); ?>
+                    <?php echo htmlspecialchars($tempoLabel, ENT_QUOTES, 'UTF-8'); ?>
                     <?php if (!empty($tempoPaces[$tempo])): ?>
                         <span class="text-muted small ms-1"><?php echo htmlspecialchars($tempoPaces[$tempo], ENT_QUOTES, 'UTF-8'); ?></span>
                     <?php endif; ?>

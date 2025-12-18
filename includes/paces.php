@@ -114,14 +114,17 @@ function tempo_pace_map(array $paceRow): array
     if (empty($paceRow)) {
         return [];
     }
+    $aeroob = (string)($paceRow['aerobe'] ?? '');
     return [
         '3K' => (string)($paceRow['five_k'] ?? ''),
         '5K' => (string)($paceRow['five_k'] ?? ''),
         '10K' => (string)($paceRow['ten_k'] ?? ''),
         'Half Marathon' => (string)($paceRow['half_marathon'] ?? ''),
         'Marathon' => (string)($paceRow['marathon'] ?? ''),
-        'Aerobe' => (string)($paceRow['aerobe'] ?? ''),
-        'Recovery' => (string)($paceRow['aerobe'] ?? ''),
+        'Aeroob' => $aeroob,
+        // Legacy label support
+        'Aerobe' => $aeroob,
+        'Recovery' => $aeroob,
     ];
 }
 
