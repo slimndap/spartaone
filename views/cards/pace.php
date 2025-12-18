@@ -1,9 +1,10 @@
 <?php
 // Expected variables:
-// - array $pace with keys 'title' and 'value'
+// - array $pace with keys 'title', 'value', optional 'value_class'
 $pace = $pace ?? [];
 $paceTitle = trim((string)($pace['title'] ?? ''));
 $paceValue = trim((string)($pace['value'] ?? ''));
+$paceValueClass = trim((string)($pace['value_class'] ?? ''));
 
 if ($paceValue === '') {
     return;
@@ -20,7 +21,11 @@ if ($paceTitle === '') {
             <div class="d-flex align-items-center gap-2">
                 <i class="bi bi-speedometer2 text-brand-accent fs-4"></i>
                 <div>
-                    <div class="fw-semibold text-light"><?php echo htmlspecialchars($paceValue, ENT_QUOTES, 'UTF-8'); ?> min/km</div>
+                    <div class="fw-semibold text-light">
+                        <span<?php echo $paceValueClass ? ' class="' . htmlspecialchars($paceValueClass, ENT_QUOTES, 'UTF-8') . '"' : ''; ?>>
+                            <?php echo htmlspecialchars($paceValue, ENT_QUOTES, 'UTF-8'); ?>
+                        </span> min/km
+                    </div>
                 </div>
             </div>
         </div>

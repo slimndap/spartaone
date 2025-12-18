@@ -30,11 +30,11 @@ if (!empty($selectedPaceRow['label'])) {
 <?php if (!empty($selectedPaceRow) && !empty($basePaceSeconds)): ?>
     <?php
     $paceCards = [
-        ['label' => '5K tempo', 'value' => $selectedPaceRow['five_k'] ?? ''],
-        ['label' => '10K tempo', 'value' => $selectedPaceRow['ten_k'] ?? ''],
-        ['label' => 'Halve marathon tempo', 'value' => $selectedPaceRow['half_marathon'] ?? ''],
-        ['label' => 'Marathon tempo', 'value' => $selectedPaceRow['marathon'] ?? ''],
-        ['label' => 'Aerobe-range', 'value' => $selectedPaceRow['aerobe'] ?? ''],
+        ['label' => '5K tempo', 'value' => $selectedPaceRow['five_k'] ?? '', 'value_class' => 'pace-5k'],
+        ['label' => '10K tempo', 'value' => $selectedPaceRow['ten_k'] ?? '', 'value_class' => 'pace-10k'],
+        ['label' => 'Halve marathon tempo', 'value' => $selectedPaceRow['half_marathon'] ?? '', 'value_class' => 'pace-hm'],
+        ['label' => 'Marathon tempo', 'value' => $selectedPaceRow['marathon'] ?? '', 'value_class' => 'pace-m'],
+        ['label' => 'Aerobe-range', 'value' => $selectedPaceRow['aerobe'] ?? '', 'value_class' => 'pace-aerobe'],
     ];
     foreach ($paceCards as $card) {
         if (trim((string)$card['value']) === '') {
@@ -44,6 +44,7 @@ if (!empty($selectedPaceRow['label'])) {
             'pace' => [
                 'title' => $card['label'],
                 'value' => $card['value'],
+                'value_class' => $card['value_class'],
             ],
         ]);
     }
