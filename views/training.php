@@ -69,12 +69,13 @@ foreach ($sortedDates as $dateKey):
                 <div class="training-day">
         <div class="training-list">
             <?php
-                $trainingDay = [
-                    'date' => $dateKey,
-                    'entries' => $entries,
-                    'month_param' => $monthStart->format('Y-m'),
-                ];
-                include __DIR__ . '/cards/training_day.php';
+                render_partial('cards/training_day', [
+                    'trainingDay' => [
+                        'date' => $dateKey,
+                        'entries' => $entries,
+                        'month_param' => $monthStart->format('Y-m'),
+                    ],
+                ]);
             ?>
         </div>
         <?php if (!empty($isAdmin) && $editDate === $dateKey && isset($entries[$editIdx])): ?>

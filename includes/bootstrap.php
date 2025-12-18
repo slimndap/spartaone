@@ -5,6 +5,7 @@ require_once __DIR__ . '/training.php';
 require_once __DIR__ . '/roles.php';
 require_once __DIR__ . '/paces.php';
 require_once __DIR__ . '/goal-render.php';
+require_once __DIR__ . '/templates.php';
 require_once __DIR__ . '/strava.php';
 require_once __DIR__ . '/view.php';
 

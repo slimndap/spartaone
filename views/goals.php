@@ -79,11 +79,7 @@ usort($upcomingGoals, static function ($a, $b) {
         </form>
         <?php $actionsHtml = ob_get_clean(); ?>
 
-        <?php
-            $goalData = $goal;
-            $goalOptions = ['actionsHtml' => $actionsHtml];
-            include __DIR__ . '/cards/goal.php';
-        ?>
+        <?php render_partial('cards/goal', ['goal' => $goal, 'goalOptions' => ['actionsHtml' => $actionsHtml]]); ?>
         <div class="collapse" id="<?php echo htmlspecialchars($collapseId, ENT_QUOTES, 'UTF-8'); ?>">
             <div class="glass-card card shadow-lg mb-3">
                 <div class="card-body">

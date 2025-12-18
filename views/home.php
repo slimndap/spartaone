@@ -35,10 +35,7 @@
             <?php endif; ?>
             <?php if (!empty($nextTraining) && $entry): ?>
                 <div class="home-next">
-                    <?php
-                        $trainingDay = $nextTraining;
-                        include __DIR__ . '/cards/training_day.php';
-                    ?>
+                    <?php render_partial('cards/training_day', ['trainingDay' => $nextTraining]); ?>
                 </div>
             <?php else: ?>
                 <p class="text-muted">Geen komende training gevonden.</p>
@@ -49,11 +46,7 @@
 <?php if (!empty($upcomingGoals)): ?>
     <div class="mt-4">
         <?php foreach ($upcomingGoals as $goal): ?>
-            <?php
-                $goalData = $goal;
-                $goalOptions = [];
-                include __DIR__ . '/cards/goal.php';
-            ?>
+            <?php render_partial('cards/goal', ['goal' => $goal, 'goalOptions' => []]); ?>
         <?php endforeach; ?>
     </div>
 <?php elseif ( $tokens ): ?>

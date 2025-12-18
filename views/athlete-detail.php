@@ -64,8 +64,7 @@
             <?php foreach ($goalsList as $goalItem): ?>
                 <?php
                     $goalData = is_array($goalItem) ? $goalItem : ['description' => (string)$goalItem];
-                    $goalOptions = ['variant' => 'chip'];
-                    include __DIR__ . '/cards/goal.php';
+                    render_partial('cards/goal', ['goal' => $goalData, 'goalOptions' => ['variant' => 'chip']]);
                 ?>
             <?php endforeach; ?>
         <?php endif; ?>
