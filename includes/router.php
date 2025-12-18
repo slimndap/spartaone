@@ -34,7 +34,8 @@ function sparta_handle_request(string $action, array $state, array $config): voi
 function sparta_require_login(array $state, string $message): bool
 {
     if (empty($state['currentAthleteId'])) {
-        render('home', $state + ['message' => $message, 'currentAction' => 'home']);
+        // Use array_merge so provided message/currentAction always override any defaults.
+        render('home', array_merge($state, ['message' => $message, 'currentAction' => 'home']));
         return false;
     }
     return true;

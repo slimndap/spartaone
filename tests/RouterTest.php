@@ -17,7 +17,7 @@ class RouterTest extends TestCase
     /**
      * Provide a minimal state array that satisfies layout/home rendering.
      *
-     * @param array $overrides
+     * @param array<string,mixed> $overrides Override defaults for specific keys.
      * @return array<string,mixed>
      */
     private function baseState(array $overrides = []): array
@@ -26,6 +26,7 @@ class RouterTest extends TestCase
             'currentAthleteId' => null,
             'currentAthleteName' => null,
             'currentAthletePhoto' => null,
+            'message' => null,
             'athlete' => [],
             'athleteError' => null,
             'nextTraining' => [],
