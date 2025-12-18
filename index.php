@@ -205,91 +205,11 @@ switch ($action) {
                 }
             }
 
-            $paceTable = [
-                [
-                    'label' => '35 min (3:30/km)',
-                    'base' => 210,
-                    'five_k' => '3:23-3:26',
-                    'ten_k' => '3:30',
-                    'half_marathon' => '3:38-3:42',
-                    'marathon' => '3:48-3:55',
-                    'aerobe' => '4:25-5:00',
-                ],
-                [
-                    'label' => '38 min (3:48/km)',
-                    'base' => 228,
-                    'five_k' => '3:40-3:44',
-                    'ten_k' => '3:48',
-                    'half_marathon' => '3:57-4:02',
-                    'marathon' => '4:08-4:15',
-                    'aerobe' => '4:45-5:20',
-                ],
-                [
-                    'label' => '40 min (4:00/km)',
-                    'base' => 240,
-                    'five_k' => '3:52-3:56',
-                    'ten_k' => '4:00',
-                    'half_marathon' => '4:10-4:15',
-                    'marathon' => '4:20-4:30',
-                    'aerobe' => '5:00-5:35',
-                ],
-                [
-                    'label' => '43 min (4:18/km)',
-                    'base' => 258,
-                    'five_k' => '4:05-4:10',
-                    'ten_k' => '4:18',
-                    'half_marathon' => '4:28-4:35',
-                    'marathon' => '4:40-4:55',
-                    'aerobe' => '5:20-6:00',
-                ],
-                [
-                    'label' => '46 min (4:36/km)',
-                    'base' => 276,
-                    'five_k' => '4:20-4:25',
-                    'ten_k' => '4:36',
-                    'half_marathon' => '4:45-4:52',
-                    'marathon' => '5:00-5:10',
-                    'aerobe' => '5:40-6:20',
-                ],
-                [
-                    'label' => '49 min (4:54/km)',
-                    'base' => 294,
-                    'five_k' => '4:35-4:40',
-                    'ten_k' => '4:54',
-                    'half_marathon' => '5:05-5:12',
-                    'marathon' => '5:18-5:30',
-                    'aerobe' => '6:00-6:40',
-                ],
-                [
-                    'label' => '52 min (5:12/km)',
-                    'base' => 312,
-                    'five_k' => '4:55-5:00',
-                    'ten_k' => '5:12',
-                    'half_marathon' => '5:24-5:32',
-                    'marathon' => '5:40-5:55',
-                    'aerobe' => '6:20-7:00',
-                ],
-                [
-                    'label' => '55 min (5:30/km)',
-                    'base' => 330,
-                    'five_k' => '5:10-5:15',
-                    'ten_k' => '5:30',
-                    'half_marathon' => '5:42-5:52',
-                    'marathon' => '6:00-6:15',
-                    'aerobe' => '6:40-7:20',
-                ],
-            ];
+            $paceTable = get_pace_table();
 
             $selectedPaceRow = null;
             if ($basePaceSeconds !== null) {
-                $closestDiff = PHP_INT_MAX;
-                foreach ($paceTable as $row) {
-                    $diff = abs($row['base'] - $basePaceSeconds);
-                    if ($diff < $closestDiff) {
-                        $closestDiff = $diff;
-                        $selectedPaceRow = $row;
-                    }
-                }
+                $selectedPaceRow = find_pace_row($paceTable, $basePaceSeconds);
             }
 
             render('tempos', [
