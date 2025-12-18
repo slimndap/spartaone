@@ -48,6 +48,6 @@ class TemplateTest extends TestCase
         $html = ob_get_clean();
 
         $this->assertStringContainsString('10K under 45', $html);
-        $this->assertStringContainsString('goal-days-pill', $html);
+        $this->assertStringContainsString('goal-progress', $html);
     }
 }

@@ -16,20 +16,7 @@
         <?php else: ?>
             <?php
             $entry = (!empty($nextTraining['entries']) && is_array($nextTraining['entries'])) ? $nextTraining['entries'][0] : null;
-            $firstNameOnly = '';
-            if (!empty($athlete['firstname'])) {
-                $firstNameOnly = (string)$athlete['firstname'];
-            } elseif (!empty($currentAthleteName)) {
-                $parts = preg_split('/\s+/', trim($currentAthleteName));
-                $firstNameOnly = $parts[0] ?? $currentAthleteName;
-            }
             ?>
-            <div class="home-header d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
-                <div>
-                    <div class="home-kicker text-uppercase">Welkom</div>
-                    <h1 class="h4 mb-0 home-title"><?php echo htmlspecialchars($firstNameOnly, ENT_QUOTES, 'UTF-8'); ?></h1>
-                </div>
-            </div>
             <?php if ($athleteError): ?>
                 <div class="alert alert-danger mb-3"><?php echo $athleteError; ?></div>
             <?php endif; ?>
