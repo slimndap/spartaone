@@ -28,46 +28,26 @@ if (!empty($selectedPaceRow['label'])) {
 </div>
 
 <?php if (!empty($selectedPaceRow) && !empty($basePaceSeconds)): ?>
-    <div class="glass-card card shadow-lg p-3">
-        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
-            <div>
-                <div class="section-label">Jouw trainingstempo's</div>
-            </div>
-        </div>
-        <div class="row g-2">
-            <div class="col-6 col-md-4 col-xl-2">
-                <div class="tempo-chip">
-                    <span class="text-secondary small">5K</span>
-                    <span class="pace-5k fw-semibold text-light"><?php echo htmlspecialchars($selectedPaceRow['five_k'], ENT_QUOTES, 'UTF-8'); ?></span>
-                </div>
-            </div>
-            <div class="col-6 col-md-4 col-xl-2">
-                <div class="tempo-chip">
-                    <span class="text-secondary small">10K</span>
-                    <span class="pace-10k fw-semibold text-light"><?php echo htmlspecialchars($selectedPaceRow['ten_k'], ENT_QUOTES, 'UTF-8'); ?></span>
-                </div>
-            </div>
-            <div class="col-6 col-md-4 col-xl-2">
-                <div class="tempo-chip">
-                    <span class="text-secondary small">HM</span>
-                    <span class="pace-hm fw-semibold text-light"><?php echo htmlspecialchars($selectedPaceRow['half_marathon'], ENT_QUOTES, 'UTF-8'); ?></span>
-                </div>
-            </div>
-            <div class="col-6 col-md-4 col-xl-2">
-                <div class="tempo-chip">
-                    <span class="text-secondary small">Marathon</span>
-                    <span class="pace-m fw-semibold text-light"><?php echo htmlspecialchars($selectedPaceRow['marathon'], ENT_QUOTES, 'UTF-8'); ?></span>
-                </div>
-            </div>
-            <div class="col-12 col-md-8 col-xl-4">
-                <div class="tempo-chip">
-                    <span class="text-secondary small">Aerobe-range</span>
-                    <span class="pace-aerobe fw-semibold text-light"><?php echo htmlspecialchars($selectedPaceRow['aerobe'], ENT_QUOTES, 'UTF-8'); ?></span>
-                </div>
-            </div>
-        </div>
-        <p class="text-secondary small mt-2 mb-0">Tempo’s worden live bijgewerkt op basis van je slider keuze.</p>
-    </div>
+    <?php
+    $paceCards = [
+        ['label' => '5K tempo', 'value' => $selectedPaceRow['five_k'] ?? ''],
+        ['label' => '10K tempo', 'value' => $selectedPaceRow['ten_k'] ?? ''],
+        ['label' => 'Halve marathon tempo', 'value' => $selectedPaceRow['half_marathon'] ?? ''],
+        ['label' => 'Marathon tempo', 'value' => $selectedPaceRow['marathon'] ?? ''],
+        ['label' => 'Aerobe-range', 'value' => $selectedPaceRow['aerobe'] ?? ''],
+    ];
+    foreach ($paceCards as $card) {
+        if (trim((string)$card['value']) === '') {
+            continue;
+        }
+        render_partial('cards/pace', [
+            'pace' => [
+                'title' => $card['label'],
+                'value' => $card['value'],
+            ],
+        ]);
+    }
+    ?>
 <?php endif; ?>
 
 <script>
