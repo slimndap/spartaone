@@ -62,9 +62,11 @@
     <div class="mt-3">
         <?php if ($goalsList): ?>
             <?php foreach ($goalsList as $goalItem): ?>
-                <?php sparta_render_goal(is_array($goalItem) ? $goalItem : ['description' => (string)$goalItem], [
-                    'vvariant' => 'chip',
-                ]); ?>
+                <?php
+                    $goalData = is_array($goalItem) ? $goalItem : ['description' => (string)$goalItem];
+                    $goalOptions = ['variant' => 'chip'];
+                    include __DIR__ . '/cards/goal.php';
+                ?>
             <?php endforeach; ?>
         <?php endif; ?>
     </div>

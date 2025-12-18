@@ -42,7 +42,6 @@ if (!empty($_SERVER['HTTP_HOST'])) {
     $webcalUrl = preg_replace('~^https?~', 'webcal', $icsUrl);
 }
 ?>
-<?php require_once __DIR__ . '/../includes/training-render.php'; ?>
 
 <div class="training-shell">
 <?php if ($webcalUrl): ?>
@@ -69,11 +68,14 @@ foreach ($sortedDates as $dateKey):
 ?>
                 <div class="training-day">
         <div class="training-list">
-            <?php sparta_render_training_day([
-                'date' => $dateKey,
-                'entries' => $entries,
-                'month_param' => $monthStart->format('Y-m'),
-            ]); ?>
+            <?php
+                $trainingDay = [
+                    'date' => $dateKey,
+                    'entries' => $entries,
+                    'month_param' => $monthStart->format('Y-m'),
+                ];
+                include __DIR__ . '/cards/training_day.php';
+            ?>
         </div>
         <?php if (!empty($isAdmin) && $editDate === $dateKey && isset($entries[$editIdx])): ?>
             <?php $entry = $entries[$editIdx]; ?>

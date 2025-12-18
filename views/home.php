@@ -1,4 +1,6 @@
-<?php require_once __DIR__ . '/../includes/training-render.php'; ?>
+<?php
+// Render optional message banner.
+?>
 <?php if (!empty($message)): ?>
     <div class="alert alert-warning border-0 mb-3">
         <?php echo htmlspecialchars($message, ENT_QUOTES, 'UTF-8'); ?>
@@ -33,7 +35,10 @@
             <?php endif; ?>
             <?php if (!empty($nextTraining) && $entry): ?>
                 <div class="home-next">
-                    <?php sparta_render_training_day($nextTraining); ?>
+                    <?php
+                        $trainingDay = $nextTraining;
+                        include __DIR__ . '/cards/training_day.php';
+                    ?>
                 </div>
             <?php else: ?>
                 <p class="text-muted">Geen komende training gevonden.</p>
@@ -44,7 +49,11 @@
 <?php if (!empty($upcomingGoals)): ?>
     <div class="mt-4">
         <?php foreach ($upcomingGoals as $goal): ?>
-            <?php sparta_render_goal($goal); ?>
+            <?php
+                $goalData = $goal;
+                $goalOptions = [];
+                include __DIR__ . '/cards/goal.php';
+            ?>
         <?php endforeach; ?>
     </div>
 <?php elseif ( $tokens ): ?>

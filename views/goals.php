@@ -79,7 +79,11 @@ usort($upcomingGoals, static function ($a, $b) {
         </form>
         <?php $actionsHtml = ob_get_clean(); ?>
 
-        <?php sparta_render_goal($goal, ['actionsHtml' => $actionsHtml]); ?>
+        <?php
+            $goalData = $goal;
+            $goalOptions = ['actionsHtml' => $actionsHtml];
+            include __DIR__ . '/cards/goal.php';
+        ?>
         <div class="collapse" id="<?php echo htmlspecialchars($collapseId, ENT_QUOTES, 'UTF-8'); ?>">
             <div class="glass-card card shadow-lg mb-3">
                 <div class="card-body">
