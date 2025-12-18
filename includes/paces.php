@@ -1,9 +1,10 @@
 <?php
 
 /**
- * Return pace reference table rows.
+ * Static lookup table of representative race/tempo paces keyed by a baseline 10K time.
+ * The `base` field is pace in seconds for 1 km; other fields are human-readable pace ranges.
  *
- * @return array<int,array<string,string|int>>
+ * @return array<int,array<string,string|int>> Ordered fastest to slowest.
  */
 function get_pace_table(): array
 {
@@ -84,10 +85,10 @@ function get_pace_table(): array
 }
 
 /**
- * Pick nearest pace row for a base pace in seconds.
+ * Pick the nearest pace row for a given base pace (seconds per km).
  *
- * @param array<int,array<string,mixed>> $paceTable
- * @return array<string,mixed>|null
+ * @param array<int,array<string,mixed>> $paceTable Typically from get_pace_table().
+ * @return array<string,mixed>|null Matching row or null if table empty.
  */
 function find_pace_row(array $paceTable, int $baseSeconds): ?array
 {
@@ -104,10 +105,11 @@ function find_pace_row(array $paceTable, int $baseSeconds): ?array
 }
 
 /**
- * Map tempo labels to pace strings based on a selected row.
+ * Map training tempo labels to pace strings for a selected pace row.
+ * Includes legacy key "Aerobe" for backward compatibility.
  *
- * @param array<string,mixed> $paceRow
- * @return array<string,string>
+ * @param array<string,mixed> $paceRow Row from get_pace_table()/find_pace_row.
+ * @return array<string,string> Label => pace range string.
  */
 function tempo_pace_map(array $paceRow): array
 {
@@ -129,9 +131,9 @@ function tempo_pace_map(array $paceRow): array
 }
 
 /**
- * Parse a pace string in mm:ss to seconds.
+ * Parse a pace string in mm:ss into total seconds.
  *
- * @return int|null seconds or null on error
+ * @return int|null Seconds or null on validation error (also populates $error).
  */
 function parse_pace_to_seconds(string $pace, ?string &$error = null): ?int
 {
@@ -154,7 +156,7 @@ function parse_pace_to_seconds(string $pace, ?string &$error = null): ?int
 }
 
 /**
- * Format seconds into mm:ss.
+ * Format seconds into mm:ss (zero-padded).
  */
 function format_pace_seconds(int $seconds): string
 {
@@ -165,7 +167,7 @@ function format_pace_seconds(int $seconds): string
 }
 
 /**
- * Compute base pace seconds from settings that may contain raw seconds or a mm:ss input string.
+ * Derive base pace seconds from athlete settings that may store raw seconds or a mm:ss string.
  */
 function compute_base_pace_seconds(array $settings): ?int
 {
@@ -179,7 +181,7 @@ function compute_base_pace_seconds(array $settings): ?int
 }
 
 /**
- * Resolve the nearest pace row given athlete settings and a pace table.
+ * Resolve the nearest pace row given athlete settings and a provided pace table.
  */
 function pace_row_from_settings(array $settings, array $paceTable): ?array
 {
@@ -191,8 +193,8 @@ function pace_row_from_settings(array $settings, array $paceTable): ?array
 }
 
 /**
- * Resolve tempo paces for an athlete using the provided settings. When $persistContext
- * is true, the computed tempos are cached for later use in rendering.
+ * Resolve tempo label => pace mappings for an athlete.
+ * Falls back to loading athlete settings when not provided. Optionally caches result globally.
  */
 function resolve_tempo_paces(
     array $athleteSettings = [],
@@ -226,7 +228,7 @@ function resolve_tempo_paces(
 }
 
 /**
- * Fetch the cached tempo pace lookup for rendering.
+ * Fetch the cached tempo pace lookup for rendering (set by resolve_tempo_paces).
  */
 function get_tempo_paces_context(): array
 {

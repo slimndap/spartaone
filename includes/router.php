@@ -238,8 +238,9 @@ function sparta_handle_tempos(array $state, array $config, string $action): void
     $settings = sparta_load_settings_for_athlete($state, $settingsDir);
 
     if (!empty($settings)) {
-        if (isset($settings['base_pace_seconds'])) {
-            $basePaceSeconds = (int)$settings['base_pace_seconds'];
+        $baseFromSettings = compute_base_pace_seconds($settings);
+        if ($baseFromSettings !== null) {
+            $basePaceSeconds = $baseFromSettings;
             $basePaceInput = format_pace_seconds($basePaceSeconds);
         }
         if ($basePaceInput === '' && !empty($settings['base_pace_input'])) {
