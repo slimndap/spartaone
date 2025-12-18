@@ -162,6 +162,32 @@ function format_pace_seconds(int $seconds): string
 }
 
 /**
+ * Compute base pace seconds from settings that may contain raw seconds or a mm:ss input string.
+ */
+function compute_base_pace_seconds(array $settings): ?int
+{
+    if (isset($settings['base_pace_seconds'])) {
+        return (int)$settings['base_pace_seconds'];
+    }
+    if (!empty($settings['base_pace_input'])) {
+        return parse_pace_to_seconds((string)$settings['base_pace_input']);
+    }
+    return null;
+}
+
+/**
+ * Resolve the nearest pace row given athlete settings and a pace table.
+ */
+function pace_row_from_settings(array $settings, array $paceTable): ?array
+{
+    $baseSeconds = compute_base_pace_seconds($settings);
+    if ($baseSeconds === null) {
+        return null;
+    }
+    return find_pace_row($paceTable, $baseSeconds);
+}
+
+/**
  * Resolve tempo paces for an athlete using the provided settings. When $persistContext
  * is true, the computed tempos are cached for later use in rendering.
  */

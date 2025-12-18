@@ -545,17 +545,9 @@ function buildStravaState(array $query, array $post, array &$session, array $con
                 continue;
             }
             $settings = load_athlete_settings($settingsDir, $athleteRow['id']);
-            $baseSeconds = null;
-            if (isset($settings['base_pace_seconds'])) {
-                $baseSeconds = (int)$settings['base_pace_seconds'];
-            } elseif (!empty($settings['base_pace_input'])) {
-                $baseSeconds = parse_pace_to_seconds((string)$settings['base_pace_input']);
-            }
-            if ($baseSeconds !== null) {
-                $paceRow = find_pace_row($paceTable, $baseSeconds);
-                if (!empty($paceRow['ten_k'])) {
-                    $athleteRow['pace_10k'] = (string)$paceRow['ten_k'];
-                }
+            $paceRow = pace_row_from_settings($settings, $paceTable);
+            if (!empty($paceRow['ten_k'])) {
+                $athleteRow['pace_10k'] = (string)$paceRow['ten_k'];
             }
         }
         unset($athleteRow);
