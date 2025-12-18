@@ -64,7 +64,7 @@
             <?php foreach ($goalsList as $goalItem): ?>
                 <?php
                     $goalData = is_array($goalItem) ? $goalItem : ['description' => (string)$goalItem];
-                    render_partial('cards/goal', ['goal' => $goalData, 'goalOptions' => ['variant' => 'chip']]);
+                    render_partial('cards/goal', ['goal' => $goalData, 'goalOptions' => []]);
                 ?>
             <?php endforeach; ?>
         <?php endif; ?>

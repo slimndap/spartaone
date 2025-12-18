@@ -11,7 +11,6 @@ if ($description === '') {
     return;
 }
 
-$variant = $goalOptions['variant'] ?? 'card';
 $allowPast = (bool)($goalOptions['allowPast'] ?? false);
 $actionsHtml = (string)($goalOptions['actionsHtml'] ?? '');
 $extraClass = trim((string)($goalOptions['class'] ?? ''));
@@ -61,21 +60,6 @@ if ($statusLabel === null) {
     $statusLabel = $computedStatus;
 }
 
-if ($variant === 'chip') {
-    ?>
-    <span class="badge goal-chip d-inline-flex align-items-center gap-2">
-        <i class="bi bi-bullseye"></i>
-        <span><?php echo htmlspecialchars($description, ENT_QUOTES, 'UTF-8'); ?></span>
-        <?php if ($isValidDate): ?>
-            <span class="text-secondary small"><?php echo htmlspecialchars($dateLabel, ENT_QUOTES, 'UTF-8'); ?></span>
-        <?php endif; ?>
-        <?php if ($statusLabel && !$isValidDate): ?>
-            <span class="text-secondary small"><?php echo htmlspecialchars($statusLabel, ENT_QUOTES, 'UTF-8'); ?></span>
-        <?php endif; ?>
-    </span>
-    <?php
-    return;
-}
 ?>
 <div class="glass-card card shadow-lg mb-3 <?php echo htmlspecialchars($extraClass, ENT_QUOTES, 'UTF-8'); ?>">
     <div class="card-body goal-card__body">
