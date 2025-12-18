@@ -2,6 +2,13 @@
 
 require_once __DIR__ . '/bootstrap.php';
 
+/**
+ * Dispatch incoming action to the appropriate route handler.
+ *
+ * @param string $action Query param action name, defaults to home when empty.
+ * @param array<string,mixed> $state Hydrated request/session state.
+ * @param array<string,string> $config App configuration values.
+ */
 function sparta_handle_request(string $action, array $state, array $config): void
 {
     $action = $action ?: 'home';
@@ -13,10 +20,17 @@ function sparta_handle_request(string $action, array $state, array $config): voi
         'tempos' => 'sparta_handle_tempos',
         'home' => 'sparta_handle_home',
     ];
-    $handler = $handlers[$action] ?? $handlers['home'];
+    $handler = $handlers[$action] ?? $handlers['home']; // Fallback to home for unknown actions.
     $handler($state, $config, $action);
 }
 
+/**
+ * Gate protected routes behind a login check.
+ *
+ * @param array<string,mixed> $state
+ * @param string $message Message to show when redirecting to home.
+ * @return bool True if access allowed.
+ */
 function sparta_require_login(array $state, string $message): bool
 {
     if (empty($state['currentAthleteId'])) {
@@ -38,7 +52,7 @@ function sparta_load_settings_for_athlete(array $state, ?string $settingsDir): a
 function sparta_handle_home(array $state, array $config, string $action): void
 {
     $state['currentAction'] = $action;
-    $state['upcomingGoals'] = [];
+    $state['upcomingGoals'] = []; // Defaults to empty when no goals exist.
     if (!empty($state['athlete']['goals']) && is_array($state['athlete']['goals'])) {
         $state['upcomingGoals'] = sparta_next_goals($state['athlete']['goals'], 3);
     }
@@ -110,6 +124,7 @@ function sparta_handle_training(array $state, array $config, string $action): vo
     $trainingsDir = $config['trainingsDir'];
     $settingsDir = $config['settingsDir'];
 
+    // Public ICS feed does not require login.
     if (isset($_GET['format']) && $_GET['format'] === 'ics') {
         $icsSettings = $state['athleteSettings'] ?? [];
         $tempoPacesIcs = resolve_tempo_paces($icsSettings, $_GET['athlete'] ?? null, $settingsDir, false);
