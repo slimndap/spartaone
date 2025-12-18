@@ -1,0 +1,54 @@
+<?php require_once __DIR__ . '/../includes/training-render.php'; ?>
+<div class="home-hero glass-card card shadow-lg">
+    <div class="card-body">
+        <?php if (!$tokens): ?>
+            <p class="home-login-text mb-3">Log in met Strava om het actuele trainingschema van SpartaOne te bekijken.</p>
+            <a href="<?php echo htmlspecialchars($loginUrl, ENT_QUOTES, 'UTF-8'); ?>" class="d-inline-block">
+                <img src="assets/img/strava/btn_strava_connect_with_orange_x2.svg" alt="Connect with Strava" class="home-strava-img">
+            </a>
+        <?php else: ?>
+            <?php
+            $entry = (!empty($nextTraining['entries']) && is_array($nextTraining['entries'])) ? $nextTraining['entries'][0] : null;
+            $firstNameOnly = '';
+            if (!empty($athlete['firstname'])) {
+                $firstNameOnly = (string)$athlete['firstname'];
+            } elseif (!empty($currentAthleteName)) {
+                $parts = preg_split('/\s+/', trim($currentAthleteName));
+                $firstNameOnly = $parts[0] ?? $currentAthleteName;
+            }
+            ?>
+            <div class="home-header d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+                <div>
+                    <div class="home-kicker text-uppercase">Welkom</div>
+                    <h1 class="h4 mb-0 home-title"><?php echo htmlspecialchars($firstNameOnly, ENT_QUOTES, 'UTF-8'); ?></h1>
+                </div>
+            </div>
+            <?php if ($athleteError): ?>
+                <div class="alert alert-danger mb-3"><?php echo $athleteError; ?></div>
+            <?php endif; ?>
+            <?php if (!empty($nextTraining) && $entry): ?>
+                <div class="home-next">
+                    <?php sparta_render_training_day($nextTraining); ?>
+                </div>
+            <?php else: ?>
+                <p class="text-muted">Geen komende training gevonden.</p>
+            <?php endif; ?>
+        <?php endif; ?>
+    </div>
+</div>
+<?php if (!empty($upcomingGoals)): ?>
+    <div class="mt-4">
+        <?php foreach ($upcomingGoals as $goal): ?>
+            <?php sparta_render_goal($goal); ?>
+        <?php endforeach; ?>
+    </div>
+<?php elseif ( $tokens ): ?>
+    <div class="glass-card card shadow-lg mt-3">
+        <div class="card-body">
+            <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-2">
+                <p class="mb-0 text-muted">Stel je eerste doel in.</p>
+                <a href="?action=goals" class="btn btn-primary">Naar doelen</a>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
