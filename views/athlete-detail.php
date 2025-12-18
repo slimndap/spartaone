@@ -1,4 +1,4 @@
-<div class="card glass-card shadow-lg border-0">
+<div class="glass-card card shadow-lg mb-3">
     <div class="card-body">
         <?php if (empty($athleteId)): ?>
             <div class="alert alert-warning mb-0">No athlete selected. Provide an ID via <code>?action=athlete&id=123</code>.</div>
@@ -42,23 +42,15 @@
 </div>
 
 <?php if (!empty($athlete)): ?>
-    <div class="card glass-card shadow-sm border-0 mt-3">
-        <div class="card-body">
-            <div class="section-label mb-1">10K tempo</div>
-            <?php if (!empty($athlete['pace_10k'])): ?>
-                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-                    <div class="d-flex align-items-center gap-2">
-                        <i class="bi bi-speedometer2 text-brand-accent fs-4"></i>
-                        <div>
-                            <div class="fw-semibold text-light"><?php echo htmlspecialchars($athlete['pace_10k'], ENT_QUOTES, 'UTF-8'); ?> min/km</div>
-                        </div>
-                    </div>
-                </div>
-            <?php else: ?>
-                <div class="text-secondary small">Geen 10K tempo opgeslagen voor deze sporter.</div>
-            <?php endif; ?>
-        </div>
-    </div>
+    <?php
+        if (!empty($pace10k)) {
+            $paceData = [
+                'title' => '10K tempo',
+                'value' => $pace10k,
+            ];
+            render_partial('cards/pace', ['pace' => $paceData]);
+        }
+    ?>
     <div class="mt-3">
         <?php if ($goalsList): ?>
             <?php foreach ($goalsList as $goalItem): ?>

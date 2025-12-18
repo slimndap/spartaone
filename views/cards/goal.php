@@ -32,16 +32,8 @@ $dateLabel = 'Geen datum';
 $daysLabel = 'N.t.b.';
 $daysLeft = null;
 if ($isValidDate) {
-    $weekdayMap = [
-        'Mon' => 'Ma',
-        'Tue' => 'Di',
-        'Wed' => 'Wo',
-        'Thu' => 'Do',
-        'Fri' => 'Vr',
-        'Sat' => 'Za',
-        'Sun' => 'Zo',
-    ];
-    $dateLabel = str_replace(array_keys($weekdayMap), array_values($weekdayMap), $dateObj->format('D d-m-Y'));
+
+    $dateLabel = $dateObj->format('d-m-Y');
     $daysLeft = (int)$today->diff($dateObj)->format('%r%a');
     if ($daysLeft === 0) {
         $daysLabel = 'Vandaag';
@@ -80,19 +72,10 @@ if ($daysLeft !== null) {
         <div class="d-flex flex-wrap align-items-center gap-3">
 
             <div class="flex-grow-1 min-w-0">
-                <div class="section-label mb-1">Doel</div>
+                <?php if ($isValidDate): ?>
+                    <div class="section-label mb-1">Doel voor <?php echo htmlspecialchars($dateLabel, ENT_QUOTES, 'UTF-8'); ?></div>
+                <?php endif ?>
                 <div class="h5 mb-1 text-light text-truncate"><?php echo htmlspecialchars($description, ENT_QUOTES, 'UTF-8'); ?></div>
-                <div class="goal-meta d-flex align-items-center gap-3 flex-wrap text-secondary small">
-                    <?php if ($isValidDate): ?>
-                        <span class="d-inline-flex align-items-center gap-2">
-                            <i class="bi bi-calendar-event text-brand-accent"></i>
-                            <span><?php echo htmlspecialchars($dateLabel, ENT_QUOTES, 'UTF-8'); ?></span>
-                        </span>
-                    <?php endif; ?>
-                    <?php if ($statusLabel): ?>
-                        <span class="badge rounded-pill text-bg-warning text-dark"><?php echo htmlspecialchars($statusLabel, ENT_QUOTES, 'UTF-8'); ?></span>
-                    <?php endif; ?>
-                </div>
             </div>
             <?php if ($actionsHtml): ?>
                 <div class="d-flex align-items-center gap-2 ms-auto">
