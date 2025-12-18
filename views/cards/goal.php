@@ -77,16 +77,8 @@ if ($daysLeft !== null) {
 ?>
 <div class="glass-card card shadow-lg mb-3 <?php echo htmlspecialchars($extraClass, ENT_QUOTES, 'UTF-8'); ?>">
     <div class="card-body goal-card__body">
-        <div class="d-flex flex-wrap align-items-center gap-3 mb-2">
-            <div class="goal-progress w-100">
-                <div class="goal-progress__bar">
-                    <div class="goal-progress__fill" style="width: <?php echo (float)$progressPercent; ?>%;"></div>
-                </div>
-                <div class="goal-progress__label text-uppercase small">
-                    <span class="text-secondary">Nog</span>
-                    <span class="fw-semibold text-light"><?php echo htmlspecialchars($daysLabel, ENT_QUOTES, 'UTF-8'); ?></span>
-                </div>
-            </div>
+        <div class="d-flex flex-wrap align-items-center gap-3">
+
             <div class="flex-grow-1 min-w-0">
                 <div class="section-label mb-1">Doel</div>
                 <div class="h5 mb-1 text-light text-truncate"><?php echo htmlspecialchars($description, ENT_QUOTES, 'UTF-8'); ?></div>
@@ -107,6 +99,15 @@ if ($daysLeft !== null) {
                     <?php echo $actionsHtml; ?>
                 </div>
             <?php endif; ?>
+            <div class="goal-progress w-100">
+                <div class="goal-progress__bar">
+                    <div class="goal-progress__fill" style="width: <?php echo (float)$progressPercent; ?>%;"></div>
+                </div>
+                <div class="goal-progress__label text-uppercase small">
+                    <span class="text-secondary">Nog</span>
+                    <span class="fw-semibold text-light"><?php echo htmlspecialchars($daysLabel, ENT_QUOTES, 'UTF-8'); ?></span>
+                </div>
+            </div>
         </div>
     </div>
 </div>
