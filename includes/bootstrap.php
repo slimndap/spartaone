@@ -15,6 +15,15 @@ require_once __DIR__ . '/strava.php';
  */
 function sparta_bootstrap(): array
 {
+    $sessionLifetime = 60 * 60 * 24 * 30; // 30 days
+    ini_set('session.gc_maxlifetime', (string)$sessionLifetime);
+    session_set_cookie_params([
+        'lifetime' => $sessionLifetime,
+        'path' => '/',
+        'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
     session_start(); // Ensure session is ready before buildStravaState reads/writes.
 
     $envFile = __DIR__ . '/../.env';
