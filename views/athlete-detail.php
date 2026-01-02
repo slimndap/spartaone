@@ -64,6 +64,9 @@
                             if (isset($activity['distance']) && is_numeric($activity['distance'])) {
                                 $distanceKm = (float)$activity['distance'] / 1000;
                             }
+                            $laps = (isset($activity['laps']) && is_array($activity['laps'])) ? $activity['laps'] : [];
+                            $lapCount = count($laps);
+                            $lapLimit = 5;
                             $dateLabel = '';
                             $dateRaw = $activity['start_date_local'] ?? $activity['start_date'] ?? '';
                             if ($dateRaw) {
@@ -92,6 +95,39 @@
                                         · <?php echo htmlspecialchars(number_format($distanceKm, 1, '.', ''), ENT_QUOTES, 'UTF-8'); ?> km
                                     <?php endif; ?>
                                 </div>
+                                <?php if ($lapCount > 0): ?>
+                                    <div class="text-secondary small mt-2">
+                                        <?php foreach (array_slice($laps, 0, $lapLimit) as $lapIndex => $lap): ?>
+                                            <?php
+                                                $lapName = trim((string)($lap['name'] ?? ''));
+                                                $lapDistance = null;
+                                                if (isset($lap['distance']) && is_numeric($lap['distance'])) {
+                                                    $lapDistance = (float)$lap['distance'] / 1000;
+                                                }
+                                                $lapSeconds = null;
+                                                if (isset($lap['elapsed_time']) && is_numeric($lap['elapsed_time'])) {
+                                                    $lapSeconds = (int)$lap['elapsed_time'];
+                                                } elseif (isset($lap['moving_time']) && is_numeric($lap['moving_time'])) {
+                                                    $lapSeconds = (int)$lap['moving_time'];
+                                                }
+                                                $lapLabel = $lapName !== '' ? $lapName : 'Lap ' . ($lapIndex + 1);
+                                                $lapDuration = sparta_format_duration($lapSeconds);
+                                            ?>
+                                            <div>
+                                                <?php echo htmlspecialchars($lapLabel, ENT_QUOTES, 'UTF-8'); ?>
+                                                <?php if ($lapDistance !== null): ?>
+                                                    · <?php echo htmlspecialchars(number_format($lapDistance, 1, '.', ''), ENT_QUOTES, 'UTF-8'); ?> km
+                                                <?php endif; ?>
+                                                <?php if ($lapDuration !== ''): ?>
+                                                    · <?php echo htmlspecialchars($lapDuration, ENT_QUOTES, 'UTF-8'); ?>
+                                                <?php endif; ?>
+                                            </div>
+                                        <?php endforeach; ?>
+                                        <?php if ($lapCount > $lapLimit): ?>
+                                            <div>+<?php echo htmlspecialchars((string)($lapCount - $lapLimit), ENT_QUOTES, 'UTF-8'); ?> meer</div>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                             <?php if ($dateLabel): ?>
                                 <div class="text-secondary small"><?php echo htmlspecialchars($dateLabel, ENT_QUOTES, 'UTF-8'); ?></div>

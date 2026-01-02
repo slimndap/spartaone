@@ -77,6 +77,65 @@ function fetchActivities(string $accessToken, int $perPage = 5): array
 }
 
 /**
+ * Fetch laps for a specific activity.
+ *
+ * @param string $accessToken Short-lived access token from Strava.
+ * @param int|string $activityId Activity ID to fetch laps for.
+ * @return array<string, mixed> Array with 'laps' on success or 'error' on failure.
+ */
+function fetchActivityLaps(string $accessToken, $activityId): array
+{
+    if ($activityId === '' || $activityId === null) {
+        return ['error' => 'Missing activity id.'];
+    }
+    $url = 'https://www.strava.com/api/v3/activities/' . rawurlencode((string)$activityId) . '/laps';
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HTTPHEADER => [
+            'Authorization: Bearer ' . $accessToken,
+        ],
+        CURLOPT_TIMEOUT => 15,
+    ]);
+    $body = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlErr = curl_error($ch);
+    curl_close($ch);
+
+    if ($curlErr) {
+        return ['error' => 'Fetching laps failed: ' . $curlErr];
+    }
+    if ($httpCode >= 400) {
+        return ['error' => 'Fetching laps failed with status ' . $httpCode . ': ' . $body];
+    }
+
+    $decoded = json_decode($body, true);
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        return ['error' => 'Could not decode laps response.'];
+    }
+
+    return ['laps' => $decoded];
+}
+
+/**
+ * Format a duration in seconds as H:MM:SS or M:SS.
+ */
+function sparta_format_duration(?int $seconds): string
+{
+    if ($seconds === null) {
+        return '';
+    }
+    $seconds = max(0, (int)$seconds);
+    $hours = intdiv($seconds, 3600);
+    $minutes = intdiv($seconds % 3600, 60);
+    $secs = $seconds % 60;
+    if ($hours > 0) {
+        return sprintf('%d:%02d:%02d', $hours, $minutes, $secs);
+    }
+    return sprintf('%d:%02d', $minutes, $secs);
+}
+
+/**
  * Fetch the authenticated athlete profile.
  *
  * @param string $accessToken Short-lived access token from Strava.
@@ -611,6 +670,23 @@ function buildStravaState(array $query, array $post, array &$session, array $con
         $activitiesResult = fetchActivities($tokens['access_token']);
         if (isset($activitiesResult['activities'])) {
             $activities = $activitiesResult['activities'];
+            if ($activities) {
+                $lapsFetched = 0;
+                foreach ($activities as $idx => $activity) {
+                    if ($lapsFetched >= 5) {
+                        break;
+                    }
+                    $activityId = $activity['id'] ?? null;
+                    if (!$activityId) {
+                        continue;
+                    }
+                    $lapsResult = fetchActivityLaps($tokens['access_token'], $activityId);
+                    if (isset($lapsResult['laps'])) {
+                        $activities[$idx]['laps'] = $lapsResult['laps'];
+                    }
+                    $lapsFetched++;
+                }
+            }
             $activitiesUpdatedAt = date('c');
             if ($activitiesDir && !empty($athlete['id'])) {
                 sparta_save_athlete_activities($activitiesDir, $athlete['id'], $activities);
