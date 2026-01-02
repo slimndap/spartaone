@@ -77,8 +77,8 @@
                                 }
                             }
                         ?>
-                        <div class="list-group-item bg-transparent text-light border-0 px-0 py-2 d-flex align-items-center justify-content-between gap-3">
-                            <div>
+                        <div class="list-group-item bg-transparent text-light border-0 px-0 py-2">
+                            <div class="d-flex align-items-start justify-content-between gap-3">
                                 <div class="fw-semibold">
                                     <?php if (!empty($activity['id'])): ?>
                                         <a class="text-decoration-none text-light" target="_blank" rel="noopener noreferrer" href="https://www.strava.com/activities/<?php echo urlencode((string)$activity['id']); ?>">
@@ -88,57 +88,88 @@
                                         <?php echo htmlspecialchars($activityName ?: 'Activiteit', ENT_QUOTES, 'UTF-8'); ?>
                                     <?php endif; ?>
                                 </div>
-                                <div class="text-secondary small">
-                                    <?php echo htmlspecialchars($activityType ?: 'Onbekend', ENT_QUOTES, 'UTF-8'); ?>
-                                    <?php if ($distanceKm !== null): ?>
-                                        · <?php echo htmlspecialchars(number_format($distanceKm, 1, '.', ''), ENT_QUOTES, 'UTF-8'); ?> km
-                                    <?php endif; ?>
-                                </div>
-                                <?php if ($lapCount > 0): ?>
-                                    <div class="text-secondary small mt-2">
-                                        <?php foreach ($laps as $lapIndex => $lap): ?>
-                                            <?php
-                                                $lapName = trim((string)($lap['name'] ?? ''));
-                                                $lapDistance = null;
-                                                if (isset($lap['distance']) && is_numeric($lap['distance'])) {
-                                                    $lapDistance = (float)$lap['distance'] / 1000;
-                                                }
-                                                $lapSeconds = null;
-                                                if (isset($lap['elapsed_time']) && is_numeric($lap['elapsed_time'])) {
-                                                    $lapSeconds = (int)$lap['elapsed_time'];
-                                                } elseif (isset($lap['moving_time']) && is_numeric($lap['moving_time'])) {
-                                                    $lapSeconds = (int)$lap['moving_time'];
-                                                }
-                                                $lapPaceSeconds = null;
-                                                if ($lapSeconds !== null && $lapDistance !== null && $lapDistance > 0) {
-                                                    $lapPaceSeconds = (int)round($lapSeconds / $lapDistance);
-                                                }
-                                                $lapPace = $lapPaceSeconds !== null ? format_pace_seconds($lapPaceSeconds) : '';
-                                                $tempoZone = sparta_find_tempo_zone($tempoPaces ?? [], $lapPaceSeconds);
-                                                $lapLabel = $lapName !== '' ? $lapName : 'Lap ' . ($lapIndex + 1);
-                                                $lapDuration = sparta_format_duration($lapSeconds);
-                                            ?>
-                                            <div>
-                                                <?php echo htmlspecialchars($lapLabel, ENT_QUOTES, 'UTF-8'); ?>
-                                                <?php if ($lapDistance !== null): ?>
-                                                    · <?php echo htmlspecialchars(number_format($lapDistance, 1, '.', ''), ENT_QUOTES, 'UTF-8'); ?> km
-                                                <?php endif; ?>
-                                                <?php if ($lapDuration !== ''): ?>
-                                                    · <?php echo htmlspecialchars($lapDuration, ENT_QUOTES, 'UTF-8'); ?>
-                                                <?php endif; ?>
-                                                <?php if ($lapPace !== ''): ?>
-                                                    · <?php echo htmlspecialchars($lapPace, ENT_QUOTES, 'UTF-8'); ?>/km
-                                                <?php endif; ?>
-                                                <?php if ($tempoZone): ?>
-                                                    · <?php echo htmlspecialchars($tempoZone, ENT_QUOTES, 'UTF-8'); ?>
-                                                <?php endif; ?>
-                                            </div>
-                                        <?php endforeach; ?>
-                                    </div>
+                                <?php if ($dateLabel): ?>
+                                    <div class="text-secondary small"><?php echo htmlspecialchars($dateLabel, ENT_QUOTES, 'UTF-8'); ?></div>
                                 <?php endif; ?>
                             </div>
-                            <?php if ($dateLabel): ?>
-                                <div class="text-secondary small"><?php echo htmlspecialchars($dateLabel, ENT_QUOTES, 'UTF-8'); ?></div>
+                            <div class="text-secondary small">
+                                <?php echo htmlspecialchars($activityType ?: 'Onbekend', ENT_QUOTES, 'UTF-8'); ?>
+                                <?php if ($distanceKm !== null): ?>
+                                    · <?php echo htmlspecialchars(number_format($distanceKm, 1, '.', ''), ENT_QUOTES, 'UTF-8'); ?> km
+                                <?php endif; ?>
+                            </div>
+                            <?php if ($lapCount > 0): ?>
+                                    <?php
+                                        $bars = [];
+                                        $maxDistance = 0.0;
+                                        $maxSpeed = 0.0;
+                                        $opacityMap = [
+                                            '3K' => 1.0,
+                                            '5K' => 0.9,
+                                            '10K' => 0.8,
+                                            'Half Marathon' => 0.7,
+                                            'Marathon' => 0.6,
+                                            'Aeroob' => 0.4,
+                                            'Aerobe' => 0.4,
+                                            'Recovery' => 0.4,
+                                        ];
+                                        foreach ($laps as $lapIndex => $lap) {
+                                            $lapName = trim((string)($lap['name'] ?? ''));
+                                            $lapDistance = null;
+                                            if (isset($lap['distance']) && is_numeric($lap['distance'])) {
+                                                $lapDistance = (float)$lap['distance'] / 1000;
+                                            }
+                                            $lapSeconds = null;
+                                            if (isset($lap['elapsed_time']) && is_numeric($lap['elapsed_time'])) {
+                                                $lapSeconds = (int)$lap['elapsed_time'];
+                                            } elseif (isset($lap['moving_time']) && is_numeric($lap['moving_time'])) {
+                                                $lapSeconds = (int)$lap['moving_time'];
+                                            }
+                                            if ($lapDistance === null || $lapSeconds === null || $lapDistance <= 0 || $lapSeconds <= 0) {
+                                                continue;
+                                            }
+                                            $lapSpeed = ($lapDistance * 3600) / $lapSeconds;
+                                            $lapPaceSeconds = (int)round($lapSeconds / $lapDistance);
+                                            $tempoZone = sparta_find_tempo_zone($tempoPaces ?? [], $lapPaceSeconds);
+                                            $lapLabel = $lapName !== '' ? $lapName : 'Lap ' . ($lapIndex + 1);
+                                            $bars[] = [
+                                                'label' => $lapLabel,
+                                                'distance' => $lapDistance,
+                                                'speed' => $lapSpeed,
+                                                'pace' => format_pace_seconds($lapPaceSeconds),
+                                                'duration' => sparta_format_duration($lapSeconds),
+                                                'zone' => $tempoZone,
+                                                'opacity' => $tempoZone && isset($opacityMap[$tempoZone]) ? $opacityMap[$tempoZone] : 0.7,
+                                            ];
+                                            $maxDistance = max($maxDistance, $lapDistance);
+                                            $maxSpeed = max($maxSpeed, $lapSpeed);
+                                        }
+                                    ?>
+                                    <?php if ($bars): ?>
+                                        <div class="mt-2 w-100">
+                                            <div class="d-flex align-items-end gap-1 w-100" style="height: 120px;">
+                                                <?php foreach ($bars as $bar): ?>
+                                                    <?php
+                                                        $flexGrow = $bar['distance'] / max(0.001, $maxDistance);
+                                                        $heightPercent = $maxSpeed > 0 ? ($bar['speed'] / $maxSpeed) * 100 : 0;
+                                                        $titleParts = [
+                                                            $bar['label'],
+                                                            $bar['distance'] ? number_format($bar['distance'], 2, '.', '') . ' km' : null,
+                                                            $bar['duration'] ?: null,
+                                                            $bar['pace'] ? $bar['pace'] . '/km' : null,
+                                                            $bar['zone'] ?: null,
+                                                        ];
+                                                        $title = implode(' · ', array_filter($titleParts));
+                                                    ?>
+                                                    <div
+                                                        class="rounded-2"
+                                                        title="<?php echo htmlspecialchars($title, ENT_QUOTES, 'UTF-8'); ?>"
+                                                        style="flex: <?php echo htmlspecialchars((string)$flexGrow, ENT_QUOTES, 'UTF-8'); ?> 1 6px; height: <?php echo htmlspecialchars((string)$heightPercent, ENT_QUOTES, 'UTF-8'); ?>%; background: var(--brand-accent); opacity: <?php echo htmlspecialchars((string)$bar['opacity'], ENT_QUOTES, 'UTF-8'); ?>;">
+                                                    </div>
+                                                <?php endforeach; ?>
+                                            </div>
+                                        </div>
+                                    <?php endif; ?>
                             <?php endif; ?>
                         </div>
                     <?php endforeach; ?>
