@@ -66,7 +66,6 @@
                             }
                             $laps = (isset($activity['laps']) && is_array($activity['laps'])) ? $activity['laps'] : [];
                             $lapCount = count($laps);
-                            $lapLimit = 5;
                             $dateLabel = '';
                             $dateRaw = $activity['start_date_local'] ?? $activity['start_date'] ?? '';
                             if ($dateRaw) {
@@ -97,7 +96,7 @@
                                 </div>
                                 <?php if ($lapCount > 0): ?>
                                     <div class="text-secondary small mt-2">
-                                        <?php foreach (array_slice($laps, 0, $lapLimit) as $lapIndex => $lap): ?>
+                                        <?php foreach ($laps as $lapIndex => $lap): ?>
                                             <?php
                                                 $lapName = trim((string)($lap['name'] ?? ''));
                                                 $lapDistance = null;
@@ -110,6 +109,12 @@
                                                 } elseif (isset($lap['moving_time']) && is_numeric($lap['moving_time'])) {
                                                     $lapSeconds = (int)$lap['moving_time'];
                                                 }
+                                                $lapPaceSeconds = null;
+                                                if ($lapSeconds !== null && $lapDistance !== null && $lapDistance > 0) {
+                                                    $lapPaceSeconds = (int)round($lapSeconds / $lapDistance);
+                                                }
+                                                $lapPace = $lapPaceSeconds !== null ? format_pace_seconds($lapPaceSeconds) : '';
+                                                $tempoZone = sparta_find_tempo_zone($tempoPaces ?? [], $lapPaceSeconds);
                                                 $lapLabel = $lapName !== '' ? $lapName : 'Lap ' . ($lapIndex + 1);
                                                 $lapDuration = sparta_format_duration($lapSeconds);
                                             ?>
@@ -121,11 +126,14 @@
                                                 <?php if ($lapDuration !== ''): ?>
                                                     · <?php echo htmlspecialchars($lapDuration, ENT_QUOTES, 'UTF-8'); ?>
                                                 <?php endif; ?>
+                                                <?php if ($lapPace !== ''): ?>
+                                                    · <?php echo htmlspecialchars($lapPace, ENT_QUOTES, 'UTF-8'); ?>/km
+                                                <?php endif; ?>
+                                                <?php if ($tempoZone): ?>
+                                                    · <?php echo htmlspecialchars($tempoZone, ENT_QUOTES, 'UTF-8'); ?>
+                                                <?php endif; ?>
                                             </div>
                                         <?php endforeach; ?>
-                                        <?php if ($lapCount > $lapLimit): ?>
-                                            <div>+<?php echo htmlspecialchars((string)($lapCount - $lapLimit), ENT_QUOTES, 'UTF-8'); ?> meer</div>
-                                        <?php endif; ?>
                                     </div>
                                 <?php endif; ?>
                             </div>

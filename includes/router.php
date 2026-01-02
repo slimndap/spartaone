@@ -86,6 +86,7 @@ function sparta_handle_athlete_detail(array $state, array $config, string $actio
     $activities = [];
     $activitiesUpdatedAt = null;
     $activitiesDir = $config['activitiesDir'] ?? null;
+    $tempoPaces = [];
     if ($athleteId && !empty($state['athletes'])) {
         foreach ($state['athletes'] as $item) {
             if ((string)($item['id'] ?? '') === (string)$athleteId) {
@@ -99,6 +100,7 @@ function sparta_handle_athlete_detail(array $state, array $config, string $actio
         if ($isCurrent && !empty($state['activities']) && is_array($state['activities'])) {
             $activities = $state['activities'];
             $activitiesUpdatedAt = $state['activitiesUpdatedAt'] ?? null;
+            $tempoPaces = $state['tempoPaces'] ?? [];
         } elseif ($activitiesDir) {
             $cached = sparta_load_athlete_activities($activitiesDir, $athleteId);
             $activities = $cached['activities'] ?? [];
@@ -110,6 +112,7 @@ function sparta_handle_athlete_detail(array $state, array $config, string $actio
         'athlete' => $athleteDetail,
         'activities' => $activities,
         'activitiesUpdatedAt' => $activitiesUpdatedAt,
+        'tempoPaces' => $tempoPaces,
         'currentAthleteName' => $state['currentAthleteName'] ?? null,
         'currentAthleteId' => $state['currentAthleteId'] ?? null,
         'currentAthletePhoto' => $state['currentAthletePhoto'] ?? null,

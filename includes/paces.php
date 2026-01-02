@@ -167,6 +167,67 @@ function format_pace_seconds(int $seconds): string
 }
 
 /**
+ * Parse a pace range like "4:00" or "3:40-3:44" into seconds.
+ *
+ * @return array{min:int,max:int}|null
+ */
+function parse_pace_range_to_seconds(string $range): ?array
+{
+    $range = trim($range);
+    if ($range === '') {
+        return null;
+    }
+    $parts = explode('-', $range);
+    if (count($parts) === 1) {
+        $single = parse_pace_to_seconds($parts[0]);
+        if ($single === null) {
+            return null;
+        }
+        return ['min' => $single, 'max' => $single];
+    }
+    if (count($parts) !== 2) {
+        return null;
+    }
+    $first = parse_pace_to_seconds($parts[0]);
+    $second = parse_pace_to_seconds($parts[1]);
+    if ($first === null || $second === null) {
+        return null;
+    }
+    $min = min($first, $second);
+    $max = max($first, $second);
+    return ['min' => $min, 'max' => $max];
+}
+
+/**
+ * Find the closest matching tempo zone label for a pace.
+ */
+function sparta_find_tempo_zone(array $tempoPaces, ?int $paceSeconds): ?string
+{
+    if ($paceSeconds === null || $tempoPaces === []) {
+        return null;
+    }
+    $bestLabel = null;
+    $bestDiff = PHP_INT_MAX;
+    foreach ($tempoPaces as $label => $range) {
+        $bounds = parse_pace_range_to_seconds((string)$range);
+        if (!$bounds) {
+            continue;
+        }
+        if ($paceSeconds >= $bounds['min'] && $paceSeconds <= $bounds['max']) {
+            return (string)$label;
+        }
+        $diff = $paceSeconds < $bounds['min']
+            ? $bounds['min'] - $paceSeconds
+            : $paceSeconds - $bounds['max'];
+        if ($diff < $bestDiff) {
+            $bestDiff = $diff;
+            $bestLabel = (string)$label;
+        }
+    }
+    return $bestLabel;
+}
+
+/**
  * Derive base pace seconds from athlete settings that may store raw seconds or a mm:ss string.
  */
 function compute_base_pace_seconds(array $settings): ?int
