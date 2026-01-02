@@ -83,6 +83,9 @@ function sparta_handle_athlete_detail(array $state, array $config, string $actio
     }
     $athleteId = $_GET['id'] ?? null;
     $athleteDetail = null;
+    $activities = [];
+    $activitiesUpdatedAt = null;
+    $activitiesDir = $config['activitiesDir'] ?? null;
     if ($athleteId && !empty($state['athletes'])) {
         foreach ($state['athletes'] as $item) {
             if ((string)($item['id'] ?? '') === (string)$athleteId) {
@@ -91,9 +94,22 @@ function sparta_handle_athlete_detail(array $state, array $config, string $actio
             }
         }
     }
+    if ($athleteId) {
+        $isCurrent = !empty($state['currentAthleteId']) && (string)$state['currentAthleteId'] === (string)$athleteId;
+        if ($isCurrent && !empty($state['activities']) && is_array($state['activities'])) {
+            $activities = $state['activities'];
+            $activitiesUpdatedAt = $state['activitiesUpdatedAt'] ?? null;
+        } elseif ($activitiesDir) {
+            $cached = sparta_load_athlete_activities($activitiesDir, $athleteId);
+            $activities = $cached['activities'] ?? [];
+            $activitiesUpdatedAt = $cached['updated_at'] ?? null;
+        }
+    }
     render('athlete-detail', [
         'athleteId' => $athleteId,
         'athlete' => $athleteDetail,
+        'activities' => $activities,
+        'activitiesUpdatedAt' => $activitiesUpdatedAt,
         'currentAthleteName' => $state['currentAthleteName'] ?? null,
         'currentAthleteId' => $state['currentAthleteId'] ?? null,
         'currentAthletePhoto' => $state['currentAthletePhoto'] ?? null,

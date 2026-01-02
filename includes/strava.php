@@ -210,6 +210,75 @@ function sparta_store_webhook_event(string $dir, array $event): bool
 }
 
 /**
+ * Save latest activities for an athlete.
+ *
+ * @param string $dir
+ * @param int|string $athleteId
+ * @param array<int,array<string,mixed>> $activities
+ * @return bool
+ */
+function sparta_save_athlete_activities(string $dir, $athleteId, array $activities): bool
+{
+    if (!is_dir($dir)) {
+        if (!mkdir($dir, 0775, true) && !is_dir($dir)) {
+            return false;
+        }
+    }
+    if ($athleteId === '' || $athleteId === null) {
+        return false;
+    }
+    $payload = [
+        'updated_at' => date('c'),
+        'activities' => $activities,
+    ];
+    $json = json_encode($payload, JSON_PRETTY_PRINT);
+    if ($json === false) {
+        return false;
+    }
+    $path = rtrim($dir, '/\\') . '/' . $athleteId . '.json';
+    return file_put_contents($path, $json, LOCK_EX) !== false;
+}
+
+/**
+ * Load cached activities for an athlete.
+ *
+ * @param string $dir
+ * @param int|string $athleteId
+ * @return array{activities: array<int,array<string,mixed>>, updated_at: string|null}
+ */
+function sparta_load_athlete_activities(string $dir, $athleteId): array
+{
+    $empty = ['activities' => [], 'updated_at' => null];
+    if ($athleteId === '' || $athleteId === null) {
+        return $empty;
+    }
+    $path = rtrim($dir, '/\\') . '/' . $athleteId . '.json';
+    if (!is_readable($path)) {
+        return $empty;
+    }
+    $contents = file_get_contents($path);
+    if ($contents === false || $contents === '') {
+        return $empty;
+    }
+    $decoded = json_decode($contents, true);
+    if (!is_array($decoded)) {
+        return $empty;
+    }
+    if (isset($decoded['activities']) && is_array($decoded['activities'])) {
+        return [
+            'activities' => $decoded['activities'],
+            'updated_at' => isset($decoded['updated_at']) ? (string)$decoded['updated_at'] : null,
+        ];
+    }
+    $keys = array_keys($decoded);
+    $isList = $keys === range(0, count($decoded) - 1);
+    if ($isList) {
+        return ['activities' => $decoded, 'updated_at' => null];
+    }
+    return $empty;
+}
+
+/**
  * Handle Strava webhook validation and event delivery.
  *
  * @param array<string,mixed> $state
@@ -467,6 +536,7 @@ function buildStravaState(array $query, array $post, array &$session, array $con
     $goalsDir = $config['goalsDir'] ?? null;
     $trainingsDir = $config['trainingsDir'] ?? null;
     $settingsDir = $config['settingsDir'] ?? null;
+    $activitiesDir = $config['activitiesDir'] ?? null;
 
     $message = null;
     $grantedScope = $query['scope'] ?? null;
@@ -475,6 +545,7 @@ function buildStravaState(array $query, array $post, array &$session, array $con
     $athleteError = null;
     $activities = null;
     $activitiesError = null;
+    $activitiesUpdatedAt = null;
     $storageError = null;
     $goalMessage = null;
     $goalError = null;
@@ -540,6 +611,10 @@ function buildStravaState(array $query, array $post, array &$session, array $con
         $activitiesResult = fetchActivities($tokens['access_token']);
         if (isset($activitiesResult['activities'])) {
             $activities = $activitiesResult['activities'];
+            $activitiesUpdatedAt = date('c');
+            if ($activitiesDir && !empty($athlete['id'])) {
+                sparta_save_athlete_activities($activitiesDir, $athlete['id'], $activities);
+            }
         } elseif (isset($activitiesResult['error'])) {
             $activitiesError = htmlspecialchars($activitiesResult['error'], ENT_QUOTES, 'UTF-8');
         }
@@ -703,6 +778,7 @@ function buildStravaState(array $query, array $post, array &$session, array $con
         'athleteError' => $athleteError,
         'activities' => $activities,
         'activitiesError' => $activitiesError,
+        'activitiesUpdatedAt' => $activitiesUpdatedAt,
         'currentAthleteName' => $currentAthleteName,
         'currentAction' => $action,
         'currentAthleteId' => $athlete['id'] ?? null,

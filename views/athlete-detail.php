@@ -51,6 +51,64 @@
             render_partial('cards/pace', ['pace' => $paceData]);
         }
     ?>
+    <div class="glass-card card shadow-lg mb-3">
+        <div class="card-body">
+            <div class="section-label mb-1">Recente activiteiten</div>
+            <?php if (!empty($activities) && is_array($activities)): ?>
+                <div class="list-group list-group-flush">
+                    <?php foreach ($activities as $activity): ?>
+                        <?php
+                            $activityName = trim((string)($activity['name'] ?? ''));
+                            $activityType = trim((string)($activity['sport_type'] ?? $activity['type'] ?? ''));
+                            $distanceKm = null;
+                            if (isset($activity['distance']) && is_numeric($activity['distance'])) {
+                                $distanceKm = (float)$activity['distance'] / 1000;
+                            }
+                            $dateLabel = '';
+                            $dateRaw = $activity['start_date_local'] ?? $activity['start_date'] ?? '';
+                            if ($dateRaw) {
+                                try {
+                                    $dateObj = new DateTimeImmutable($dateRaw);
+                                    $dateLabel = $dateObj->format('d-m-Y');
+                                } catch (Exception $e) {
+                                    $dateLabel = '';
+                                }
+                            }
+                        ?>
+                        <div class="list-group-item bg-transparent text-light border-0 px-0 py-2 d-flex align-items-center justify-content-between gap-3">
+                            <div>
+                                <div class="fw-semibold">
+                                    <?php if (!empty($activity['id'])): ?>
+                                        <a class="text-decoration-none text-light" target="_blank" rel="noopener noreferrer" href="https://www.strava.com/activities/<?php echo urlencode((string)$activity['id']); ?>">
+                                            <?php echo htmlspecialchars($activityName ?: 'Activiteit', ENT_QUOTES, 'UTF-8'); ?>
+                                        </a>
+                                    <?php else: ?>
+                                        <?php echo htmlspecialchars($activityName ?: 'Activiteit', ENT_QUOTES, 'UTF-8'); ?>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="text-secondary small">
+                                    <?php echo htmlspecialchars($activityType ?: 'Onbekend', ENT_QUOTES, 'UTF-8'); ?>
+                                    <?php if ($distanceKm !== null): ?>
+                                        · <?php echo htmlspecialchars(number_format($distanceKm, 1, '.', ''), ENT_QUOTES, 'UTF-8'); ?> km
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            <?php if ($dateLabel): ?>
+                                <div class="text-secondary small"><?php echo htmlspecialchars($dateLabel, ENT_QUOTES, 'UTF-8'); ?></div>
+                            <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+                <?php if (!empty($activitiesUpdatedAt)): ?>
+                    <div class="text-secondary small mt-2">
+                        Laatste sync: <?php echo htmlspecialchars($activitiesUpdatedAt, ENT_QUOTES, 'UTF-8'); ?>
+                    </div>
+                <?php endif; ?>
+            <?php else: ?>
+                <div class="text-secondary">Nog geen activiteiten gevonden.</div>
+            <?php endif; ?>
+        </div>
+    </div>
     <div class="mt-3">
         <?php if ($goalsList): ?>
             <?php foreach ($goalsList as $goalItem): ?>

@@ -42,6 +42,7 @@ function sparta_bootstrap(): array
         'trainingsDir' => __DIR__ . '/../data/trainings',
         'settingsDir' => __DIR__ . '/../data/settings',
         'webhooksDir' => __DIR__ . '/../data/webhooks',
+        'activitiesDir' => __DIR__ . '/../data/activities',
     ];
 
     // Build auth/state context from Strava helpers and current request.
