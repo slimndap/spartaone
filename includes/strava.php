@@ -168,6 +168,117 @@ function saveAthleteRecord(string $dir, array $athlete): bool
 }
 
 /**
+ * Store a webhook event payload to disk for later processing.
+ *
+ * @param string $dir
+ * @param array<string,mixed> $event
+ * @return bool
+ */
+function sparta_store_webhook_event(string $dir, array $event): bool
+{
+    if (!is_dir($dir)) {
+        if (!mkdir($dir, 0775, true) && !is_dir($dir)) {
+            return false;
+        }
+    }
+
+    $payload = $event['payload'] ?? [];
+    $suffixParts = [];
+    if (is_array($payload)) {
+        if (!empty($payload['object_type'])) {
+            $suffixParts[] = (string)$payload['object_type'];
+        }
+        if (!empty($payload['object_id'])) {
+            $suffixParts[] = (string)$payload['object_id'];
+        }
+    }
+    $suffix = $suffixParts ? implode('_', $suffixParts) : 'event';
+
+    try {
+        $entropy = bin2hex(random_bytes(4));
+    } catch (Exception $e) {
+        $entropy = uniqid('', false);
+    }
+
+    $filename = date('Ymd_His') . '_' . $suffix . '_' . $entropy . '.json';
+    $path = rtrim($dir, '/\\') . '/' . $filename;
+    $json = json_encode($event, JSON_PRETTY_PRINT);
+    if ($json === false) {
+        return false;
+    }
+    return file_put_contents($path, $json, LOCK_EX) !== false;
+}
+
+/**
+ * Handle Strava webhook validation and event delivery.
+ *
+ * @param array<string,mixed> $state
+ * @param array<string,string> $config
+ * @param string $action
+ */
+function sparta_handle_webhook(array $state, array $config, string $action): void
+{
+    $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
+    $verifyToken = $config['webhookVerifyToken'] ?? '';
+
+    if ($method === 'GET') {
+        $challenge = (string)($_GET['hub.challenge'] ?? $_GET['hub_challenge'] ?? '');
+        $token = (string)($_GET['hub.verify_token'] ?? $_GET['hub_verify_token'] ?? '');
+
+        if ($verifyToken === '' || $token === '' || !hash_equals($verifyToken, $token)) {
+            http_response_code(403);
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Invalid verify token']);
+            return;
+        }
+
+        header('Content-Type: application/json');
+        echo json_encode(['hub.challenge' => $challenge]);
+        return;
+    }
+
+    if ($method !== 'POST') {
+        http_response_code(405);
+        header('Content-Type: application/json');
+        echo json_encode(['error' => 'Method not allowed']);
+        return;
+    }
+
+    $raw = file_get_contents('php://input');
+    $payload = [];
+    $error = null;
+
+    if ($raw === false || $raw === '') {
+        $error = 'Empty payload';
+    } else {
+        $decoded = json_decode($raw, true);
+        if (is_array($decoded)) {
+            $payload = $decoded;
+        } else {
+            $error = 'Invalid JSON payload';
+        }
+    }
+
+    $event = [
+        'received_at' => date('c'),
+        'remote_addr' => $_SERVER['REMOTE_ADDR'] ?? '',
+        'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? '',
+        'payload' => $payload,
+        'raw' => $raw === false ? '' : $raw,
+        'error' => $error,
+    ];
+
+    $webhooksDir = $config['webhooksDir'] ?? '';
+    if ($webhooksDir) {
+        sparta_store_webhook_event($webhooksDir, $event);
+    }
+
+    http_response_code(200);
+    header('Content-Type: application/json');
+    echo json_encode(['ok' => true]);
+}
+
+/**
  * Load goal records from per-athlete JSON files.
  *
  * @param string $dir Base directory for goal files.

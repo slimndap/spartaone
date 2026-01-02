@@ -18,6 +18,7 @@ function sparta_handle_request(string $action, array $state, array $config): voi
         'goals' => 'sparta_handle_goals',
         'training' => 'sparta_handle_training',
         'tempos' => 'sparta_handle_tempos',
+        'webhook' => 'sparta_handle_webhook',
         'home' => 'sparta_handle_home',
     ];
     $handler = $handlers[$action] ?? $handlers['home']; // Fallback to home for unknown actions.

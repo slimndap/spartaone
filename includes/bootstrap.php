@@ -33,6 +33,7 @@ function sparta_bootstrap(): array
         'clientId' => sparta_env('STRAVA_CLIENT_ID'),
         'clientSecret' => sparta_env('STRAVA_CLIENT_SECRET'),
         'redirectUri' => sparta_env('STRAVA_REDIRECT_URI'),
+        'webhookVerifyToken' => sparta_env('STRAVA_WEBHOOK_VERIFY_TOKEN'),
         'authBase' => 'https://www.strava.com/oauth/authorize',
         'tokenUrl' => 'https://www.strava.com/api/v3/oauth/token',
         'scope' => 'read,activity:read',
@@ -40,6 +41,7 @@ function sparta_bootstrap(): array
         'goalsDir' => __DIR__ . '/../data/goals',
         'trainingsDir' => __DIR__ . '/../data/trainings',
         'settingsDir' => __DIR__ . '/../data/settings',
+        'webhooksDir' => __DIR__ . '/../data/webhooks',
     ];
 
     // Build auth/state context from Strava helpers and current request.
