@@ -48,6 +48,7 @@ foreach ($entries as $idx => $entry) {
     $distance = $entry['distance'] ?? '';
     $tempos = (!empty($entry['tempos']) && is_array($entry['tempos'])) ? $entry['tempos'] : [];
     $notes = $entry['notes'] ?? '';
+    $isRace = !empty($entry['is_race']);
 
     $location = $entry['location'] ?? null;
     if (!$location && $dateStr) {
@@ -83,6 +84,11 @@ foreach ($entries as $idx => $entry) {
             <div class="home-next-title mb-1"><?php echo htmlspecialchars($title, ENT_QUOTES, 'UTF-8'); ?></div>
         <?php endif; ?>
         <div class="home-meta">
+            <?php if ($isRace): ?>
+                <span class="home-pill">
+                    <i class="bi bi-flag-fill me-1"></i>Wedstrijd
+                </span>
+            <?php endif; ?>
             <?php if ($activity): ?>
                 <span class="home-pill">
                     <i class="bi bi-activity me-1"></i><?php echo htmlspecialchars($activity, ENT_QUOTES, 'UTF-8'); ?>

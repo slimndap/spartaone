@@ -97,6 +97,14 @@ foreach ($sortedDates as $dateKey):
                     <input type="text" name="distance" class="form-control form-control-sm" value="<?php echo htmlspecialchars($entry['distance'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                 </div>
                 <div class="mb-2">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="is_race" value="1" id="is_race_<?php echo htmlspecialchars($dateKey, ENT_QUOTES, 'UTF-8'); ?>_<?php echo (int)$editIdx; ?>" <?php echo !empty($entry['is_race']) ? 'checked' : ''; ?>>
+                        <label class="form-check-label" for="is_race_<?php echo htmlspecialchars($dateKey, ENT_QUOTES, 'UTF-8'); ?>_<?php echo (int)$editIdx; ?>">
+                            Wedstrijd
+                        </label>
+                    </div>
+                </div>
+                <div class="mb-2">
                     <label class="form-label form-label-sm mb-1">Tempos</label>
                     <?php
                     $availableTempos = ['3K', '5K', '10K', 'Half Marathon', 'Marathon', 'Aeroob', 'Recovery'];

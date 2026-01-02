@@ -119,6 +119,11 @@ function parse_training_csv_with_openai(string $csvText): array
             if (!isset($entry['notes']) || $entry['notes'] === null) {
                 $entry['notes'] = '';
             }
+            if (!isset($entry['is_race'])) {
+                $entry['is_race'] = false;
+            } else {
+                $entry['is_race'] = (bool)$entry['is_race'];
+            }
             $entry['tempos'] = $normalizeTempos($entry['tempos'] ?? []);
         }
         unset($entry);
