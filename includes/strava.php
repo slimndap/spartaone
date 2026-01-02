@@ -77,6 +77,26 @@ function fetchActivities(string $accessToken, int $perPage = 5): array
 }
 
 /**
+ * Filter activities to supported sport types.
+ *
+ * @param array<int,array<string,mixed>> $activities
+ * @return array<int,array<string,mixed>>
+ */
+function sparta_filter_activities(array $activities): array
+{
+    $allowed = ['Run', 'TrailRun'];
+    $filtered = [];
+    foreach ($activities as $activity) {
+        $sportType = (string)($activity['sport_type'] ?? $activity['type'] ?? '');
+        if ($sportType === '' || !in_array($sportType, $allowed, true)) {
+            continue;
+        }
+        $filtered[] = $activity;
+    }
+    return $filtered;
+}
+
+/**
  * Fetch laps for a specific activity.
  *
  * @param string $accessToken Short-lived access token from Strava.
@@ -669,7 +689,7 @@ function buildStravaState(array $query, array $post, array &$session, array $con
 
         $activitiesResult = fetchActivities($tokens['access_token']);
         if (isset($activitiesResult['activities'])) {
-            $activities = $activitiesResult['activities'];
+            $activities = sparta_filter_activities($activitiesResult['activities']);
             if ($activities) {
                 $lapsFetched = 0;
                 foreach ($activities as $idx => $activity) {
