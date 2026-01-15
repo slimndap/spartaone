@@ -835,6 +835,13 @@ function buildStravaState(array $query, array $post, array &$session, array $con
         unset($athleteRow);
     }
 
+    if ($trainingsDir && !empty($athlete['id'])) {
+        $trainings = load_trainings($trainingsDir, $athlete['id']);
+        if (!$trainings) {
+            $trainings = load_trainings($trainingsDir);
+        }
+    }
+
     if ($trainings) {
         $today = new DateTimeImmutable('today');
         $upcoming = [];
@@ -886,6 +893,7 @@ function buildStravaState(array $query, array $post, array &$session, array $con
         'goalMessage' => $goalMessage,
         'goalError' => $goalError,
         'nextTraining' => $nextTraining,
+        'trainings' => $trainings,
         'athleteSettings' => $currentSettings,
         'athlete' => $athlete,
     ];

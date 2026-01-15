@@ -55,6 +55,7 @@
         'activities' => $activities,
         'activitiesUpdatedAt' => $activitiesUpdatedAt,
         'tempoPaces' => $tempoPaces,
+        'trainings' => $trainings ?? [],
     ]); ?>
     <div class="mt-3">
         <?php if ($goalsList): ?>

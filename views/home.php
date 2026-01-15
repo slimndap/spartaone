@@ -36,6 +36,7 @@
             'activities' => $activities ?? [],
             'activitiesUpdatedAt' => $activitiesUpdatedAt ?? null,
             'tempoPaces' => $tempoPaces ?? [],
+            'trainings' => $trainings ?? [],
             'activityLimit' => 1,
         ]); ?>
     </div>

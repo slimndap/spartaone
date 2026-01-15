@@ -5,6 +5,19 @@ if ($activityLimit && $activityLimit > 0) {
     $activities = array_slice($activities, 0, $activityLimit);
 }
 $tempoPaces = (isset($tempoPaces) && is_array($tempoPaces)) ? $tempoPaces : [];
+$trainings = (isset($trainings) && is_array($trainings)) ? $trainings : [];
+$trainingsByDate = [];
+foreach ($trainings as $trainingDay) {
+    $dateKey = $trainingDay['date'] ?? null;
+    if (!$dateKey) {
+        continue;
+    }
+    $entries = $trainingDay['entries'] ?? [];
+    if (!is_array($entries) || $entries === []) {
+        continue;
+    }
+    $trainingsByDate[$dateKey] = $entries;
+}
 ?>
 <div class="glass-card card shadow-lg mb-3">
     <div class="card-body">
@@ -24,14 +37,19 @@ $tempoPaces = (isset($tempoPaces) && is_array($tempoPaces)) ? $tempoPaces : [];
                         $lapCount = count($laps);
                         $dateLabel = '';
                         $dateRaw = $activity['start_date_local'] ?? $activity['start_date'] ?? '';
+                        $activityDateKey = null;
                         if ($dateRaw) {
                             try {
                                 $dateObj = new DateTimeImmutable($dateRaw);
                                 $dateLabel = $dateObj->format('d-m-Y');
+                                $activityDateKey = $dateObj->format('Y-m-d');
                             } catch (Exception $e) {
                                 $dateLabel = '';
                             }
                         }
+                        $trainingEntries = $activityDateKey && isset($trainingsByDate[$activityDateKey])
+                            ? $trainingsByDate[$activityDateKey]
+                            : [];
                     ?>
                     <div class="bg-transparent text-light">
                         <div class="d-flex align-items-start justify-content-between gap-3">
@@ -155,6 +173,40 @@ $tempoPaces = (isset($tempoPaces) && is_array($tempoPaces)) ? $tempoPaces : [];
                                 ?>
                                 <div class="mt-2 w-100" style="height: 200px;">
                                     <canvas id="<?php echo htmlspecialchars($chartId, ENT_QUOTES, 'UTF-8'); ?>" aria-label="Tempo zones per lap" role="img"></canvas>
+                                </div>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                        <?php if (!empty($trainingEntries)): ?>
+                            <?php
+                                $plannedParts = [];
+                                foreach ($trainingEntries as $entry) {
+                                    if (!is_array($entry)) {
+                                        continue;
+                                    }
+                                    $entryTitle = trim((string)($entry['title'] ?? ''));
+                                    $entryActivity = trim((string)($entry['activity'] ?? ''));
+                                    $entryDistance = trim((string)($entry['distance'] ?? ''));
+                                    $entryLabel = $entryTitle !== '' ? $entryTitle : ($entryActivity !== '' ? $entryActivity : 'Training');
+                                    $tempoLabels = [];
+                                    if (!empty($entry['tempos']) && is_array($entry['tempos'])) {
+                                        foreach ($entry['tempos'] as $tempoLabel) {
+                                            $label = $tempoLabel === 'Aerobe' ? 'Aeroob' : $tempoLabel;
+                                            $tempoLabels[] = (string)$label;
+                                        }
+                                    }
+                                    $suffixParts = [];
+                                    if ($entryDistance !== '') {
+                                        $suffixParts[] = $entryDistance;
+                                    }
+                                    if ($tempoLabels) {
+                                        $suffixParts[] = implode('/', $tempoLabels);
+                                    }
+                                    $plannedParts[] = $entryLabel . ($suffixParts ? ' · ' . implode(' · ', $suffixParts) : '');
+                                }
+                            ?>
+                            <?php if ($plannedParts): ?>
+                                <div class="text-secondary small mt-2">
+                                    Gepland: <?php echo htmlspecialchars(implode(' | ', $plannedParts), ENT_QUOTES, 'UTF-8'); ?>
                                 </div>
                             <?php endif; ?>
                         <?php endif; ?>
