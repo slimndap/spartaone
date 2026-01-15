@@ -31,12 +31,14 @@
     </div>
 </div>
 <?php if ($tokens): ?>
-    <?php render_partial('cards/recent_activities', [
-        'activities' => $activities ?? [],
-        'activitiesUpdatedAt' => $activitiesUpdatedAt ?? null,
-        'tempoPaces' => $tempoPaces ?? [],
-        'activityLimit' => 1,
-    ]); ?>
+    <div class="mt-3">
+        <?php render_partial('cards/recent_activities', [
+            'activities' => $activities ?? [],
+            'activitiesUpdatedAt' => $activitiesUpdatedAt ?? null,
+            'tempoPaces' => $tempoPaces ?? [],
+            'activityLimit' => 1,
+        ]); ?>
+    </div>
 <?php endif; ?>
 <?php if (!empty($upcomingGoals)): ?>
     <div class="mt-4">
