@@ -86,6 +86,7 @@ function sparta_handle_athlete_detail(array $state, array $config, string $actio
     $activities = [];
     $activitiesUpdatedAt = null;
     $activitiesDir = $config['activitiesDir'] ?? null;
+    $settingsDir = $config['settingsDir'] ?? null;
     $tempoPaces = [];
     if ($athleteId && !empty($state['athletes'])) {
         foreach ($state['athletes'] as $item) {
@@ -105,6 +106,10 @@ function sparta_handle_athlete_detail(array $state, array $config, string $actio
             $cached = sparta_load_athlete_activities($activitiesDir, $athleteId);
             $activities = $cached['activities'] ?? [];
             $activitiesUpdatedAt = $cached['updated_at'] ?? null;
+        }
+        if (!$isCurrent && $settingsDir) {
+            $settings = load_athlete_settings($settingsDir, $athleteId);
+            $tempoPaces = resolve_tempo_paces($settings, $athleteId, $settingsDir, false);
         }
     }
     render('athlete-detail', [
