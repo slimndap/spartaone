@@ -30,6 +30,14 @@
         <?php endif; ?>
     </div>
 </div>
+<?php if ($tokens): ?>
+    <?php render_partial('cards/recent_activities', [
+        'activities' => $activities ?? [],
+        'activitiesUpdatedAt' => $activitiesUpdatedAt ?? null,
+        'tempoPaces' => $tempoPaces ?? [],
+        'activityLimit' => 1,
+    ]); ?>
+<?php endif; ?>
 <?php if (!empty($upcomingGoals)): ?>
     <div class="mt-4">
         <?php foreach ($upcomingGoals as $goal): ?>
