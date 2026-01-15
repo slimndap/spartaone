@@ -45,7 +45,7 @@ function requestTokens(string $tokenUrl, array $payload): array
  * @param int $perPage Number of activities to fetch.
  * @return array<string, mixed> Array with 'activities' on success or 'error' on failure.
  */
-function fetchActivities(string $accessToken, int $perPage = 5): array
+function fetchActivities(string $accessToken, int $perPage = 10): array
 {
     $url = 'https://www.strava.com/api/v3/athlete/activities?per_page=' . $perPage;
     $ch = curl_init($url);
@@ -693,7 +693,7 @@ function buildStravaState(array $query, array $post, array &$session, array $con
             if ($activities) {
                 $lapsFetched = 0;
                 foreach ($activities as $idx => $activity) {
-                    if ($lapsFetched >= 5) {
+                    if ($lapsFetched >= 10) {
                         break;
                     }
                     $activityId = $activity['id'] ?? null;

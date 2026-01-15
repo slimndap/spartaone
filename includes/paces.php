@@ -12,6 +12,7 @@ function get_pace_table(): array
         [
             'label' => '35 min (3:30/km)',
             'base' => 210,
+            'three_k' => '3:20-3:23',
             'five_k' => '3:23-3:26',
             'ten_k' => '3:30',
             'half_marathon' => '3:38-3:42',
@@ -21,6 +22,7 @@ function get_pace_table(): array
         [
             'label' => '38 min (3:48/km)',
             'base' => 228,
+            'three_k' => '3:37-3:41',
             'five_k' => '3:40-3:44',
             'ten_k' => '3:48',
             'half_marathon' => '3:57-4:02',
@@ -30,6 +32,7 @@ function get_pace_table(): array
         [
             'label' => '40 min (4:00/km)',
             'base' => 240,
+            'three_k' => '3:49-3:53',
             'five_k' => '3:52-3:56',
             'ten_k' => '4:00',
             'half_marathon' => '4:10-4:15',
@@ -39,6 +42,7 @@ function get_pace_table(): array
         [
             'label' => '43 min (4:18/km)',
             'base' => 258,
+            'three_k' => '4:02-4:07',
             'five_k' => '4:05-4:10',
             'ten_k' => '4:18',
             'half_marathon' => '4:28-4:35',
@@ -48,6 +52,7 @@ function get_pace_table(): array
         [
             'label' => '46 min (4:36/km)',
             'base' => 276,
+            'three_k' => '4:17-4:22',
             'five_k' => '4:20-4:25',
             'ten_k' => '4:36',
             'half_marathon' => '4:45-4:52',
@@ -57,6 +62,7 @@ function get_pace_table(): array
         [
             'label' => '49 min (4:54/km)',
             'base' => 294,
+            'three_k' => '4:32-4:37',
             'five_k' => '4:35-4:40',
             'ten_k' => '4:54',
             'half_marathon' => '5:05-5:12',
@@ -66,6 +72,7 @@ function get_pace_table(): array
         [
             'label' => '52 min (5:12/km)',
             'base' => 312,
+            'three_k' => '4:52-4:57',
             'five_k' => '4:55-5:00',
             'ten_k' => '5:12',
             'half_marathon' => '5:24-5:32',
@@ -75,6 +82,7 @@ function get_pace_table(): array
         [
             'label' => '55 min (5:30/km)',
             'base' => 330,
+            'three_k' => '5:07-5:12',
             'five_k' => '5:10-5:15',
             'ten_k' => '5:30',
             'half_marathon' => '5:42-5:52',
@@ -118,7 +126,7 @@ function tempo_pace_map(array $paceRow): array
     }
     $aeroob = (string)($paceRow['aerobe'] ?? '');
     return [
-        '3K' => (string)($paceRow['five_k'] ?? ''),
+        '3K' => (string)($paceRow['three_k'] ?? ''),
         '5K' => (string)($paceRow['five_k'] ?? ''),
         '10K' => (string)($paceRow['ten_k'] ?? ''),
         'Half Marathon' => (string)($paceRow['half_marathon'] ?? ''),

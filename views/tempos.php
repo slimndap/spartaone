@@ -30,6 +30,7 @@ if (!empty($selectedPaceRow['label'])) {
 <?php if (!empty($selectedPaceRow) && !empty($basePaceSeconds)): ?>
     <?php
     $paceCards = [
+        ['label' => '3K tempo', 'value' => $selectedPaceRow['three_k'] ?? '', 'value_class' => 'pace-3k'],
         ['label' => '5K tempo', 'value' => $selectedPaceRow['five_k'] ?? '', 'value_class' => 'pace-5k'],
         ['label' => '10K tempo', 'value' => $selectedPaceRow['ten_k'] ?? '', 'value_class' => 'pace-10k'],
         ['label' => 'Halve marathon tempo', 'value' => $selectedPaceRow['half_marathon'] ?? '', 'value_class' => 'pace-hm'],
@@ -64,6 +65,7 @@ const paceDisplay = document.getElementById('pace_display');
 const paceLevel = document.getElementById('pace_level');
 const tempoTable = <?php echo json_encode($paceTable, JSON_UNESCAPED_UNICODE); ?>;
 const levelEls = document.querySelectorAll('.level-label');
+const pace3Els = document.querySelectorAll('.pace-3k');
 const pace5Els = document.querySelectorAll('.pace-5k');
 const pace10Els = document.querySelectorAll('.pace-10k');
 const paceHmEls = document.querySelectorAll('.pace-hm');
@@ -100,6 +102,7 @@ if (slider && paceDisplay) {
                 paceLevel.textContent = (parts[0] || '').trim();
             }
             levelEls.forEach((el) => (el.textContent = best.label || ''));
+            pace3Els.forEach((el) => (el.textContent = best.three_k || ''));
             pace5Els.forEach((el) => (el.textContent = best.five_k || ''));
             pace10Els.forEach((el) => (el.textContent = best.ten_k || ''));
             paceHmEls.forEach((el) => (el.textContent = best.half_marathon || ''));
