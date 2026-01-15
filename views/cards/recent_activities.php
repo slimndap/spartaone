@@ -112,7 +112,7 @@ foreach ($trainings as $trainingDay) {
                                     }
                                     $lapPaceSeconds = (int)round($lapSeconds / $lapDistance);
                                     $tempoZone = sparta_find_tempo_zone($tempoPaces ?? [], $lapPaceSeconds);
-                                    $lapLabel = $lapName !== '' ? $lapName : 'Lap ' . ($lapIndex + 1);
+                        $lapLabel = $lapName !== '' ? $lapName : (string)($lapIndex + 1);
                                     $bars[] = [
                                         'label' => $lapLabel,
                                         'distance' => $lapDistance,
@@ -157,6 +157,20 @@ foreach ($trainings as $trainingDay) {
                                             $stackValues[$zoneLabel][] = $stackIndex <= $slowIndex ? 1 : 0;
                                         }
                                     }
+                                    $lapRanges = [];
+                                    $lapMidpoints = [];
+                                    $zoneLevels = [];
+                                    $distanceCursor = 0.0;
+                                    foreach ($bars as $bar) {
+                                        $start = $distanceCursor;
+                                        $end = $distanceCursor + $bar['distance'];
+                                        $distanceCursor = $end;
+                                        $lapRanges[] = [$start, $end];
+                                        $lapMidpoints[] = ($start + $end) / 2;
+                                        $zoneIndex = $bar['zone_index'] ?? ($zoneCount - 1);
+                                        $slowIndex = ($zoneCount - 1) - $zoneIndex;
+                                        $zoneLevels[] = $slowIndex + 1;
+                                    }
                                     $chartId = 'activity-chart-' . ($activity['id'] ?? $activityIndex);
                                     $activityCharts[] = [
                                         'id' => $chartId,
@@ -164,6 +178,10 @@ foreach ($trainings as $trainingDay) {
                                         'zoneLabels' => array_values($zoneLabels),
                                         'zoneStackOrder' => array_values($zoneStackOrder),
                                         'zoneStacks' => $stackValues,
+                                        'lapRanges' => $lapRanges,
+                                        'lapMidpoints' => $lapMidpoints,
+                                        'zoneLevels' => $zoneLevels,
+                                        'totalDistance' => $distanceCursor,
                                         'opacities' => array_values(array_map(static fn($bar) => $bar['opacity'], $bars)),
                                         'distances' => array_values(array_map(static fn($bar) => $bar['distance'], $bars)),
                                         'durations' => array_values(array_map(static fn($bar) => $bar['duration'], $bars)),
@@ -258,33 +276,114 @@ foreach ($trainings as $trainingDay) {
                 }
                 const axisColor = getComputedStyle(canvas.parentElement).color;
                 const backgroundColors = chartData.opacities.map((opacity) => toRgba(accent, opacity));
-                const datasets = chartData.zoneStackOrder.map((zoneLabel, zoneIndex) => ({
-                    label: zoneLabel,
-                    data: chartData.zoneStacks[zoneLabel] || [],
-                    backgroundColor: backgroundColors,
-                    borderRadius: zoneIndex === chartData.zoneStackOrder.length - 1 ? 4 : 0,
-                    borderSkipped: false,
-                    stack: 'zones',
-                }));
+                const datasets = [
+                    {
+                        label: 'Tempo zones',
+                        data: chartData.lapMidpoints.map((x, index) => ({
+                            x,
+                            y: chartData.zoneLevels[index],
+                        })),
+                        pointRadius: 0,
+                        pointHoverRadius: 0,
+                        pointHitRadius: 8,
+                        showLine: false,
+                        backgroundColor: 'transparent',
+                        borderColor: 'transparent',
+                    },
+                ];
+                const lapStackedBars = {
+                    id: 'lapStackedBars',
+                    afterDatasetsDraw(chart) {
+                        const {ctx, chartArea, scales} = chart;
+                        const xScale = scales.x;
+                        const yScale = scales.y;
+                        if (!xScale || !yScale) {
+                            return;
+                        }
+                        ctx.save();
+                        ctx.beginPath();
+                        ctx.rect(chartArea.left, chartArea.top, chartArea.width, chartArea.height);
+                        ctx.clip();
+                        const gap = 2;
+                        chartData.lapRanges.forEach((range, index) => {
+                            const [start, end] = range;
+                            const xLeft = xScale.getPixelForValue(start) + gap;
+                            const xRight = xScale.getPixelForValue(end) - gap;
+                            if (xRight <= xLeft) {
+                                return;
+                            }
+                            const zoneLevel = chartData.zoneLevels[index] || 0;
+                            const fill = backgroundColors[index] || accent;
+                            for (let segment = 0; segment < zoneLevel; segment += 1) {
+                                const yBottom = yScale.getPixelForValue(segment);
+                                const yTop = yScale.getPixelForValue(segment + 1);
+                                const rectTop = Math.min(yTop, yBottom);
+                                const rectHeight = Math.abs(yBottom - yTop);
+                                ctx.fillStyle = fill;
+                                ctx.fillRect(xLeft, rectTop, xRight - xLeft, rectHeight);
+                            }
+                        });
+                        ctx.restore();
+                    },
+                };
+                const lapXAxisLabels = {
+                    id: 'lapXAxisLabels',
+                    afterDraw(chart) {
+                        const {ctx, chartArea, scales} = chart;
+                        const xScale = scales.x;
+                        if (!xScale) {
+                            return;
+                        }
+                        ctx.save();
+                        ctx.fillStyle = axisColor;
+                        ctx.font = '11px system-ui, -apple-system, "Segoe UI", sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'top';
+                        chartData.lapRanges.forEach((range, index) => {
+                            const [start, end] = range;
+                            const xLeft = xScale.getPixelForValue(start);
+                            const xRight = xScale.getPixelForValue(end);
+                            const width = xRight - xLeft;
+                            if (width < 28) {
+                                return;
+                            }
+                            const label = chartData.labels[index] || '';
+                            if (!label) {
+                                return;
+                            }
+                            const xCenter = xLeft + width / 2;
+                            const y = chartArea.bottom + 6;
+                            ctx.fillText(label, xCenter, y, width);
+                        });
+                        ctx.restore();
+                    },
+                };
                 new Chart(canvas.getContext('2d'), {
-                    type: 'bar',
+                    type: 'scatter',
                     data: {
                         labels: chartData.labels,
                         datasets,
                     },
+                    plugins: [lapStackedBars, lapXAxisLabels],
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        layout: {
+                            padding: { bottom: 24 },
+                        },
                         interaction: {
-                            mode: 'index',
+                            mode: 'nearest',
+                            axis: 'x',
                             intersect: false,
                         },
                         plugins: {
                             legend: { display: false },
                             tooltip: {
-                                filter: (item) => item.datasetIndex === chartData.zoneStackOrder.length - 1,
                                 callbacks: {
-                                    title: (items) => items[0]?.label || '',
+                                    title: (items) => {
+                                        const index = items[0]?.dataIndex ?? null;
+                                        return index !== null ? (chartData.labels[index] || '') : '';
+                                    },
                                     label: (context) => {
                                         const index = context.dataIndex;
                                         const pieces = [
@@ -302,15 +401,19 @@ foreach ($trainings as $trainingDay) {
                         },
                         scales: {
                             x: {
+                                type: 'linear',
                                 grid: { display: false },
-                                ticks: { color: axisColor },
-                                stacked: true,
+                                ticks: { display: false },
+                                suggestedMin: 0,
+                                suggestedMax: chartData.totalDistance || undefined,
+                                title: {
+                                    display: false,
+                                },
                             },
                             y: {
                                 beginAtZero: true,
                                 suggestedMin: 0,
                                 suggestedMax: Math.max(chartData.zoneStackOrder.length, 1),
-                                stacked: true,
                                 ticks: {
                                     color: axisColor,
                                     stepSize: 1,
