@@ -205,21 +205,7 @@ foreach ($trainings as $trainingDay) {
                                     $entryActivity = trim((string)($entry['activity'] ?? ''));
                                     $entryDistance = trim((string)($entry['distance'] ?? ''));
                                     $entryLabel = $entryTitle !== '' ? $entryTitle : ($entryActivity !== '' ? $entryActivity : 'Training');
-                                    $tempoLabels = [];
-                                    if (!empty($entry['tempos']) && is_array($entry['tempos'])) {
-                                        foreach ($entry['tempos'] as $tempoLabel) {
-                                            $label = $tempoLabel === 'Aerobe' ? 'Aeroob' : $tempoLabel;
-                                            $tempoLabels[] = (string)$label;
-                                        }
-                                    }
-                                    $suffixParts = [];
-                                    if ($entryDistance !== '') {
-                                        $suffixParts[] = $entryDistance;
-                                    }
-                                    if ($tempoLabels) {
-                                        $suffixParts[] = implode('/', $tempoLabels);
-                                    }
-                                    $plannedParts[] = $entryLabel . ($suffixParts ? ' · ' . implode(' · ', $suffixParts) : '');
+                                    $plannedParts[] = $entryLabel;
                                 }
                             ?>
                             <?php if ($plannedParts): ?>
