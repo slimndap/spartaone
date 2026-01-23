@@ -262,6 +262,16 @@ foreach ($trainings as $trainingDay) {
                 }
                 const axisColor = getComputedStyle(canvas.parentElement).color;
                 const backgroundColors = chartData.opacities.map((opacity) => toRgba(accent, opacity));
+                const zoneLabelShort = {
+                    '3K': '3K',
+                    '5K': '5K',
+                    '10K': '10K',
+                    'Half Marathon': 'HM',
+                    'Marathon': 'M',
+                    'Aeroob': 'A',
+                    'Recovery': 'R',
+                    'Onbekend': '?',
+                };
                 const datasets = [
                     {
                         label: 'Tempo zones',
@@ -400,17 +410,18 @@ foreach ($trainings as $trainingDay) {
                                 beginAtZero: true,
                                 suggestedMin: 0,
                                 suggestedMax: Math.max(chartData.zoneStackOrder.length, 1),
-                                ticks: {
-                                    color: axisColor,
-                                    stepSize: 1,
-                                    callback: (value) => {
-                                        if (!Number.isInteger(value) || value <= 0) {
-                                            return '';
-                                        }
-                                        return chartData.zoneStackOrder[value - 1] ?? '';
+                                    ticks: {
+                                        color: axisColor,
+                                        stepSize: 1,
+                                        callback: (value) => {
+                                            if (!Number.isInteger(value) || value <= 0) {
+                                                return '';
+                                            }
+                                            const label = chartData.zoneStackOrder[value - 1] ?? '';
+                                            return zoneLabelShort[label] ?? label;
+                                        },
                                     },
                                 },
-                            },
                         },
                     },
                 });

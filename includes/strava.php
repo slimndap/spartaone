@@ -625,6 +625,7 @@ function buildStravaState(array $query, array $post, array &$session, array $con
     $activities = null;
     $activitiesError = null;
     $activitiesUpdatedAt = null;
+    $activitiesCacheFresh = false;
     $storageError = null;
     $goalMessage = null;
     $goalError = null;
@@ -687,32 +688,53 @@ function buildStravaState(array $query, array $post, array &$session, array $con
             }
         }
 
-        $activitiesResult = fetchActivities($tokens['access_token']);
-        if (isset($activitiesResult['activities'])) {
-            $activities = sparta_filter_activities($activitiesResult['activities']);
-            if ($activities) {
-                $lapsFetched = 0;
-                foreach ($activities as $idx => $activity) {
-                    if ($lapsFetched >= 10) {
-                        break;
-                    }
-                    $activityId = $activity['id'] ?? null;
-                    if (!$activityId) {
-                        continue;
-                    }
-                    $lapsResult = fetchActivityLaps($tokens['access_token'], $activityId);
-                    if (isset($lapsResult['laps'])) {
-                        $activities[$idx]['laps'] = $lapsResult['laps'];
-                    }
-                    $lapsFetched++;
+        if ($activitiesDir && !empty($athlete['id'])) {
+            $cached = sparta_load_athlete_activities($activitiesDir, $athlete['id']);
+            if (!empty($cached['activities']) && !empty($cached['updated_at'])) {
+                $updatedAt = strtotime((string)$cached['updated_at']);
+                if ($updatedAt !== false && (time() - $updatedAt) < 600) {
+                    $activities = $cached['activities'];
+                    $activitiesUpdatedAt = $cached['updated_at'];
+                    $activitiesCacheFresh = true;
                 }
             }
-            $activitiesUpdatedAt = date('c');
-            if ($activitiesDir && !empty($athlete['id'])) {
-                sparta_save_athlete_activities($activitiesDir, $athlete['id'], $activities);
+        }
+
+        if (!$activitiesCacheFresh) {
+            $activitiesResult = fetchActivities($tokens['access_token']);
+            if (isset($activitiesResult['activities'])) {
+                $activities = sparta_filter_activities($activitiesResult['activities']);
+                if ($activities) {
+                    $lapsFetched = 0;
+                    foreach ($activities as $idx => $activity) {
+                        if ($lapsFetched >= 10) {
+                            break;
+                        }
+                        $activityId = $activity['id'] ?? null;
+                        if (!$activityId) {
+                            continue;
+                        }
+                        $lapsResult = fetchActivityLaps($tokens['access_token'], $activityId);
+                        if (isset($lapsResult['laps'])) {
+                            $activities[$idx]['laps'] = $lapsResult['laps'];
+                        }
+                        $lapsFetched++;
+                    }
+                }
+                $activitiesUpdatedAt = date('c');
+                if ($activitiesDir && !empty($athlete['id'])) {
+                    sparta_save_athlete_activities($activitiesDir, $athlete['id'], $activities);
+                }
+            } elseif (isset($activitiesResult['error'])) {
+                $activitiesError = htmlspecialchars($activitiesResult['error'], ENT_QUOTES, 'UTF-8');
+                if ($activitiesDir && !empty($athlete['id'])) {
+                    $cached = sparta_load_athlete_activities($activitiesDir, $athlete['id']);
+                    if (!empty($cached['activities'])) {
+                        $activities = $cached['activities'];
+                        $activitiesUpdatedAt = $cached['updated_at'] ?? null;
+                    }
+                }
             }
-        } elseif (isset($activitiesResult['error'])) {
-            $activitiesError = htmlspecialchars($activitiesResult['error'], ENT_QUOTES, 'UTF-8');
         }
     }
 
