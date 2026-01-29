@@ -1104,3 +1104,139 @@ function maybeRefreshTokens(?array &$tokens, array &$session, ?string &$message,
         $message = htmlspecialchars($refresh['error'] ?? $message, ENT_QUOTES, 'UTF-8');
     }
 }
+
+/**
+ * Build the chart data needed to render the per-activity tempo graph.
+ *
+ * @param array<string,mixed> $activity
+ * @param array<string,string> $tempoPaces
+ * @param string $chartId
+ * @return array<string,mixed>|null
+ */
+function sparta_build_activity_chart_data(array $activity, array $tempoPaces, string $chartId): ?array
+{
+    $laps = (isset($activity['laps']) && is_array($activity['laps'])) ? $activity['laps'] : [];
+    if ($laps === []) {
+        return null;
+    }
+
+    $opacityMap = [
+        '3K' => 1.0,
+        '5K' => 0.8,
+        '10K' => 0.6,
+        'Half Marathon' => 0.4,
+        'Marathon' => 0.2,
+        'Aeroob' => 0.1,
+        'Recovery' => 0.1,
+        'Onbekend' => 0.5,
+    ];
+    $defaultZoneOrder = ['3K', '5K', '10K', 'Half Marathon', 'Marathon', 'Aeroob', 'Recovery'];
+    $zoneLabels = array_filter(array_keys($tempoPaces), static fn($label) => $label !== 'Aerobe');
+    if ($zoneLabels === []) {
+        $zoneLabels = $defaultZoneOrder;
+    } else {
+        $zoneLabels = array_values(array_unique(array_merge($zoneLabels, $defaultZoneOrder)));
+    }
+
+    $zoneCount = count($zoneLabels);
+    $zoneIndexMap = array_flip($zoneLabels);
+    $bars = [];
+
+    foreach ($laps as $lapIndex => $lap) {
+        $lapName = trim((string)($lap['name'] ?? ''));
+        $lapDistance = null;
+        if (isset($lap['distance']) && is_numeric($lap['distance'])) {
+            $lapDistance = (float)$lap['distance'] / 1000;
+        }
+        $lapSeconds = null;
+        if (isset($lap['elapsed_time']) && is_numeric($lap['elapsed_time'])) {
+            $lapSeconds = (int)$lap['elapsed_time'];
+        } elseif (isset($lap['moving_time']) && is_numeric($lap['moving_time'])) {
+            $lapSeconds = (int)$lap['moving_time'];
+        }
+        if ($lapDistance === null || $lapSeconds === null || $lapDistance <= 0 || $lapSeconds <= 0) {
+            continue;
+        }
+        $lapPaceSeconds = (int)round($lapSeconds / $lapDistance);
+        $tempoZone = sparta_find_tempo_zone($tempoPaces, $lapPaceSeconds);
+        $lapLabel = $lapName !== '' ? $lapName : (string)($lapIndex + 1);
+        $bars[] = [
+            'label' => $lapLabel,
+            'distance' => $lapDistance,
+            'pace' => format_pace_seconds($lapPaceSeconds),
+            'duration' => sparta_format_duration($lapSeconds),
+            'zone' => $tempoZone,
+            'zone_index' => $tempoZone !== null && isset($zoneIndexMap[$tempoZone]) ? $zoneIndexMap[$tempoZone] : null,
+            'opacity' => $tempoZone && isset($opacityMap[$tempoZone]) ? $opacityMap[$tempoZone] : 0.7,
+        ];
+    }
+
+    if ($bars === []) {
+        return null;
+    }
+
+    $hasUnknownZone = false;
+    foreach ($bars as $bar) {
+        if ($bar['zone_index'] === null) {
+            $hasUnknownZone = true;
+            break;
+        }
+    }
+    if ($hasUnknownZone && !in_array('Onbekend', $zoneLabels, true)) {
+        $zoneLabels[] = 'Onbekend';
+    }
+
+    $zoneCount = count($zoneLabels);
+    $zoneIndexMap = array_flip($zoneLabels);
+    foreach ($bars as $barIndex => $bar) {
+        if ($bar['zone_index'] === null) {
+            $bars[$barIndex]['zone_index'] = $zoneIndexMap['Onbekend'] ?? ($zoneCount - 1);
+            $bars[$barIndex]['zone'] = $bar['zone'] ?: 'Onbekend';
+        }
+    }
+
+    $zoneStackOrder = array_reverse($zoneLabels);
+    $stackValues = [];
+    foreach ($zoneStackOrder as $zoneLabel) {
+        $stackValues[$zoneLabel] = [];
+    }
+    foreach ($bars as $bar) {
+        $zoneIndex = $bar['zone_index'] ?? ($zoneCount - 1);
+        $slowIndex = ($zoneCount - 1) - $zoneIndex;
+        foreach ($zoneStackOrder as $stackIndex => $zoneLabel) {
+            $stackValues[$zoneLabel][] = $stackIndex <= $slowIndex ? 1 : 0;
+        }
+    }
+
+    $lapRanges = [];
+    $lapMidpoints = [];
+    $zoneLevels = [];
+    $distanceCursor = 0.0;
+    foreach ($bars as $bar) {
+        $start = $distanceCursor;
+        $end = $distanceCursor + $bar['distance'];
+        $distanceCursor = $end;
+        $lapRanges[] = [$start, $end];
+        $lapMidpoints[] = ($start + $end) / 2;
+        $zoneIndex = $bar['zone_index'] ?? ($zoneCount - 1);
+        $slowIndex = ($zoneCount - 1) - $zoneIndex;
+        $zoneLevels[] = $slowIndex + 1;
+    }
+
+    return [
+        'id' => $chartId,
+        'labels' => array_values(array_map(static fn($bar) => $bar['label'], $bars)),
+        'zoneLabels' => array_values($zoneLabels),
+        'zoneStackOrder' => array_values($zoneStackOrder),
+        'zoneStacks' => $stackValues,
+        'lapRanges' => $lapRanges,
+        'lapMidpoints' => $lapMidpoints,
+        'zoneLevels' => $zoneLevels,
+        'totalDistance' => $distanceCursor,
+        'opacities' => array_values(array_map(static fn($bar) => $bar['opacity'], $bars)),
+        'distances' => array_values(array_map(static fn($bar) => $bar['distance'], $bars)),
+        'durations' => array_values(array_map(static fn($bar) => $bar['duration'], $bars)),
+        'paces' => array_values(array_map(static fn($bar) => $bar['pace'], $bars)),
+        'zones' => array_values(array_map(static fn($bar) => $bar['zone'], $bars)),
+    ];
+}

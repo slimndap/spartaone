@@ -17,6 +17,7 @@ function sparta_handle_request(string $action, array $state, array $config): voi
         'athlete' => 'sparta_handle_athlete_detail',
         'goals' => 'sparta_handle_goals',
         'training' => 'sparta_handle_training',
+        'weekly-activities' => 'sparta_handle_weekly_activity_matrix',
         'tempos' => 'sparta_handle_tempos',
         'webhook' => 'sparta_handle_webhook',
         'home' => 'sparta_handle_home',
@@ -127,6 +128,152 @@ function sparta_handle_athlete_detail(array $state, array $config, string $actio
         'activitiesUpdatedAt' => $activitiesUpdatedAt,
         'tempoPaces' => $tempoPaces,
         'trainings' => $trainings,
+        'currentAthleteName' => $state['currentAthleteName'] ?? null,
+        'currentAthleteId' => $state['currentAthleteId'] ?? null,
+        'currentAthletePhoto' => $state['currentAthletePhoto'] ?? null,
+        'currentAction' => $action,
+    ]);
+}
+
+function sparta_handle_weekly_activity_matrix(array $state, array $config, string $action): void
+{
+    if (!sparta_require_login($state, 'Please log in to view activity insights.')) {
+        return;
+    }
+
+    $activitiesDir = $config['activitiesDir'] ?? null;
+    $settingsDir = $config['settingsDir'] ?? null;
+    $trainingsDir = $config['trainingsDir'] ?? null;
+    $rawAthletes = $state['athletes'] ?? [];
+    $athleteColumns = [];
+    foreach ($rawAthletes as $athlete) {
+        $athleteId = (string)($athlete['id'] ?? '');
+        if ($athleteId === '') {
+            continue;
+        }
+        $fullName = trim(($athlete['firstname'] ?? '') . ' ' . ($athlete['lastname'] ?? ''));
+        if ($fullName === '') {
+            $fullName = $athlete['username'] ?? 'Onbekende sporter';
+        }
+        $athleteColumns[] = [
+            'id' => $athleteId,
+            'name' => $fullName,
+            'photo' => $athlete['profile'] ?? null,
+        ];
+    }
+    usort($athleteColumns, static fn($a, $b) => strcasecmp($a['name'], $b['name']));
+
+    $today = new DateTimeImmutable('today');
+    $startDay = $today->sub(new DateInterval('P6D'));
+    $weekDays = [];
+    for ($i = 0; $i < 14; $i++) {
+        $day = $startDay->add(new DateInterval('P' . $i . 'D'));
+        $dayKey = $day->format('Y-m-d');
+        $weekDays[$dayKey] = [
+            'label' => $day->format('D d M'),
+            'date' => $dayKey,
+        ];
+    }
+
+    $athleteIds = array_map(static fn($column) => $column['id'], $athleteColumns);
+    foreach ($weekDays as &$day) {
+        $day['athleteActivities'] = array_fill_keys($athleteIds, []);
+    }
+    unset($day);
+
+    $activityCharts = [];
+    $chartCounter = 0;
+    $hasActivities = false;
+
+    foreach ($athleteColumns as $column) {
+        if (!$activitiesDir) {
+            break;
+        }
+        $cached = sparta_load_athlete_activities($activitiesDir, $column['id']);
+        $activities = $cached['activities'] ?? [];
+        if ($activities === []) {
+            continue;
+        }
+        usort($activities, static fn($a, $b) => strcmp(
+            (string)($b['start_date_local'] ?? $b['start_date'] ?? ''),
+            (string)($a['start_date_local'] ?? $a['start_date'] ?? '')
+        ));
+
+        $tempoPaces = [];
+        if ($settingsDir) {
+            $settings = load_athlete_settings($settingsDir, $column['id']);
+            $tempoPaces = resolve_tempo_paces($settings, $column['id'], $settingsDir, false);
+        }
+
+        foreach ($activities as $activity) {
+            $dateRaw = $activity['start_date_local'] ?? $activity['start_date'] ?? '';
+            if ($dateRaw === '') {
+                continue;
+            }
+            try {
+                $dateObj = new DateTimeImmutable($dateRaw);
+            } catch (Exception $e) {
+                continue;
+            }
+            $dateKey = $dateObj->format('Y-m-d');
+            if (!isset($weekDays[$dateKey])) {
+                continue;
+            }
+            $hasActivities = true;
+
+            $chartSuffix = $activity['id'] ?? null;
+            if ($chartSuffix === null || $chartSuffix === '') {
+                $chartSuffix = 'auto';
+            }
+            $chartSuffix = preg_replace('/[^a-zA-Z0-9_-]+/', '-', (string)$chartSuffix);
+            if ($chartSuffix === null || $chartSuffix === '') {
+                $chartSuffix = 'auto';
+            }
+            $chartId = sprintf('activity-chart-%s-%s-%d', $column['id'], $chartSuffix, $chartCounter);
+            $chartCounter++;
+            $chartData = sparta_build_activity_chart_data($activity, $tempoPaces, $chartId);
+            if ($chartData) {
+                $activityCharts[] = $chartData;
+            }
+            $weekDays[$dateKey]['athleteActivities'][$column['id']][] = [
+                'activity' => $activity,
+                'chartId' => $chartId,
+                'hasChart' => (bool)$chartData,
+            ];
+        }
+    }
+
+    $weekDays = array_values($weekDays);
+    $weekRangeLabel = $startDay->format('j M') . ' – ' . $today->format('j M');
+
+    $scheduledTrainings = [];
+    if ($trainingsDir) {
+        $loadedTrainings = load_trainings($trainingsDir);
+        foreach ($loadedTrainings as $trainingDay) {
+            $dateKey = $trainingDay['date'] ?? null;
+            if ($dateKey) {
+                $scheduledTrainings[$dateKey] = $trainingDay['entries'] ?? [];
+            }
+        }
+    }
+    foreach ($weekDays as &$day) {
+        $dateKey = $day['date'] ?? null;
+        if ($dateKey && isset($scheduledTrainings[$dateKey])) {
+            $day['trainingSchedule'] = $scheduledTrainings[$dateKey];
+        } else {
+            $day['trainingSchedule'] = [];
+        }
+    }
+    unset($day);
+
+    render('weekly-activities', [
+        'athleteColumns' => $athleteColumns,
+        'weekDays' => $weekDays,
+        'weekRangeLabel' => $weekRangeLabel,
+        'activityCharts' => $activityCharts,
+        'hasActivities' => $hasActivities,
+        'activitiesDir' => $activitiesDir,
+        'trainingSchedule' => $scheduledTrainings,
         'currentAthleteName' => $state['currentAthleteName'] ?? null,
         'currentAthleteId' => $state['currentAthleteId'] ?? null,
         'currentAthletePhoto' => $state['currentAthletePhoto'] ?? null,
