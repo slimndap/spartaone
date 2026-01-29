@@ -10,6 +10,10 @@ $activitiesDir = $activitiesDir ?? null;
 <div class="glass-card card shadow-lg mb-3">
     <div class="card-body">
         <style>
+            .weekly-activities-wrapper {
+                max-height: 72vh;
+                overflow-y: auto;
+            }
             .weekly-activities-table {
                 border-collapse: collapse;
                 width: 100%;
@@ -23,8 +27,8 @@ $activitiesDir = $activitiesDir ?? null;
                 border-bottom-width: 2px;
                 position: sticky;
                 top: 0;
-                background: #010102;
-                z-index: 3;
+                background: rgba(1, 1, 2, 0.9);
+                z-index: 5;
                 backdrop-filter: blur(8px);
             }
         </style>
@@ -45,7 +49,7 @@ $activitiesDir = $activitiesDir ?? null;
         <?php elseif (!$hasActivities): ?>
             <div class="text-secondary">Er zijn geen activiteiten in de afgelopen <?php echo count( $weekDays); ?> dagen.</div>
         <?php else: ?>
-            <div class="table-responsive">
+            <div class="weekly-activities-wrapper table-responsive">
                 <table class="table table-borderless text-light align-middle mb-0 bg-transparent weekly-activities-table" aria-label="Activiteitenmatrix">
                     <thead>
                         <tr>
