@@ -23,13 +23,22 @@ $activitiesDir = $activitiesDir ?? null;
             .weekly-activities-table td {
                 border: 1px solid rgba(255, 255, 255, 0.15);
             }
-            .weekly-activities-table thead th {
+            .weekly-activities-table thead th,
+            .weekly-activities-table td:first-child,
+            .weekly-activities-table th:first-child {
                 border-bottom-width: 2px;
                 position: sticky;
                 top: 0;
                 background: rgba(1, 1, 2, 0.9);
                 z-index: 5;
                 backdrop-filter: blur(8px);
+            }
+            .weekly-activities-table tbody td:first-child {
+                position: sticky;
+                left: 0;
+                z-index: 4;
+                background: rgba(1,1,2,0.85);
+                min-width: 160px;
             }
         </style>
         <div class="d-flex flex-column flex-md-row align-items-start gap-3 mb-3">
