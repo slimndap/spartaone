@@ -24,7 +24,6 @@ $activitiesDir = $activitiesDir ?? null;
                 border: 1px solid rgba(255, 255, 255, 0.15);
             }
             .weekly-activities-table thead th,
-            .weekly-activities-table td:first-child,
             .weekly-activities-table th:first-child {
                 border-bottom-width: 2px;
                 position: sticky;
@@ -33,12 +32,28 @@ $activitiesDir = $activitiesDir ?? null;
                 z-index: 5;
                 backdrop-filter: blur(8px);
             }
-            .weekly-activities-table tbody td:first-child {
+            .weekly-activities-table thead th:first-child {
+                left: 0;
+            }
+            .weekly-activities-table tbody td:first-child,
+            .weekly-activities-table tbody th:first-child {
                 position: sticky;
                 left: 0;
                 z-index: 4;
                 background: rgba(1,1,2,0.85);
-                min-width: 160px;
+                width: 240px;
+                min-width: 240px;
+                max-width: 240px;
+                padding-right: 0.75rem;
+            }
+            .weekly-activities-table th:first-child,
+            .weekly-activities-table td:first-child {
+                box-shadow: 2px 0 12px rgba(0, 0, 0, 0.55);
+            }
+            .weekly-activities-day-col {
+                width: 240px;
+                min-width: 240px;
+                max-width: 240px;
             }
         </style>
         <div class="d-flex flex-column flex-md-row align-items-start gap-3 mb-3">
@@ -60,6 +75,12 @@ $activitiesDir = $activitiesDir ?? null;
         <?php else: ?>
             <div class="weekly-activities-wrapper table-responsive">
                 <table class="table table-borderless text-light align-middle mb-0 bg-transparent weekly-activities-table" aria-label="Activiteitenmatrix">
+                    <colgroup>
+                        <col class="weekly-activities-day-col">
+                        <?php if ($athleteColumns): ?>
+                            <col span="<?php echo count($athleteColumns); ?>">
+                        <?php endif; ?>
+                    </colgroup>
                     <thead>
                         <tr>
                             <th class="text-secondary bg-transparent small" scope="col">Dag</th>
