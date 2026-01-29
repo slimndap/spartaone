@@ -164,7 +164,7 @@ function sparta_handle_weekly_activity_matrix(array $state, array $config, strin
     usort($athleteColumns, static fn($a, $b) => strcasecmp($a['name'], $b['name']));
 
     $today = new DateTimeImmutable('today');
-    $startDay = $today->sub(new DateInterval('P6D'));
+    $startDay = $today->sub(new DateInterval('P13D'));
     $weekDays = [];
     for ($i = 0; $i < 14; $i++) {
         $day = $startDay->add(new DateInterval('P' . $i . 'D'));
@@ -244,6 +244,7 @@ function sparta_handle_weekly_activity_matrix(array $state, array $config, strin
     }
 
     $weekDays = array_values($weekDays);
+    $weekDays = array_reverse($weekDays);
     $weekRangeLabel = $startDay->format('j M') . ' – ' . $today->format('j M');
 
     $scheduledTrainings = [];

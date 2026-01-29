@@ -25,7 +25,7 @@ $activitiesDir = $activitiesDir ?? null;
         <div class="d-flex flex-column flex-md-row align-items-start gap-3 mb-3">
             <div>
                 <div class="section-label mb-1">Activiteiten</div>
-                <h2 class="h5 mb-0 text-light">Matrix van de afgelopen 7 dagen</h2>
+                <h2 class="h5 mb-0 text-light">Matrix van de afgelopen <?php echo count( $weekDays); ?> dagen</h2>
             </div>
             <?php if ($weekRangeLabel): ?>
                 <div class="text-secondary small ms-md-auto"><?php echo htmlspecialchars($weekRangeLabel, ENT_QUOTES, 'UTF-8'); ?></div>
@@ -37,13 +37,13 @@ $activitiesDir = $activitiesDir ?? null;
         <?php elseif (!$athleteColumns): ?>
             <div class="text-secondary">Nog geen sporters geregistreerd. Zodra teamleden inloggen verschijnen ze hier.</div>
         <?php elseif (!$hasActivities): ?>
-            <div class="text-secondary">Er zijn geen activiteiten in de afgelopen 7 dagen.</div>
+            <div class="text-secondary">Er zijn geen activiteiten in de afgelopen <?php echo count( $weekDays); ?> dagen.</div>
         <?php else: ?>
             <div class="table-responsive">
                 <table class="table table-borderless text-light align-middle mb-0 bg-transparent weekly-activities-table" aria-label="Activiteitenmatrix">
                     <thead>
                         <tr>
-                            <th class="text-secondary small" scope="col">Dag</th>
+                            <th class="text-secondary bg-transparent small" scope="col">Dag</th>
                             <?php foreach ($athleteColumns as $column): ?>
                                 <th class="text-start text-light small bg-transparent" scope="col" style="width: 220px; min-width: 220px;">
                                     <?php echo htmlspecialchars($column['name'] ?? 'Sporters', ENT_QUOTES, 'UTF-8'); ?>
