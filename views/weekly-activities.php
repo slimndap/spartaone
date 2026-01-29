@@ -13,6 +13,7 @@ $activitiesDir = $activitiesDir ?? null;
             .weekly-activities-table {
                 border-collapse: collapse;
                 width: 100%;
+                table-layout: fixed;
             }
             .weekly-activities-table th,
             .weekly-activities-table td {
@@ -20,6 +21,11 @@ $activitiesDir = $activitiesDir ?? null;
             }
             .weekly-activities-table thead th {
                 border-bottom-width: 2px;
+                position: sticky;
+                top: 0;
+                background: #010102;
+                z-index: 3;
+                backdrop-filter: blur(8px);
             }
         </style>
         <div class="d-flex flex-column flex-md-row align-items-start gap-3 mb-3">
