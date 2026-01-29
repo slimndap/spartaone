@@ -274,6 +274,7 @@ function sparta_handle_weekly_activity_matrix(array $state, array $config, strin
         'hasActivities' => $hasActivities,
         'activitiesDir' => $activitiesDir,
         'trainingSchedule' => $scheduledTrainings,
+        'layoutContainerClass' => 'container-fluid',
         'currentAthleteName' => $state['currentAthleteName'] ?? null,
         'currentAthleteId' => $state['currentAthleteId'] ?? null,
         'currentAthletePhoto' => $state['currentAthletePhoto'] ?? null,

@@ -60,7 +60,8 @@ $bodyClasses[] = 'page-' . ($actionSlug ?: 'home');
             </div>
         </div>
     </nav>
-    <main class="container my-4 pb-5 pb-md-5">
+    <?php $layoutContainerClass = $layoutContainerClass ?? 'container'; ?>
+    <main class="<?php echo htmlspecialchars($layoutContainerClass, ENT_QUOTES, 'UTF-8'); ?> my-4 pb-5 pb-md-5">
         <?php include $viewPath; ?>
     </main>
     <?php
