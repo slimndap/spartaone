@@ -1,5 +1,9 @@
 <?php
 
+if (!defined('SPARTA_STRAVA_REMEMBER_COOKIE')) {
+    define('SPARTA_STRAVA_REMEMBER_COOKIE', 'sparta_strava_athlete_id');
+}
+
 /**
  * Exchange an authorization code or refresh token for Strava tokens.
  *
@@ -358,6 +362,115 @@ function sparta_load_athlete_activities(string $dir, $athleteId): array
 }
 
 /**
+ * Save tokens for an athlete to disk.
+ *
+ * @param string $dir
+ * @param int|string $athleteId
+ * @param array<string,mixed> $tokens
+ * @return bool
+ */
+function sparta_save_athlete_tokens(string $dir, $athleteId, array $tokens): bool
+{
+    if (!is_dir($dir)) {
+        if (!mkdir($dir, 0775, true) && !is_dir($dir)) {
+            return false;
+        }
+    }
+    if ($athleteId === '' || $athleteId === null) {
+        return false;
+    }
+    $payload = [
+        'updated_at' => date('c'),
+        'tokens' => $tokens,
+    ];
+    $json = json_encode($payload, JSON_PRETTY_PRINT);
+    if ($json === false) {
+        return false;
+    }
+    $path = rtrim($dir, '/\\') . '/' . $athleteId . '.json';
+    return file_put_contents($path, $json, LOCK_EX) !== false;
+}
+
+/**
+ * Load stored tokens for an athlete.
+ *
+ * @param string $dir
+ * @param int|string $athleteId
+ * @return array{tokens: array<string,mixed>|null, updated_at: string|null}
+ */
+function sparta_load_athlete_tokens(string $dir, $athleteId): array
+{
+    $empty = ['tokens' => null, 'updated_at' => null];
+    if ($athleteId === '' || $athleteId === null) {
+        return $empty;
+    }
+    $path = rtrim($dir, '/\\') . '/' . $athleteId . '.json';
+    if (!is_readable($path)) {
+        return $empty;
+    }
+    $contents = file_get_contents($path);
+    if ($contents === false || $contents === '') {
+        return $empty;
+    }
+    $decoded = json_decode($contents, true);
+    if (!is_array($decoded)) {
+        return $empty;
+    }
+    if (isset($decoded['tokens']) && is_array($decoded['tokens'])) {
+        return [
+            'tokens' => $decoded['tokens'],
+            'updated_at' => isset($decoded['updated_at']) ? (string)$decoded['updated_at'] : null,
+        ];
+    }
+    return $empty;
+}
+
+/**
+ * Delete stored tokens for an athlete.
+ *
+ * @param string $dir
+ * @param int|string $athleteId
+ * @return bool
+ */
+function sparta_delete_athlete_tokens(string $dir, $athleteId): bool
+{
+    if ($athleteId === '' || $athleteId === null) {
+        return true;
+    }
+    $path = rtrim($dir, '/\\') . '/' . $athleteId . '.json';
+    if (!file_exists($path)) {
+        return true;
+    }
+    return unlink($path);
+}
+
+/**
+ * Manage the remember-me cookie for persisted Strava logins.
+ *
+ * @param string|null $athleteId
+ * @param int $lifetime
+ * @param bool $secure
+ * @return void
+ */
+function sparta_set_remembered_athlete(?string $athleteId, int $lifetime, bool $secure): void
+{
+    $expires = $athleteId ? (time() + $lifetime) : (time() - 3600);
+    $value = $athleteId ? (string)$athleteId : '';
+    setcookie(SPARTA_STRAVA_REMEMBER_COOKIE, $value, [
+        'expires' => $expires,
+        'path' => '/',
+        'secure' => $secure,
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+    if ($athleteId) {
+        $_COOKIE[SPARTA_STRAVA_REMEMBER_COOKIE] = $value;
+    } else {
+        unset($_COOKIE[SPARTA_STRAVA_REMEMBER_COOKIE]);
+    }
+}
+
+/**
  * Handle Strava webhook validation and event delivery.
  *
  * @param array<string,mixed> $state
@@ -616,10 +729,25 @@ function buildStravaState(array $query, array $post, array &$session, array $con
     $trainingsDir = $config['trainingsDir'] ?? null;
     $settingsDir = $config['settingsDir'] ?? null;
     $activitiesDir = $config['activitiesDir'] ?? null;
+    $tokensDir = $config['tokensDir'] ?? null;
+    $sessionLifetime = isset($config['sessionLifetime']) ? (int)$config['sessionLifetime'] : (int)ini_get('session.gc_maxlifetime');
+    $secureCookies = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
 
     $message = null;
     $grantedScope = $query['scope'] ?? null;
     $tokens = $session['strava_tokens'] ?? null;
+    $rememberedAthleteId = null;
+    if (isset($_COOKIE[SPARTA_STRAVA_REMEMBER_COOKIE]) && $_COOKIE[SPARTA_STRAVA_REMEMBER_COOKIE] !== '') {
+        $rememberedAthleteId = (string)$_COOKIE[SPARTA_STRAVA_REMEMBER_COOKIE];
+    }
+    if (!$tokens && $tokensDir && $rememberedAthleteId) {
+        $persisted = sparta_load_athlete_tokens($tokensDir, $rememberedAthleteId);
+        if (!empty($persisted['tokens'])) {
+            $tokens = $persisted['tokens'];
+            $session['strava_tokens'] = $tokens;
+            sparta_set_remembered_athlete($rememberedAthleteId, $sessionLifetime, $secureCookies);
+        }
+    }
     $athlete = null;
     $athleteError = null;
     $activities = null;
@@ -644,8 +772,13 @@ function buildStravaState(array $query, array $post, array &$session, array $con
         $session['oauth_state'] = bin2hex(random_bytes(16));
     }
 
+    $logoutAthleteId = $tokens['athlete']['id'] ?? $rememberedAthleteId ?? null;
     if ($action === 'logout') {
         unset($session['strava_tokens']);
+        if ($tokensDir && $logoutAthleteId) {
+            sparta_delete_athlete_tokens($tokensDir, $logoutAthleteId);
+        }
+        sparta_set_remembered_athlete(null, $sessionLifetime, $secureCookies);
         $tokens = null;
         $message = 'Logged out of Strava session for this demo.';
     }
@@ -675,6 +808,11 @@ function buildStravaState(array $query, array $post, array &$session, array $con
     }
 
     maybeRefreshTokens($tokens, $session, $message, $query, $clientId, $clientSecret, $tokenUrl);
+    $persistentAthleteId = $tokens['athlete']['id'] ?? $rememberedAthleteId ?? null;
+    if ($tokensDir && $tokens && $persistentAthleteId) {
+        sparta_save_athlete_tokens($tokensDir, $persistentAthleteId, $tokens);
+        sparta_set_remembered_athlete($persistentAthleteId, $sessionLifetime, $secureCookies);
+    }
 
     if ($tokens && !empty($tokens['access_token'])) {
         if (!empty($tokens['athlete'])) {
@@ -947,6 +1085,7 @@ function maybeRefreshTokens(?array &$tokens, array &$session, ?string &$message,
     if (empty($tokens['refresh_token']) || !$clientSecret) {
         return;
     }
+    $existingAthlete = $session['strava_tokens']['athlete'] ?? null;
 
     $refresh = requestTokens($tokenUrl, [
         'client_id' => $clientId,
@@ -956,6 +1095,9 @@ function maybeRefreshTokens(?array &$tokens, array &$session, ?string &$message,
     ]);
     if (isset($refresh['tokens'])) {
         $tokens = $refresh['tokens'];
+        if (!isset($tokens['athlete']) && $existingAthlete !== null) {
+            $tokens['athlete'] = $existingAthlete;
+        }
         $session['strava_tokens'] = $tokens;
         $message = 'Access token refreshed.';
     } elseif (!isset($query['error']) && !isset($query['code'])) {
