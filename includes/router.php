@@ -424,7 +424,18 @@ function sparta_handle_tempos(array $state, array $config, string $action): void
     $basePaceInput = '';
     $basePaceSeconds = null;
     $basePaceError = null;
+    $profileMessage = null;
+    $profileError = null;
+    $genderOptions = [
+        'male' => 'Man',
+        'female' => 'Vrouw',
+        'non_binary' => 'Non-binair',
+        'other' => 'Anders',
+        'prefer_not_to_say' => 'Zeg ik liever niet',
+    ];
     $settings = sparta_load_settings_for_athlete($state, $settingsDir);
+    $birthdate = '';
+    $gender = '';
 
     if (!empty($settings)) {
         $baseFromSettings = compute_base_pace_seconds($settings);
@@ -434,6 +445,12 @@ function sparta_handle_tempos(array $state, array $config, string $action): void
         }
         if ($basePaceInput === '' && !empty($settings['base_pace_input'])) {
             $basePaceInput = (string)$settings['base_pace_input'];
+        }
+        if (!empty($settings['birthdate']) && is_string($settings['birthdate'])) {
+            $birthdate = $settings['birthdate'];
+        }
+        if (!empty($settings['gender']) && is_string($settings['gender'])) {
+            $gender = $settings['gender'];
         }
     }
     if (isset($_POST['base_pace_seconds'])) {
@@ -456,6 +473,32 @@ function sparta_handle_tempos(array $state, array $config, string $action): void
             $settings['base_pace_input'] = $basePaceInput;
             save_athlete_settings($settingsDir, $state['currentAthleteId'], $settings);
         }
+    } elseif (isset($_POST['save_profile'])) {
+        $birthdate = trim((string)($_POST['birthdate'] ?? ''));
+        $gender = trim((string)($_POST['gender'] ?? ''));
+
+        if ($birthdate !== '') {
+            $birthdateObj = DateTimeImmutable::createFromFormat('Y-m-d', $birthdate);
+            if (!$birthdateObj || $birthdateObj->format('Y-m-d') !== $birthdate) {
+                $profileError = 'Gebruik een geldige geboortedatum.';
+            } elseif ($birthdateObj > new DateTimeImmutable('today')) {
+                $profileError = 'De geboortedatum kan niet in de toekomst liggen.';
+            }
+        }
+
+        if ($profileError === null && $gender !== '' && !isset($genderOptions[$gender])) {
+            $profileError = 'Kies een geldige genderoptie.';
+        }
+
+        if ($profileError === null) {
+            $settings['birthdate'] = $birthdate;
+            $settings['gender'] = $gender;
+            if (!save_athlete_settings($settingsDir, $state['currentAthleteId'], $settings)) {
+                $profileError = 'Opslaan van profielgegevens is mislukt.';
+            } else {
+                $profileMessage = 'Profiel bijgewerkt.';
+            }
+        }
     }
 
     $paceTable = get_pace_table();
@@ -472,6 +515,11 @@ function sparta_handle_tempos(array $state, array $config, string $action): void
         'basePaceInput' => $basePaceInput,
         'basePaceSeconds' => $basePaceSeconds,
         'basePaceError' => $basePaceError,
+        'birthdate' => $birthdate,
+        'gender' => $gender,
+        'genderOptions' => $genderOptions,
+        'profileMessage' => $profileMessage,
+        'profileError' => $profileError,
         'paceTable' => $paceTable,
         'selectedPaceRow' => $selectedPaceRow,
         'tempoPaces' => $tempoPaces,

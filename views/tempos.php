@@ -27,6 +27,44 @@ if (!empty($selectedPaceRow['label'])) {
     </form>
 </div>
 
+<div class="glass-card card shadow-lg mb-3 p-3">
+    <form method="post" action="?action=tempos" class="mb-0">
+        <div class="section-label mb-1">Profiel</div>
+        <div class="fw-semibold mb-3">Persoonlijke gegevens</div>
+        <?php if (!empty($profileMessage)): ?>
+            <div class="alert alert-success mb-3"><?php echo htmlspecialchars($profileMessage, ENT_QUOTES, 'UTF-8'); ?></div>
+        <?php endif; ?>
+        <?php if (!empty($profileError)): ?>
+            <div class="alert alert-danger mb-3"><?php echo htmlspecialchars($profileError, ENT_QUOTES, 'UTF-8'); ?></div>
+        <?php endif; ?>
+        <input type="hidden" name="save_profile" value="1">
+        <div class="mb-3">
+            <label for="birthdate" class="form-label">Geboortedatum</label>
+            <input
+                type="date"
+                class="form-control"
+                id="birthdate"
+                name="birthdate"
+                value="<?php echo htmlspecialchars((string)($birthdate ?? ''), ENT_QUOTES, 'UTF-8'); ?>"
+            >
+        </div>
+        <div class="mb-3">
+            <label for="gender" class="form-label">Gender</label>
+            <select class="form-select" id="gender" name="gender">
+                <option value="">Niet ingesteld</option>
+                <?php foreach (($genderOptions ?? []) as $genderValue => $genderLabel): ?>
+                    <option value="<?php echo htmlspecialchars($genderValue, ENT_QUOTES, 'UTF-8'); ?>" <?php echo (($gender ?? '') === $genderValue) ? 'selected' : ''; ?>>
+                        <?php echo htmlspecialchars($genderLabel, ENT_QUOTES, 'UTF-8'); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div class="d-flex justify-content-end">
+            <button type="submit" class="btn btn-primary">Opslaan</button>
+        </div>
+    </form>
+</div>
+
 <?php if (!empty($selectedPaceRow) && !empty($basePaceSeconds)): ?>
     <?php
     $paceCards = [
