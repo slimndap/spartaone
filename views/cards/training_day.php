@@ -73,13 +73,40 @@ foreach ($entries as $idx => $entry) {
         ? sparta_normalize_training_finish_times($entry['finish_times'] ?? [])
         : [];
     if ($finishTimes) {
-        uasort($finishTimes, static function ($left, $right): int {
-            $leftTs = strtotime('1970-01-01 ' . $left . ' UTC');
-            $rightTs = strtotime('1970-01-01 ' . $right . ' UTC');
+        $scoredFinishTimes = [];
+        foreach ($finishTimes as $athleteId => $finishTime) {
+            $athleteMeta = $athleteMetaMap[$athleteId] ?? ['name' => $athleteId, 'gender' => '', 'gender_key' => '', 'birthdate' => '', 'age' => null];
+            $eventAge = function_exists('sparta_training_age_from_birthdate_on_date')
+                ? sparta_training_age_from_birthdate_on_date($athleteMeta['birthdate'] ?? '', $dateStr)
+                : null;
+            $ageGrade = function_exists('sparta_calculate_age_grade')
+                ? sparta_calculate_age_grade($raceType, $finishTime, $athleteMeta['gender_key'] ?? '', $eventAge)
+                : null;
+            $scoredFinishTimes[$athleteId] = [
+                'finish_time' => $finishTime,
+                'event_age' => $eventAge,
+                'age_grade' => $ageGrade,
+            ];
+        }
+        uasort($scoredFinishTimes, static function ($left, $right): int {
+            $leftPercent = $left['age_grade']['percent'] ?? null;
+            $rightPercent = $right['age_grade']['percent'] ?? null;
+            if ($leftPercent !== null && $rightPercent !== null && $leftPercent !== $rightPercent) {
+                return $rightPercent <=> $leftPercent;
+            }
+            if ($leftPercent !== null) {
+                return -1;
+            }
+            if ($rightPercent !== null) {
+                return 1;
+            }
+
+            $leftTs = strtotime('1970-01-01 ' . $left['finish_time'] . ' UTC');
+            $rightTs = strtotime('1970-01-01 ' . $right['finish_time'] . ' UTC');
             if ($leftTs !== false && $rightTs !== false) {
                 return $leftTs <=> $rightTs;
             }
-            return strnatcasecmp((string)$left, (string)$right);
+            return strnatcasecmp((string)$left['finish_time'], (string)$right['finish_time']);
         });
     }
 
@@ -166,14 +193,11 @@ foreach ($entries as $idx => $entry) {
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($finishTimes as $athleteId => $finishTime):
+                            <?php foreach (($scoredFinishTimes ?? []) as $athleteId => $resultRow):
+                                $finishTime = $resultRow['finish_time'];
                                 $athleteMeta = $athleteMetaMap[$athleteId] ?? ['name' => $athleteId, 'gender' => '', 'gender_key' => '', 'birthdate' => '', 'age' => null];
-                                $eventAge = function_exists('sparta_training_age_from_birthdate_on_date')
-                                    ? sparta_training_age_from_birthdate_on_date($athleteMeta['birthdate'] ?? '', $dateStr)
-                                    : null;
-                                $ageGrade = function_exists('sparta_calculate_age_grade')
-                                    ? sparta_calculate_age_grade($raceType, $finishTime, $athleteMeta['gender_key'] ?? '', $eventAge)
-                                    : null;
+                                $eventAge = $resultRow['event_age'] ?? null;
+                                $ageGrade = $resultRow['age_grade'] ?? null;
                             ?>
                                 <tr>
                                     <td><?php echo htmlspecialchars($athleteMeta['name'], ENT_QUOTES, 'UTF-8'); ?></td>
