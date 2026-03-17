@@ -461,8 +461,19 @@ function sparta_handle_rankings(array $state, array $config, string $action): vo
     $settingsDir = $config['settingsDir'] ?? null;
     $athletes = $state['athletes'] ?? [];
     $athleteRows = is_array($athletes) ? sparta_build_training_athlete_rows($athletes, $settingsDir) : [];
+    $athleteMetaMap = [];
+    foreach ($athleteRows as $athleteRow) {
+        $athleteMetaMap[(string)$athleteRow['id']] = $athleteRow;
+    }
     $trainings = $trainingsDir ? load_trainings($trainingsDir) : [];
     $rankingDays = [];
+    $overallRanking = [];
+    $now = new DateTimeImmutable('today');
+    $rankingWindows = [
+        ['label' => '0-12 maanden', 'weight' => 1.0],
+        ['label' => '12-24 maanden', 'weight' => 0.75],
+        ['label' => '24-36 maanden', 'weight' => 0.5],
+    ];
 
     foreach ($trainings as $trainingDay) {
         $date = $trainingDay['date'] ?? '';
@@ -470,6 +481,13 @@ function sparta_handle_rankings(array $state, array $config, string $action): vo
         if (!is_array($entries) || $date === '') {
             continue;
         }
+        $eventDate = null;
+        try {
+            $eventDate = new DateTimeImmutable($date);
+        } catch (Exception $e) {
+            $eventDate = null;
+        }
+        $eventYear = $eventDate ? (int)$eventDate->format('Y') : null;
 
         $rankingEntries = [];
         foreach ($entries as $entry) {
@@ -481,6 +499,52 @@ function sparta_handle_rankings(array $state, array $config, string $action): vo
             $entry['race_type'] = $raceType;
             $entry['finish_times'] = $finishTimes;
             $rankingEntries[] = $entry;
+
+            if ($eventDate === null || $eventYear === null) {
+                continue;
+            }
+            $eventAgeDays = (int)$eventDate->diff($now)->format('%r%a');
+            if ($eventAgeDays < 0) {
+                continue;
+            }
+            $eventAgeMonths = $eventDate->diff($now)->y * 12 + $eventDate->diff($now)->m;
+            if ($eventAgeMonths < 12) {
+                $weight = 1.0;
+            } elseif ($eventAgeMonths < 24) {
+                $weight = 0.75;
+            } elseif ($eventAgeMonths < 36) {
+                $weight = 0.5;
+            } else {
+                continue;
+            }
+            foreach ($finishTimes as $athleteId => $finishTime) {
+                $athleteMeta = $athleteMetaMap[$athleteId] ?? null;
+                if ($athleteMeta === null) {
+                    continue;
+                }
+                $eventAge = sparta_training_age_from_birthdate_on_date($athleteMeta['birthdate'] ?? '', $date);
+                $ageGrade = sparta_calculate_age_grade($raceType, $finishTime, $athleteMeta['gender_key'] ?? '', $eventAge);
+                $percent = $ageGrade['percent'] ?? null;
+                if (!is_numeric($percent)) {
+                    continue;
+                }
+                if (!isset($overallRanking[$athleteId])) {
+                    $overallRanking[$athleteId] = [
+                        'id' => $athleteId,
+                        'name' => (string)($athleteMeta['name'] ?? $athleteId),
+                        'weighted_total' => 0.0,
+                        'weight_total' => 0.0,
+                        'result_count' => 0,
+                        'latest_result_date' => $date,
+                    ];
+                }
+                $overallRanking[$athleteId]['weighted_total'] += ((float)$percent * $weight);
+                $overallRanking[$athleteId]['weight_total'] += $weight;
+                $overallRanking[$athleteId]['result_count']++;
+                if ($date > $overallRanking[$athleteId]['latest_result_date']) {
+                    $overallRanking[$athleteId]['latest_result_date'] = $date;
+                }
+            }
         }
 
         if ($rankingEntries === []) {
@@ -498,6 +562,24 @@ function sparta_handle_rankings(array $state, array $config, string $action): vo
     usort($rankingDays, static function ($left, $right): int {
         return strcmp((string)($right['date'] ?? ''), (string)($left['date'] ?? ''));
     });
+    $overallRanking = array_values(array_filter($overallRanking, static function ($row): bool {
+        return (float)($row['weight_total'] ?? 0.0) > 0.0;
+    }));
+    foreach ($overallRanking as &$rankingRow) {
+        $rankingRow['score'] = $rankingRow['weighted_total'] / $rankingRow['weight_total'];
+    }
+    unset($rankingRow);
+    usort($overallRanking, static function ($left, $right): int {
+        $scoreCompare = ($right['score'] ?? 0) <=> ($left['score'] ?? 0);
+        if ($scoreCompare !== 0) {
+            return $scoreCompare;
+        }
+        $countCompare = ($right['result_count'] ?? 0) <=> ($left['result_count'] ?? 0);
+        if ($countCompare !== 0) {
+            return $countCompare;
+        }
+        return strcasecmp((string)($left['name'] ?? ''), (string)($right['name'] ?? ''));
+    });
 
     render('rankings', [
         'currentAthleteName' => $state['currentAthleteName'] ?? null,
@@ -506,6 +588,8 @@ function sparta_handle_rankings(array $state, array $config, string $action): vo
         'currentAction' => $action,
         'athleteRows' => $athleteRows,
         'rankingDays' => $rankingDays,
+        'overallRanking' => $overallRanking,
+        'rankingWindows' => $rankingWindows,
     ]);
 }
 

@@ -189,8 +189,8 @@ foreach ($entries as $idx => $entry) {
                                 <th scope="col">Sporter</th>
                                 <th scope="col">Gender</th>
                                 <th scope="col">Leeftijd</th>
-                                <th scope="col">Age Grade %</th>
                                 <th scope="col" class="text-end">Tijd</th>
+                                <th scope="col" class="text-end">Age Grade %</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -204,8 +204,8 @@ foreach ($entries as $idx => $entry) {
                                     <td><?php echo htmlspecialchars($athleteMeta['name'], ENT_QUOTES, 'UTF-8'); ?></td>
                                     <td><?php echo htmlspecialchars($athleteMeta['gender'] !== '' ? $athleteMeta['gender'] : '-', ENT_QUOTES, 'UTF-8'); ?></td>
                                     <td><?php echo $eventAge !== null ? (int)$eventAge : '-'; ?></td>
-                                    <td><?php echo htmlspecialchars(sparta_format_age_grade_percent($ageGrade['percent'] ?? null), ENT_QUOTES, 'UTF-8'); ?></td>
                                     <td class="text-end fw-semibold"><?php echo htmlspecialchars($finishTime, ENT_QUOTES, 'UTF-8'); ?></td>
+                                    <td class="text-end"><?php echo htmlspecialchars(sparta_format_age_grade_percent($ageGrade['percent'] ?? null), ENT_QUOTES, 'UTF-8'); ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
