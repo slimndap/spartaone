@@ -182,8 +182,8 @@ foreach ($entries as $idx => $entry) {
         <?php if ($finishTimes): ?>
             <div class="mt-2">
                 <div class="home-block-label">Finishtijden</div>
-                <div class="table-responsive training-results-table-wrapper">
-                    <table class="table table-borderless text-light align-middle mb-0 bg-transparent training-results-table">
+                <div class="table-responsive training-results-table-wrapper training-results-table-bleed">
+                    <table class="table table-borderless text-light align-middle mb-0 bg-transparent training-results-table training-results-table--race">
                         <thead>
                             <tr>
                                 <th scope="col">Sporter</th>
@@ -201,11 +201,11 @@ foreach ($entries as $idx => $entry) {
                                 $ageGrade = $resultRow['age_grade'] ?? null;
                             ?>
                                 <tr>
-                                    <td><?php echo htmlspecialchars($athleteMeta['name'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                    <td><?php echo htmlspecialchars($athleteMeta['gender'] !== '' ? $athleteMeta['gender'] : '-', ENT_QUOTES, 'UTF-8'); ?></td>
-                                    <td><?php echo $eventAge !== null ? (int)$eventAge : '-'; ?></td>
-                                    <td class="text-end fw-semibold"><?php echo htmlspecialchars($finishTime, ENT_QUOTES, 'UTF-8'); ?></td>
-                                    <td class="text-end"><?php echo htmlspecialchars(sparta_format_age_grade_percent($ageGrade['percent'] ?? null), ENT_QUOTES, 'UTF-8'); ?></td>
+                                    <td data-label="Sporter"><?php echo htmlspecialchars($athleteMeta['name'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                    <td data-label="Gender"><?php echo htmlspecialchars($athleteMeta['gender'] !== '' ? $athleteMeta['gender'] : '-', ENT_QUOTES, 'UTF-8'); ?></td>
+                                    <td data-label="Leeftijd"><?php echo $eventAge !== null ? (int)$eventAge : '-'; ?></td>
+                                    <td data-label="Tijd" class="text-end fw-semibold"><?php echo htmlspecialchars($finishTime, ENT_QUOTES, 'UTF-8'); ?></td>
+                                    <td data-label="Age Grade %" class="text-end"><?php echo htmlspecialchars(sparta_format_age_grade_percent($ageGrade['percent'] ?? null), ENT_QUOTES, 'UTF-8'); ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>

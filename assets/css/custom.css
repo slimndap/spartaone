@@ -173,6 +173,11 @@ main.container {
   border-radius: 10px;
 }
 
+.rankings-summary-card .card-body,
+.rankings-races-card .card-body {
+  padding: 1.5rem;
+}
+
 .training-month-label {
   color: var(--brand-accent-strong);
   letter-spacing: 0.02em;
@@ -254,10 +259,10 @@ main.container {
 }
 
 .training-results-table-wrapper {
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 14px;
-  overflow: hidden;
-  background: rgba(1, 1, 2, 0.28);
+  border: 0;
+  border-radius: 0;
+  overflow: visible;
+  background: transparent;
 }
 
 .training-results-table {
@@ -293,6 +298,58 @@ main.container {
 
 .training-results-table tbody tr:nth-child(even) {
   background: rgba(255, 255, 255, 0.03);
+}
+
+.rankings-table-bleed {
+  margin-top: 0.5rem;
+}
+
+.training-results-table-bleed {
+  margin-top: 0.35rem;
+}
+
+@media (max-width: 767.98px) {
+  .rankings-summary-card .card-body,
+  .rankings-races-card .card-body {
+    padding: 1rem;
+  }
+
+  .rankings-table-bleed {
+    margin-left: -1rem;
+    margin-right: -1rem;
+  }
+
+  .training-day {
+    padding: 0.85rem 0;
+  }
+
+  .training-results-table-bleed {
+    margin-left: -1rem;
+    margin-right: -1rem;
+  }
+
+  .rankings-summary-card .training-results-table thead th,
+  .rankings-summary-card .training-results-table tbody td,
+  .training-results-table thead th,
+  .training-results-table tbody td {
+    padding: 0.7rem 0.75rem;
+  }
+
+  .rankings-summary-card .training-results-table {
+    font-size: 0.95rem;
+  }
+
+  .training-results-table--race th:nth-child(2),
+  .training-results-table--race th:nth-child(3),
+  .training-results-table--race td:nth-child(2),
+  .training-results-table--race td:nth-child(3) {
+    display: none;
+  }
+
+  .training-results-table--overall th:nth-child(3),
+  .training-results-table--overall td:nth-child(3) {
+    display: none;
+  }
 }
 
 .glass-card .form-control,
