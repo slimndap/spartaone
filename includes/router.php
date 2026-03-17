@@ -17,6 +17,7 @@ function sparta_handle_request(string $action, array $state, array $config): voi
         'athlete' => 'sparta_handle_athlete_detail',
         'goals' => 'sparta_handle_goals',
         'training' => 'sparta_handle_training',
+        'rankings' => 'sparta_handle_rankings',
         'weekly-activities' => 'sparta_handle_weekly_activity_matrix',
         'tempos' => 'sparta_handle_tempos',
         'webhook' => 'sparta_handle_webhook',
@@ -447,6 +448,64 @@ function sparta_handle_training(array $state, array $config, string $action): vo
         'trainingMessage' => $trainingMessage,
         'trainingError' => $trainingError,
         'tempoPaces' => $tempoPaces,
+    ]);
+}
+
+function sparta_handle_rankings(array $state, array $config, string $action): void
+{
+    if (!sparta_require_login($state, 'Please log in to view rankings.')) {
+        return;
+    }
+
+    $trainingsDir = $config['trainingsDir'] ?? null;
+    $settingsDir = $config['settingsDir'] ?? null;
+    $athletes = $state['athletes'] ?? [];
+    $athleteRows = is_array($athletes) ? sparta_build_training_athlete_rows($athletes, $settingsDir) : [];
+    $trainings = $trainingsDir ? load_trainings($trainingsDir) : [];
+    $rankingDays = [];
+
+    foreach ($trainings as $trainingDay) {
+        $date = $trainingDay['date'] ?? '';
+        $entries = $trainingDay['entries'] ?? [];
+        if (!is_array($entries) || $date === '') {
+            continue;
+        }
+
+        $rankingEntries = [];
+        foreach ($entries as $entry) {
+            $raceType = sparta_normalize_training_race_type($entry['race_type'] ?? '');
+            $finishTimes = sparta_normalize_training_finish_times($entry['finish_times'] ?? []);
+            if ($raceType === '' || $finishTimes === []) {
+                continue;
+            }
+            $entry['race_type'] = $raceType;
+            $entry['finish_times'] = $finishTimes;
+            $rankingEntries[] = $entry;
+        }
+
+        if ($rankingEntries === []) {
+            continue;
+        }
+
+        $rankingDays[] = [
+            'date' => $date,
+            'entries' => $rankingEntries,
+            'view_state' => 'past',
+            'allow_edit_links' => false,
+        ];
+    }
+
+    usort($rankingDays, static function ($left, $right): int {
+        return strcmp((string)($right['date'] ?? ''), (string)($left['date'] ?? ''));
+    });
+
+    render('rankings', [
+        'currentAthleteName' => $state['currentAthleteName'] ?? null,
+        'currentAthleteId' => $state['currentAthleteId'] ?? null,
+        'currentAthletePhoto' => $state['currentAthletePhoto'] ?? null,
+        'currentAction' => $action,
+        'athleteRows' => $athleteRows,
+        'rankingDays' => $rankingDays,
     ]);
 }
 

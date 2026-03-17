@@ -14,6 +14,7 @@ $dateStr = $trainingDay['date'] ?? null;
 $isAdmin = function_exists('user_is_admin') ? user_is_admin() : false;
 $tempoPaces = function_exists('get_tempo_paces_context') ? get_tempo_paces_context() : [];
 $viewState = $trainingDay['view_state'] ?? null;
+$allowEditLinks = array_key_exists('allow_edit_links', $trainingDay) ? (bool)$trainingDay['allow_edit_links'] : true;
 $raceOptions = function_exists('sparta_training_race_options') ? sparta_training_race_options() : [];
 $athleteMetaMap = [];
 foreach ($athleteRows as $athleteRow) {
@@ -124,7 +125,7 @@ foreach ($entries as $idx => $entry) {
 
     $entryHeading = $heading && $idx === 0 ? $heading : null;
     $editUrl = $entry['edit_url'] ?? null;
-    if ($isAdmin && $dateStr && $editUrl === null) {
+    if ($allowEditLinks && $isAdmin && $dateStr && $editUrl === null) {
         $derivedState = 'upcoming';
         try {
             $today = new DateTimeImmutable('today');

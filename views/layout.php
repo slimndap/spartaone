@@ -72,6 +72,7 @@ $bodyClasses[] = 'page-' . ($actionSlug ?: 'home');
         ['action' => 'athletes', 'label' => 'Sporters', 'icon' => 'bi-people-fill'],
         ['action' => 'goals', 'label' => 'Goals', 'icon' => 'bi-bullseye'],
         ['action' => 'training', 'label' => 'Schema', 'icon' => 'bi-calendar2-week-fill'],
+        ['action' => 'rankings', 'label' => 'Rankings', 'icon' => 'bi-trophy-fill'],
     ];
     ?>
     <nav class="bottom-nav">
