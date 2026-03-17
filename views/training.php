@@ -1,6 +1,22 @@
 <?php
 $trainingsByDate = [];
 $raceOptions = function_exists('sparta_training_race_options') ? sparta_training_race_options() : [];
+$athleteRows = [];
+if (!empty($athletes) && is_array($athletes)) {
+    foreach ($athletes as $athlete) {
+        $athleteId = (string)($athlete['id'] ?? '');
+        if ($athleteId === '') {
+            continue;
+        }
+        $athleteRows[] = [
+            'id' => $athleteId,
+            'name' => function_exists('sparta_training_athlete_name')
+                ? sparta_training_athlete_name($athlete)
+                : $athleteId,
+        ];
+    }
+    usort($athleteRows, static fn($a, $b) => strcasecmp($a['name'], $b['name']));
+}
 if (!empty($trainings) && is_array($trainings)) {
     foreach ($trainings as $trainingDay) {
         $dateStr = $trainingDay['date'] ?? null;
@@ -86,12 +102,14 @@ foreach ($sortedDates as $dateKey):
                         'entries' => $entries,
                         'view_state' => $viewState,
                     ],
+                    'athleteRows' => $athleteRows,
                 ]);
             ?>
         </div>
         <?php if (!empty($isAdmin) && $editDate === $dateKey && isset($entries[$editIdx])): ?>
             <?php $entry = $entries[$editIdx]; ?>
             <?php $selectedRaceType = function_exists('sparta_normalize_training_race_type') ? sparta_normalize_training_race_type($entry['race_type'] ?? '') : ''; ?>
+            <?php $finishTimes = function_exists('sparta_normalize_training_finish_times') ? sparta_normalize_training_finish_times($entry['finish_times'] ?? []) : []; ?>
             <form method="post" action="?action=training&state=<?php echo htmlspecialchars($viewState, ENT_QUOTES, 'UTF-8'); ?>" class="border rounded p-2 mt-2">
                 <input type="hidden" name="edit_date" value="<?php echo htmlspecialchars($dateKey, ENT_QUOTES, 'UTF-8'); ?>">
                 <input type="hidden" name="edit_idx" value="<?php echo (int)$editIdx; ?>">
@@ -134,6 +152,31 @@ foreach ($sortedDates as $dateKey):
                 <div class="mb-2">
                     <label class="form-label form-label-sm mb-1">Notities</label>
                     <textarea name="notes" class="form-control form-control-sm" rows="2"><?php echo htmlspecialchars($entry['notes'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label form-label-sm mb-1">Finishtijden per sporter</label>
+                    <div class="form-text mb-2">Vul alleen tijden in voor wedstrijden.</div>
+                    <?php if (empty($athleteRows)): ?>
+                        <div class="text-muted small">Geen sporters beschikbaar.</div>
+                    <?php else: ?>
+                        <div class="row g-2">
+                            <?php foreach ($athleteRows as $athleteRow): ?>
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label form-label-sm mb-1" for="finish_time_<?php echo htmlspecialchars($dateKey, ENT_QUOTES, 'UTF-8'); ?>_<?php echo (int)$editIdx; ?>_<?php echo htmlspecialchars($athleteRow['id'], ENT_QUOTES, 'UTF-8'); ?>">
+                                        <?php echo htmlspecialchars($athleteRow['name'], ENT_QUOTES, 'UTF-8'); ?>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="finish_times[<?php echo htmlspecialchars($athleteRow['id'], ENT_QUOTES, 'UTF-8'); ?>]"
+                                        id="finish_time_<?php echo htmlspecialchars($dateKey, ENT_QUOTES, 'UTF-8'); ?>_<?php echo (int)$editIdx; ?>_<?php echo htmlspecialchars($athleteRow['id'], ENT_QUOTES, 'UTF-8'); ?>"
+                                        class="form-control form-control-sm"
+                                        placeholder="bijv. 00:42:15"
+                                        value="<?php echo htmlspecialchars($finishTimes[$athleteRow['id']] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                    >
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
                 </div>
                 <div class="d-flex justify-content-end gap-2">
                     <a class="btn btn-outline-secondary btn-sm" href="?action=training&state=<?php echo htmlspecialchars($viewState, ENT_QUOTES, 'UTF-8'); ?>">Annuleer</a>

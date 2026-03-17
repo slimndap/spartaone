@@ -32,6 +32,47 @@ function sparta_normalize_training_race_type($raceType): string
 }
 
 /**
+ * Normalize athlete finish times keyed by athlete id.
+ *
+ * @param mixed $finishTimes
+ * @return array<string,string>
+ */
+function sparta_normalize_training_finish_times($finishTimes): array
+{
+    if (!is_array($finishTimes)) {
+        return [];
+    }
+    $normalized = [];
+    foreach ($finishTimes as $athleteId => $time) {
+        $athleteId = trim((string)$athleteId);
+        $time = trim((string)$time);
+        if ($athleteId === '' || $time === '') {
+            continue;
+        }
+        $normalized[$athleteId] = $time;
+    }
+    return $normalized;
+}
+
+/**
+ * Build a display name for an athlete record.
+ *
+ * @param array<string,mixed> $athlete
+ */
+function sparta_training_athlete_name(array $athlete): string
+{
+    $fullName = trim((string)($athlete['firstname'] ?? '') . ' ' . (string)($athlete['lastname'] ?? ''));
+    if ($fullName !== '') {
+        return $fullName;
+    }
+    $username = trim((string)($athlete['username'] ?? ''));
+    if ($username !== '') {
+        return $username;
+    }
+    return 'Onbekende sporter';
+}
+
+/**
  * Call OpenAI Chat API to convert a CSV schedule into structured trainings per date.
  *
  * @param string $csvText Raw CSV text pasted by the user.
@@ -151,6 +192,7 @@ function parse_training_csv_with_openai(string $csvText): array
                 $entry['notes'] = '';
             }
             $entry['race_type'] = sparta_normalize_training_race_type($entry['race_type'] ?? '');
+            $entry['finish_times'] = sparta_normalize_training_finish_times($entry['finish_times'] ?? []);
             $entry['tempos'] = $normalizeTempos($entry['tempos'] ?? []);
         }
         unset($entry);

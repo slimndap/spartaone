@@ -329,6 +329,7 @@ function sparta_handle_training(array $state, array $config, string $action): vo
     $trainings = load_trainings($trainingsDir);
     $settings = sparta_load_settings_for_athlete($state, $settingsDir);
     $tempoPaces = resolve_tempo_paces($settings, $state['currentAthleteId'] ?? null, $settingsDir, true);
+    $athletes = $state['athletes'] ?? [];
 
     if (!empty($state['isAdmin']) && isset($_POST['save_training'])) {
         $editDate = $_POST['edit_date'] ?? '';
@@ -338,6 +339,7 @@ function sparta_handle_training(array $state, array $config, string $action): vo
         $distance = trim((string)($_POST['distance'] ?? ''));
         $notes = trim((string)($_POST['notes'] ?? ''));
         $raceType = sparta_normalize_training_race_type($_POST['race_type'] ?? '');
+        $finishTimes = sparta_normalize_training_finish_times($_POST['finish_times'] ?? []);
         $temposList = [];
         if (!empty($_POST['tempos']) && is_array($_POST['tempos'])) {
             foreach ($_POST['tempos'] as $t) {
@@ -360,6 +362,7 @@ function sparta_handle_training(array $state, array $config, string $action): vo
             $trainingDay['entries'][$editIdx]['distance'] = $distance;
             $trainingDay['entries'][$editIdx]['notes'] = $notes;
             $trainingDay['entries'][$editIdx]['race_type'] = $raceType;
+            $trainingDay['entries'][$editIdx]['finish_times'] = $raceType !== '' ? $finishTimes : [];
             $trainingDay['entries'][$editIdx]['tempos'] = $temposList;
             $updated = true;
             break;
@@ -403,6 +406,7 @@ function sparta_handle_training(array $state, array $config, string $action): vo
         'currentAthletePhoto' => $state['currentAthletePhoto'] ?? null,
         'currentAction' => $action,
         'isAdmin' => $state['isAdmin'] ?? false,
+        'athletes' => $athletes,
         'trainings' => $trainings ?? [],
         'trainingMessage' => $trainingMessage,
         'trainingError' => $trainingError,

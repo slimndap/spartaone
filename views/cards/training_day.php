@@ -1,6 +1,7 @@
 <?php
 // Expected variables:
 // - array $trainingDay with keys date, entries, view_state (optional)
+// - array $athleteRows (optional)
 
 $trainingDay = $trainingDay ?? [];
 $entries = $trainingDay['entries'] ?? [];
@@ -8,11 +9,20 @@ if (!$entries || !is_array($entries)) {
     return;
 }
 
+$athleteRows = $athleteRows ?? [];
 $dateStr = $trainingDay['date'] ?? null;
 $isAdmin = function_exists('user_is_admin') ? user_is_admin() : false;
 $tempoPaces = function_exists('get_tempo_paces_context') ? get_tempo_paces_context() : [];
 $viewState = $trainingDay['view_state'] ?? null;
 $raceOptions = function_exists('sparta_training_race_options') ? sparta_training_race_options() : [];
+$athleteNameMap = [];
+foreach ($athleteRows as $athleteRow) {
+    $athleteId = (string)($athleteRow['id'] ?? '');
+    if ($athleteId === '') {
+        continue;
+    }
+    $athleteNameMap[$athleteId] = (string)($athleteRow['name'] ?? $athleteId);
+}
 
 $heading = null;
 if ($dateStr) {
@@ -53,6 +63,19 @@ foreach ($entries as $idx => $entry) {
         ? sparta_normalize_training_race_type($entry['race_type'] ?? '')
         : '';
     $raceLabel = $raceType !== '' ? ($raceOptions[$raceType] ?? 'Wedstrijd') : '';
+    $finishTimes = function_exists('sparta_normalize_training_finish_times')
+        ? sparta_normalize_training_finish_times($entry['finish_times'] ?? [])
+        : [];
+    if ($finishTimes) {
+        uasort($finishTimes, static function ($left, $right): int {
+            $leftTs = strtotime('1970-01-01 ' . $left . ' UTC');
+            $rightTs = strtotime('1970-01-01 ' . $right . ' UTC');
+            if ($leftTs !== false && $rightTs !== false) {
+                return $leftTs <=> $rightTs;
+            }
+            return strnatcasecmp((string)$left, (string)$right);
+        });
+    }
 
     $location = $entry['location'] ?? null;
     if (!$location && $dateStr) {
@@ -121,6 +144,19 @@ foreach ($entries as $idx => $entry) {
         </div>
         <?php if ($notes): ?>
             <div class="home-notes"><?php echo htmlspecialchars($notes, ENT_QUOTES, 'UTF-8'); ?></div>
+        <?php endif; ?>
+        <?php if ($finishTimes): ?>
+            <div class="mt-2">
+                <div class="home-block-label">Finishtijden</div>
+                <div class="d-flex flex-column gap-1">
+                    <?php foreach ($finishTimes as $athleteId => $finishTime): ?>
+                        <div class="d-flex justify-content-between align-items-center gap-2 small">
+                            <span><?php echo htmlspecialchars($athleteNameMap[$athleteId] ?? $athleteId, ENT_QUOTES, 'UTF-8'); ?></span>
+                            <span class="fw-semibold"><?php echo htmlspecialchars($finishTime, ENT_QUOTES, 'UTF-8'); ?></span>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
         <?php endif; ?>
         <?php if ($location): ?>
             <div class="home-location mt-2">
