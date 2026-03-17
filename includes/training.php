@@ -73,6 +73,42 @@ function sparta_training_athlete_name(array $athlete): string
 }
 
 /**
+ * Convert a stored gender key to a user-facing label.
+ */
+function sparta_training_gender_label($gender): string
+{
+    $gender = trim((string)$gender);
+    $labels = [
+        'male' => 'Man',
+        'female' => 'Vrouw',
+        'non_binary' => 'Non-binair',
+        'other' => 'Anders',
+        'prefer_not_to_say' => 'Niet opgegeven',
+    ];
+    return $labels[$gender] ?? '';
+}
+
+/**
+ * Calculate the current age from a YYYY-MM-DD birthdate.
+ */
+function sparta_training_age_from_birthdate($birthdate): ?int
+{
+    $birthdate = trim((string)$birthdate);
+    if ($birthdate === '') {
+        return null;
+    }
+    $birthdateObj = DateTimeImmutable::createFromFormat('Y-m-d', $birthdate);
+    if (!$birthdateObj || $birthdateObj->format('Y-m-d') !== $birthdate) {
+        return null;
+    }
+    $today = new DateTimeImmutable('today');
+    if ($birthdateObj > $today) {
+        return null;
+    }
+    return $birthdateObj->diff($today)->y;
+}
+
+/**
  * Call OpenAI Chat API to convert a CSV schedule into structured trainings per date.
  *
  * @param string $csvText Raw CSV text pasted by the user.

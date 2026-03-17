@@ -15,13 +15,17 @@ $isAdmin = function_exists('user_is_admin') ? user_is_admin() : false;
 $tempoPaces = function_exists('get_tempo_paces_context') ? get_tempo_paces_context() : [];
 $viewState = $trainingDay['view_state'] ?? null;
 $raceOptions = function_exists('sparta_training_race_options') ? sparta_training_race_options() : [];
-$athleteNameMap = [];
+$athleteMetaMap = [];
 foreach ($athleteRows as $athleteRow) {
     $athleteId = (string)($athleteRow['id'] ?? '');
     if ($athleteId === '') {
         continue;
     }
-    $athleteNameMap[$athleteId] = (string)($athleteRow['name'] ?? $athleteId);
+    $athleteMetaMap[$athleteId] = [
+        'name' => (string)($athleteRow['name'] ?? $athleteId),
+        'gender' => (string)($athleteRow['gender'] ?? ''),
+        'age' => $athleteRow['age'] ?? null,
+    ];
 }
 
 $heading = null;
@@ -148,13 +152,29 @@ foreach ($entries as $idx => $entry) {
         <?php if ($finishTimes): ?>
             <div class="mt-2">
                 <div class="home-block-label">Finishtijden</div>
-                <div class="d-flex flex-column gap-1">
-                    <?php foreach ($finishTimes as $athleteId => $finishTime): ?>
-                        <div class="d-flex justify-content-between align-items-center gap-2 small">
-                            <span><?php echo htmlspecialchars($athleteNameMap[$athleteId] ?? $athleteId, ENT_QUOTES, 'UTF-8'); ?></span>
-                            <span class="fw-semibold"><?php echo htmlspecialchars($finishTime, ENT_QUOTES, 'UTF-8'); ?></span>
-                        </div>
-                    <?php endforeach; ?>
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th scope="col">Sporter</th>
+                                <th scope="col">Gender</th>
+                                <th scope="col">Leeftijd</th>
+                                <th scope="col" class="text-end">Tijd</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($finishTimes as $athleteId => $finishTime):
+                                $athleteMeta = $athleteMetaMap[$athleteId] ?? ['name' => $athleteId, 'gender' => '', 'age' => null];
+                            ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($athleteMeta['name'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                    <td><?php echo htmlspecialchars($athleteMeta['gender'] !== '' ? $athleteMeta['gender'] : '-', ENT_QUOTES, 'UTF-8'); ?></td>
+                                    <td><?php echo $athleteMeta['age'] !== null ? (int)$athleteMeta['age'] : '-'; ?></td>
+                                    <td class="text-end fw-semibold"><?php echo htmlspecialchars($finishTime, ENT_QUOTES, 'UTF-8'); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         <?php endif; ?>

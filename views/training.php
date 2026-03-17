@@ -1,22 +1,7 @@
 <?php
 $trainingsByDate = [];
 $raceOptions = function_exists('sparta_training_race_options') ? sparta_training_race_options() : [];
-$athleteRows = [];
-if (!empty($athletes) && is_array($athletes)) {
-    foreach ($athletes as $athlete) {
-        $athleteId = (string)($athlete['id'] ?? '');
-        if ($athleteId === '') {
-            continue;
-        }
-        $athleteRows[] = [
-            'id' => $athleteId,
-            'name' => function_exists('sparta_training_athlete_name')
-                ? sparta_training_athlete_name($athlete)
-                : $athleteId,
-        ];
-    }
-    usort($athleteRows, static fn($a, $b) => strcasecmp($a['name'], $b['name']));
-}
+$athleteRows = (isset($athleteRows) && is_array($athleteRows)) ? $athleteRows : [];
 if (!empty($trainings) && is_array($trainings)) {
     foreach ($trainings as $trainingDay) {
         $dateStr = $trainingDay['date'] ?? null;

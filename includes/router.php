@@ -330,6 +330,23 @@ function sparta_handle_training(array $state, array $config, string $action): vo
     $settings = sparta_load_settings_for_athlete($state, $settingsDir);
     $tempoPaces = resolve_tempo_paces($settings, $state['currentAthleteId'] ?? null, $settingsDir, true);
     $athletes = $state['athletes'] ?? [];
+    $athleteRows = [];
+    if (is_array($athletes)) {
+        foreach ($athletes as $athlete) {
+            $athleteId = (string)($athlete['id'] ?? '');
+            if ($athleteId === '') {
+                continue;
+            }
+            $athleteSettings = $settingsDir ? load_athlete_settings($settingsDir, $athleteId) : [];
+            $athleteRows[] = [
+                'id' => $athleteId,
+                'name' => sparta_training_athlete_name($athlete),
+                'gender' => sparta_training_gender_label($athleteSettings['gender'] ?? ''),
+                'age' => sparta_training_age_from_birthdate($athleteSettings['birthdate'] ?? ''),
+            ];
+        }
+        usort($athleteRows, static fn($a, $b) => strcasecmp((string)$a['name'], (string)$b['name']));
+    }
 
     if (!empty($state['isAdmin']) && isset($_POST['save_training'])) {
         $editDate = $_POST['edit_date'] ?? '';
@@ -407,6 +424,7 @@ function sparta_handle_training(array $state, array $config, string $action): vo
         'currentAction' => $action,
         'isAdmin' => $state['isAdmin'] ?? false,
         'athletes' => $athletes,
+        'athleteRows' => $athleteRows,
         'trainings' => $trainings ?? [],
         'trainingMessage' => $trainingMessage,
         'trainingError' => $trainingError,
