@@ -22,7 +22,10 @@
             <?php endif; ?>
             <?php if (!empty($nextTraining) && $entry): ?>
                 <div class="home-next">
-                    <?php render_partial('cards/training_day', ['trainingDay' => $nextTraining]); ?>
+                    <?php render_partial('cards/training_day', [
+                        'trainingDay' => $nextTraining,
+                        'athleteRows' => $athleteRows ?? [],
+                    ]); ?>
                 </div>
             <?php else: ?>
                 <p class="text-muted">Geen komende training gevonden.</p>

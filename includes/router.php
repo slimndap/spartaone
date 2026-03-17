@@ -52,10 +52,44 @@ function sparta_load_settings_for_athlete(array $state, ?string $settingsDir): a
     return $settings;
 }
 
+/**
+ * Build athlete metadata rows for training displays.
+ *
+ * @param array<int,array<string,mixed>> $athletes
+ * @return array<int,array<string,mixed>>
+ */
+function sparta_build_training_athlete_rows(array $athletes, ?string $settingsDir): array
+{
+    $athleteRows = [];
+    foreach ($athletes as $athlete) {
+        $athleteId = (string)($athlete['id'] ?? '');
+        if ($athleteId === '') {
+            continue;
+        }
+        $athleteSettings = $settingsDir ? load_athlete_settings($settingsDir, $athleteId) : [];
+        $athleteRows[] = [
+            'id' => $athleteId,
+            'name' => sparta_training_athlete_name($athlete),
+            'gender' => sparta_training_gender_label($athleteSettings['gender'] ?? ''),
+            'gender_key' => trim((string)($athleteSettings['gender'] ?? '')),
+            'birthdate' => trim((string)($athleteSettings['birthdate'] ?? '')),
+            'age' => sparta_training_age_from_birthdate($athleteSettings['birthdate'] ?? ''),
+        ];
+    }
+
+    usort($athleteRows, static fn($a, $b) => strcasecmp((string)$a['name'], (string)$b['name']));
+
+    return $athleteRows;
+}
+
 function sparta_handle_home(array $state, array $config, string $action): void
 {
     $state['currentAction'] = $action;
     $state['upcomingGoals'] = []; // Defaults to empty when no goals exist.
+    $state['athleteRows'] = sparta_build_training_athlete_rows(
+        is_array($state['athletes'] ?? null) ? $state['athletes'] : [],
+        $config['settingsDir'] ?? null
+    );
     if (!empty($state['athlete']['goals']) && is_array($state['athlete']['goals'])) {
         $state['upcomingGoals'] = sparta_next_goals($state['athlete']['goals'], 3);
     }
@@ -330,23 +364,7 @@ function sparta_handle_training(array $state, array $config, string $action): vo
     $settings = sparta_load_settings_for_athlete($state, $settingsDir);
     $tempoPaces = resolve_tempo_paces($settings, $state['currentAthleteId'] ?? null, $settingsDir, true);
     $athletes = $state['athletes'] ?? [];
-    $athleteRows = [];
-    if (is_array($athletes)) {
-        foreach ($athletes as $athlete) {
-            $athleteId = (string)($athlete['id'] ?? '');
-            if ($athleteId === '') {
-                continue;
-            }
-            $athleteSettings = $settingsDir ? load_athlete_settings($settingsDir, $athleteId) : [];
-            $athleteRows[] = [
-                'id' => $athleteId,
-                'name' => sparta_training_athlete_name($athlete),
-                'gender' => sparta_training_gender_label($athleteSettings['gender'] ?? ''),
-                'age' => sparta_training_age_from_birthdate($athleteSettings['birthdate'] ?? ''),
-            ];
-        }
-        usort($athleteRows, static fn($a, $b) => strcasecmp((string)$a['name'], (string)$b['name']));
-    }
+    $athleteRows = is_array($athletes) ? sparta_build_training_athlete_rows($athletes, $settingsDir) : [];
 
     if (!empty($state['isAdmin']) && isset($_POST['save_training'])) {
         $editDate = $_POST['edit_date'] ?? '';

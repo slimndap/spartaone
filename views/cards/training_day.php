@@ -24,6 +24,8 @@ foreach ($athleteRows as $athleteRow) {
     $athleteMetaMap[$athleteId] = [
         'name' => (string)($athleteRow['name'] ?? $athleteId),
         'gender' => (string)($athleteRow['gender'] ?? ''),
+        'gender_key' => (string)($athleteRow['gender_key'] ?? ''),
+        'birthdate' => (string)($athleteRow['birthdate'] ?? ''),
         'age' => $athleteRow['age'] ?? null,
     ];
 }
@@ -159,19 +161,25 @@ foreach ($entries as $idx => $entry) {
                                 <th scope="col">Sporter</th>
                                 <th scope="col">Gender</th>
                                 <th scope="col">Leeftijd</th>
-                                <th scope="col">Age grade</th>
+                                <th scope="col">Age Grade %</th>
                                 <th scope="col" class="text-end">Tijd</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($finishTimes as $athleteId => $finishTime):
-                                $athleteMeta = $athleteMetaMap[$athleteId] ?? ['name' => $athleteId, 'gender' => '', 'age' => null];
+                                $athleteMeta = $athleteMetaMap[$athleteId] ?? ['name' => $athleteId, 'gender' => '', 'gender_key' => '', 'birthdate' => '', 'age' => null];
+                                $eventAge = function_exists('sparta_training_age_from_birthdate_on_date')
+                                    ? sparta_training_age_from_birthdate_on_date($athleteMeta['birthdate'] ?? '', $dateStr)
+                                    : null;
+                                $ageGrade = function_exists('sparta_calculate_age_grade')
+                                    ? sparta_calculate_age_grade($raceType, $finishTime, $athleteMeta['gender_key'] ?? '', $eventAge)
+                                    : null;
                             ?>
                                 <tr>
                                     <td><?php echo htmlspecialchars($athleteMeta['name'], ENT_QUOTES, 'UTF-8'); ?></td>
                                     <td><?php echo htmlspecialchars($athleteMeta['gender'] !== '' ? $athleteMeta['gender'] : '-', ENT_QUOTES, 'UTF-8'); ?></td>
-                                    <td><?php echo $athleteMeta['age'] !== null ? (int)$athleteMeta['age'] : '-'; ?></td>
-                                    <td>-</td>
+                                    <td><?php echo $eventAge !== null ? (int)$eventAge : '-'; ?></td>
+                                    <td><?php echo htmlspecialchars(sparta_format_age_grade_percent($ageGrade['percent'] ?? null), ENT_QUOTES, 'UTF-8'); ?></td>
                                     <td class="text-end fw-semibold"><?php echo htmlspecialchars($finishTime, ENT_QUOTES, 'UTF-8'); ?></td>
                                 </tr>
                             <?php endforeach; ?>

@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/env.php';
+require_once __DIR__ . '/age-grade.php';
 require_once __DIR__ . '/training.php';
 require_once __DIR__ . '/roles.php';
 require_once __DIR__ . '/paces.php';

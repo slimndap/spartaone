@@ -93,19 +93,7 @@ function sparta_training_gender_label($gender): string
  */
 function sparta_training_age_from_birthdate($birthdate): ?int
 {
-    $birthdate = trim((string)$birthdate);
-    if ($birthdate === '') {
-        return null;
-    }
-    $birthdateObj = DateTimeImmutable::createFromFormat('Y-m-d', $birthdate);
-    if (!$birthdateObj || $birthdateObj->format('Y-m-d') !== $birthdate) {
-        return null;
-    }
-    $today = new DateTimeImmutable('today');
-    if ($birthdateObj > $today) {
-        return null;
-    }
-    return $birthdateObj->diff($today)->y;
+    return sparta_training_age_from_birthdate_on_date($birthdate, (new DateTimeImmutable('today'))->format('Y-m-d'));
 }
 
 /**
