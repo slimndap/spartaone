@@ -61,6 +61,14 @@ $rankingWindows = (isset($rankingWindows) && is_array($rankingWindows)) ? array_
                 <div class="form-text mt-1">
                     Age Grade % vergelijkt prestaties over leeftijd en geslacht heen. Hoe hoger het percentage, hoe sterker de prestatie ten opzichte van de WMA-standaard.
                 </div>
+                <div class="form-text mt-2">
+                    Richtlijn:
+                    &gt; 100% = Wereldrecordniveau,
+                    &gt; 90% = Wereldklasse,
+                    &gt; 80% = Nationale klasse,
+                    &gt; 70% = Regionale klasse,
+                    &gt; 60% = Lokaal niveau.
+                </div>
             <?php endif; ?>
         </div>
     </div>
