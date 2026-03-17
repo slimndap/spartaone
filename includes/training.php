@@ -1,6 +1,37 @@
 <?php
 
 /**
+ * Canonical race options for scheduled trainings.
+ *
+ * @return array<string,string>
+ */
+function sparta_training_race_options(): array
+{
+    return [
+        '5k' => '5K wedstrijd',
+        '10k' => '10K wedstrijd',
+        '10m' => '10M wedstrijd',
+        'half-marathon' => 'Halve Marathon wedstrijd',
+        'marathon' => 'Marathon wedstrijd',
+    ];
+}
+
+/**
+ * Normalize stored race data to a stable key.
+ */
+function sparta_normalize_training_race_type($raceType): string
+{
+    $allowed = sparta_training_race_options();
+    if (is_string($raceType)) {
+        $raceType = trim($raceType);
+        if (isset($allowed[$raceType])) {
+            return $raceType;
+        }
+    }
+    return '';
+}
+
+/**
  * Call OpenAI Chat API to convert a CSV schedule into structured trainings per date.
  *
  * @param string $csvText Raw CSV text pasted by the user.
@@ -119,11 +150,7 @@ function parse_training_csv_with_openai(string $csvText): array
             if (!isset($entry['notes']) || $entry['notes'] === null) {
                 $entry['notes'] = '';
             }
-            if (!isset($entry['is_race'])) {
-                $entry['is_race'] = false;
-            } else {
-                $entry['is_race'] = (bool)$entry['is_race'];
-            }
+            $entry['race_type'] = sparta_normalize_training_race_type($entry['race_type'] ?? '');
             $entry['tempos'] = $normalizeTempos($entry['tempos'] ?? []);
         }
         unset($entry);

@@ -1,5 +1,6 @@
 <?php
 $trainingsByDate = [];
+$raceOptions = function_exists('sparta_training_race_options') ? sparta_training_race_options() : [];
 if (!empty($trainings) && is_array($trainings)) {
     foreach ($trainings as $trainingDay) {
         $dateStr = $trainingDay['date'] ?? null;
@@ -16,15 +17,8 @@ if (!empty($trainings) && is_array($trainings)) {
     }
 }
 
-$monthParam = isset($_GET['month']) && preg_match('/^\\d{4}-\\d{2}$/', $_GET['month']) ? $_GET['month'] : null;
-$monthStart = $monthParam ? DateTimeImmutable::createFromFormat('Y-m-d', $monthParam . '-01') : new DateTimeImmutable('first day of this month');
-if (!$monthStart) {
-    $monthStart = new DateTimeImmutable('first day of this month');
-}
-$monthLabel = $monthStart->format('F Y');
-$prevMonth = $monthStart->modify('-1 month')->format('Y-m');
-$nextMonth = $monthStart->modify('+1 month')->format('Y-m');
-$isCurrentMonth = $monthStart->format('Y-m') === (new DateTimeImmutable('first day of this month'))->format('Y-m');
+$viewState = isset($_GET['state']) && in_array($_GET['state'], ['upcoming', 'past'], true) ? $_GET['state'] : 'upcoming';
+$isPastView = $viewState === 'past';
 $editDate = $_GET['edit_date'] ?? null;
 $editIdx = isset($_GET['edit_idx']) ? (int)$_GET['edit_idx'] : null;
 
@@ -52,13 +46,30 @@ if (!empty($_SERVER['HTTP_HOST'])) {
 <?php endif; ?>
 <div class="card shadow-sm mb-4 glass-card training-card">
     <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap mb-3">
+            <div>
+                <div class="section-label mb-1">Schema</div>
+                <div class="fw-semibold"><?php echo $isPastView ? 'Verleden' : 'Aankomend'; ?></div>
+            </div>
+            <div class="btn-group" role="tablist" aria-label="Training filter">
+                <a class="btn btn-sm <?php echo $isPastView ? 'btn-outline-secondary' : 'btn-primary'; ?>" href="?action=training&state=upcoming">Aankomend</a>
+                <a class="btn btn-sm <?php echo $isPastView ? 'btn-primary' : 'btn-outline-secondary'; ?>" href="?action=training&state=past">Verleden</a>
+            </div>
+        </div>
         <div>
             <?php
             $sortedDates = array_keys($trainingsByDate);
-            sort($sortedDates);
+            if ($isPastView) {
+                rsort($sortedDates);
+            } else {
+                sort($sortedDates);
+            }
 $todayStr = (new DateTimeImmutable('today'))->format('Y-m-d');
 foreach ($sortedDates as $dateKey):
-    if ($dateKey < $todayStr) {
+    if (!$isPastView && $dateKey < $todayStr) {
+        continue;
+    }
+    if ($isPastView && $dateKey >= $todayStr) {
         continue;
     }
     $entries = $trainingsByDate[$dateKey] ?? [];
@@ -73,14 +84,15 @@ foreach ($sortedDates as $dateKey):
                     'trainingDay' => [
                         'date' => $dateKey,
                         'entries' => $entries,
-                        'month_param' => $monthStart->format('Y-m'),
+                        'view_state' => $viewState,
                     ],
                 ]);
             ?>
         </div>
         <?php if (!empty($isAdmin) && $editDate === $dateKey && isset($entries[$editIdx])): ?>
             <?php $entry = $entries[$editIdx]; ?>
-            <form method="post" action="?action=training&month=<?php echo htmlspecialchars($monthStart->format('Y-m'), ENT_QUOTES, 'UTF-8'); ?>" class="border rounded p-2 mt-2">
+            <?php $selectedRaceType = function_exists('sparta_normalize_training_race_type') ? sparta_normalize_training_race_type($entry['race_type'] ?? '') : ''; ?>
+            <form method="post" action="?action=training&state=<?php echo htmlspecialchars($viewState, ENT_QUOTES, 'UTF-8'); ?>" class="border rounded p-2 mt-2">
                 <input type="hidden" name="edit_date" value="<?php echo htmlspecialchars($dateKey, ENT_QUOTES, 'UTF-8'); ?>">
                 <input type="hidden" name="edit_idx" value="<?php echo (int)$editIdx; ?>">
                 <input type="hidden" name="save_training" value="1">
@@ -97,12 +109,15 @@ foreach ($sortedDates as $dateKey):
                     <input type="text" name="distance" class="form-control form-control-sm" value="<?php echo htmlspecialchars($entry['distance'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                 </div>
                 <div class="mb-2">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="is_race" value="1" id="is_race_<?php echo htmlspecialchars($dateKey, ENT_QUOTES, 'UTF-8'); ?>_<?php echo (int)$editIdx; ?>" <?php echo !empty($entry['is_race']) ? 'checked' : ''; ?>>
-                        <label class="form-check-label" for="is_race_<?php echo htmlspecialchars($dateKey, ENT_QUOTES, 'UTF-8'); ?>_<?php echo (int)$editIdx; ?>">
-                            Wedstrijd
-                        </label>
-                    </div>
+                    <label class="form-label form-label-sm mb-1">Wedstrijdtype</label>
+                    <select name="race_type" class="form-select form-select-sm">
+                        <option value="">Geen wedstrijd</option>
+                        <?php foreach ($raceOptions as $raceValue => $raceLabel): ?>
+                            <option value="<?php echo htmlspecialchars($raceValue, ENT_QUOTES, 'UTF-8'); ?>" <?php echo $selectedRaceType === $raceValue ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($raceLabel, ENT_QUOTES, 'UTF-8'); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
                 <div class="mb-2">
                     <label class="form-label form-label-sm mb-1">Tempos</label>
@@ -121,7 +136,7 @@ foreach ($sortedDates as $dateKey):
                     <textarea name="notes" class="form-control form-control-sm" rows="2"><?php echo htmlspecialchars($entry['notes'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                 </div>
                 <div class="d-flex justify-content-end gap-2">
-                    <a class="btn btn-outline-secondary btn-sm" href="?action=training&month=<?php echo htmlspecialchars($monthStart->format('Y-m'), ENT_QUOTES, 'UTF-8'); ?>">Annuleer</a>
+                    <a class="btn btn-outline-secondary btn-sm" href="?action=training&state=<?php echo htmlspecialchars($viewState, ENT_QUOTES, 'UTF-8'); ?>">Annuleer</a>
                     <button type="submit" class="btn btn-primary btn-sm">Opslaan</button>
                 </div>
             </form>

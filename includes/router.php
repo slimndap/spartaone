@@ -337,7 +337,7 @@ function sparta_handle_training(array $state, array $config, string $action): vo
         $activity = trim((string)($_POST['activity'] ?? ''));
         $distance = trim((string)($_POST['distance'] ?? ''));
         $notes = trim((string)($_POST['notes'] ?? ''));
-        $isRace = !empty($_POST['is_race']);
+        $raceType = sparta_normalize_training_race_type($_POST['race_type'] ?? '');
         $temposList = [];
         if (!empty($_POST['tempos']) && is_array($_POST['tempos'])) {
             foreach ($_POST['tempos'] as $t) {
@@ -359,7 +359,7 @@ function sparta_handle_training(array $state, array $config, string $action): vo
             $trainingDay['entries'][$editIdx]['activity'] = $activity;
             $trainingDay['entries'][$editIdx]['distance'] = $distance;
             $trainingDay['entries'][$editIdx]['notes'] = $notes;
-            $trainingDay['entries'][$editIdx]['is_race'] = $isRace;
+            $trainingDay['entries'][$editIdx]['race_type'] = $raceType;
             $trainingDay['entries'][$editIdx]['tempos'] = $temposList;
             $updated = true;
             break;

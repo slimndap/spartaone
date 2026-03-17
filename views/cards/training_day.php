@@ -1,6 +1,6 @@
 <?php
 // Expected variables:
-// - array $trainingDay with keys date, entries, month_param (optional)
+// - array $trainingDay with keys date, entries, view_state (optional)
 
 $trainingDay = $trainingDay ?? [];
 $entries = $trainingDay['entries'] ?? [];
@@ -11,7 +11,8 @@ if (!$entries || !is_array($entries)) {
 $dateStr = $trainingDay['date'] ?? null;
 $isAdmin = function_exists('user_is_admin') ? user_is_admin() : false;
 $tempoPaces = function_exists('get_tempo_paces_context') ? get_tempo_paces_context() : [];
-$monthParam = $trainingDay['month_param'] ?? null;
+$viewState = $trainingDay['view_state'] ?? null;
+$raceOptions = function_exists('sparta_training_race_options') ? sparta_training_race_options() : [];
 
 $heading = null;
 if ($dateStr) {
@@ -48,7 +49,10 @@ foreach ($entries as $idx => $entry) {
     $distance = $entry['distance'] ?? '';
     $tempos = (!empty($entry['tempos']) && is_array($entry['tempos'])) ? $entry['tempos'] : [];
     $notes = $entry['notes'] ?? '';
-    $isRace = !empty($entry['is_race']);
+    $raceType = function_exists('sparta_normalize_training_race_type')
+        ? sparta_normalize_training_race_type($entry['race_type'] ?? '')
+        : '';
+    $raceLabel = $raceType !== '' ? ($raceOptions[$raceType] ?? 'Wedstrijd') : '';
 
     $location = $entry['location'] ?? null;
     if (!$location && $dateStr) {
@@ -65,13 +69,18 @@ foreach ($entries as $idx => $entry) {
     $entryHeading = $heading && $idx === 0 ? $heading : null;
     $editUrl = $entry['edit_url'] ?? null;
     if ($isAdmin && $dateStr && $editUrl === null) {
+        $derivedState = 'upcoming';
         try {
-            $editMonth = (new DateTimeImmutable($dateStr))->format('Y-m');
+            $today = new DateTimeImmutable('today');
+            $targetDate = new DateTimeImmutable($dateStr);
+            if ($targetDate < $today) {
+                $derivedState = 'past';
+            }
         } catch (Exception $e) {
-            $editMonth = null;
+            $derivedState = 'upcoming';
         }
         $editUrl = '?action=training'
-            . ($monthParam ? '&month=' . rawurlencode($monthParam) : ($editMonth ? '&month=' . rawurlencode($editMonth) : ''))
+            . '&state=' . rawurlencode($viewState ?: $derivedState)
             . '&edit_date=' . rawurlencode($dateStr)
             . '&edit_idx=' . $idx;
     }
@@ -84,9 +93,9 @@ foreach ($entries as $idx => $entry) {
             <div class="home-next-title mb-1"><?php echo htmlspecialchars($title, ENT_QUOTES, 'UTF-8'); ?></div>
         <?php endif; ?>
         <div class="home-meta">
-            <?php if ($isRace): ?>
+            <?php if ($raceLabel !== ''): ?>
                 <span class="home-pill">
-                    <i class="bi bi-flag-fill me-1"></i>Wedstrijd
+                    <i class="bi bi-flag-fill me-1"></i><?php echo htmlspecialchars($raceLabel, ENT_QUOTES, 'UTF-8'); ?>
                 </span>
             <?php endif; ?>
             <?php if ($activity): ?>
