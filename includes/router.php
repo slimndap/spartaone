@@ -429,11 +429,11 @@ function sparta_handle_training(array $state, array $config, string $action): vo
             } elseif (empty($result['trainings'])) {
                 $trainingError = 'No trainings returned from the CSV.';
             } else {
-                $trainings = $result['trainings'];
+                $trainings = sparta_merge_trainings($trainings, $result['trainings']);
                 if (!save_trainings($trainingsDir, $trainings)) {
                     $trainingError = 'Unable to save trainings.';
                 } else {
-                    $trainingMessage = 'Training schedule saved.';
+                    $trainingMessage = 'Nieuwe trainingen toegevoegd.';
                 }
             }
         }

@@ -252,6 +252,91 @@ function save_trainings(string $dir, array $trainings, $scope = 'shared'): bool
 }
 
 /**
+ * Merge imported trainings into the existing schedule without removing older data.
+ *
+ * Existing days are preserved and new entries are appended only when they are not exact duplicates.
+ *
+ * @param array<int,array<string,mixed>> $existingTrainings
+ * @param array<int,array<string,mixed>> $importedTrainings
+ * @return array<int,array<string,mixed>>
+ */
+function sparta_merge_trainings(array $existingTrainings, array $importedTrainings): array
+{
+    $mergedByDate = [];
+
+    $normalizeDay = static function (array $trainingDay): ?array {
+        $date = trim((string)($trainingDay['date'] ?? ''));
+        $entries = $trainingDay['entries'] ?? [];
+        if ($date === '' || !is_array($entries)) {
+            return null;
+        }
+
+        $normalizedEntries = [];
+        foreach ($entries as $entry) {
+            if (!is_array($entry)) {
+                continue;
+            }
+            $normalizedEntries[] = [
+                'title' => (string)($entry['title'] ?? ''),
+                'activity' => (string)($entry['activity'] ?? ''),
+                'distance' => (string)($entry['distance'] ?? ''),
+                'notes' => (string)($entry['notes'] ?? ''),
+                'race_type' => sparta_normalize_training_race_type($entry['race_type'] ?? ''),
+                'finish_times' => sparta_normalize_training_finish_times($entry['finish_times'] ?? []),
+                'tempos' => is_array($entry['tempos'] ?? null) ? array_values($entry['tempos']) : [],
+            ];
+        }
+
+        return [
+            'date' => $date,
+            'entries' => $normalizedEntries,
+        ];
+    };
+
+    foreach ($existingTrainings as $trainingDay) {
+        $normalized = is_array($trainingDay) ? $normalizeDay($trainingDay) : null;
+        if ($normalized === null) {
+            continue;
+        }
+        $mergedByDate[$normalized['date']] = $normalized;
+    }
+
+    foreach ($importedTrainings as $trainingDay) {
+        $normalized = is_array($trainingDay) ? $normalizeDay($trainingDay) : null;
+        if ($normalized === null) {
+            continue;
+        }
+        $date = $normalized['date'];
+        if (!isset($mergedByDate[$date])) {
+            $mergedByDate[$date] = $normalized;
+            continue;
+        }
+
+        $existingEntries = $mergedByDate[$date]['entries'];
+        $existingFingerprints = [];
+        foreach ($existingEntries as $entry) {
+            $fingerprint = json_encode($entry);
+            if ($fingerprint !== false) {
+                $existingFingerprints[$fingerprint] = true;
+            }
+        }
+
+        foreach ($normalized['entries'] as $entry) {
+            $fingerprint = json_encode($entry);
+            if ($fingerprint === false || isset($existingFingerprints[$fingerprint])) {
+                continue;
+            }
+            $mergedByDate[$date]['entries'][] = $entry;
+            $existingFingerprints[$fingerprint] = true;
+        }
+    }
+
+    ksort($mergedByDate);
+
+    return array_values($mergedByDate);
+}
+
+/**
  * Load trainings (shared), if present.
  *
  * @param string $dir
