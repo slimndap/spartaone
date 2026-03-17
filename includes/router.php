@@ -91,6 +91,9 @@ function sparta_handle_home(array $state, array $config, string $action): void
         is_array($state['athletes'] ?? null) ? $state['athletes'] : [],
         $config['settingsDir'] ?? null
     );
+    $trainingsDir = $config['trainingsDir'] ?? null;
+    $rankingData = sparta_build_rankings_data($trainingsDir ? load_trainings($trainingsDir) : [], $state['athleteRows']);
+    $state['homeOverallRanking'] = array_slice($rankingData['overallRanking'], 0, 3);
     if (!empty($state['athlete']['goals']) && is_array($state['athlete']['goals'])) {
         $state['upcomingGoals'] = sparta_next_goals($state['athlete']['goals'], 3);
     }
@@ -451,21 +454,19 @@ function sparta_handle_training(array $state, array $config, string $action): vo
     ]);
 }
 
-function sparta_handle_rankings(array $state, array $config, string $action): void
+/**
+ * Build ranking page data from recorded race results.
+ *
+ * @param array<int,array<string,mixed>> $athleteRows
+ * @return array{rankingDays: array<int,array<string,mixed>>, overallRanking: array<int,array<string,mixed>>, rankingWindows: array<int,array<string,mixed>>}
+ */
+function sparta_build_rankings_data(array $trainings, array $athleteRows): array
 {
-    if (!sparta_require_login($state, 'Please log in to view rankings.')) {
-        return;
-    }
-
-    $trainingsDir = $config['trainingsDir'] ?? null;
-    $settingsDir = $config['settingsDir'] ?? null;
-    $athletes = $state['athletes'] ?? [];
-    $athleteRows = is_array($athletes) ? sparta_build_training_athlete_rows($athletes, $settingsDir) : [];
     $athleteMetaMap = [];
     foreach ($athleteRows as $athleteRow) {
         $athleteMetaMap[(string)$athleteRow['id']] = $athleteRow;
     }
-    $trainings = $trainingsDir ? load_trainings($trainingsDir) : [];
+
     $rankingDays = [];
     $overallRanking = [];
     $now = new DateTimeImmutable('today');
@@ -487,7 +488,6 @@ function sparta_handle_rankings(array $state, array $config, string $action): vo
         } catch (Exception $e) {
             $eventDate = null;
         }
-        $eventYear = $eventDate ? (int)$eventDate->format('Y') : null;
 
         $rankingEntries = [];
         foreach ($entries as $entry) {
@@ -500,7 +500,7 @@ function sparta_handle_rankings(array $state, array $config, string $action): vo
             $entry['finish_times'] = $finishTimes;
             $rankingEntries[] = $entry;
 
-            if ($eventDate === null || $eventYear === null) {
+            if ($eventDate === null) {
                 continue;
             }
             $eventAgeDays = (int)$eventDate->diff($now)->format('%r%a');
@@ -562,6 +562,7 @@ function sparta_handle_rankings(array $state, array $config, string $action): vo
     usort($rankingDays, static function ($left, $right): int {
         return strcmp((string)($right['date'] ?? ''), (string)($left['date'] ?? ''));
     });
+
     $overallRanking = array_values(array_filter($overallRanking, static function ($row): bool {
         return (float)($row['weight_total'] ?? 0.0) > 0.0;
     }));
@@ -581,15 +582,35 @@ function sparta_handle_rankings(array $state, array $config, string $action): vo
         return strcasecmp((string)($left['name'] ?? ''), (string)($right['name'] ?? ''));
     });
 
+    return [
+        'rankingDays' => $rankingDays,
+        'overallRanking' => $overallRanking,
+        'rankingWindows' => $rankingWindows,
+    ];
+}
+
+function sparta_handle_rankings(array $state, array $config, string $action): void
+{
+    if (!sparta_require_login($state, 'Please log in to view rankings.')) {
+        return;
+    }
+
+    $trainingsDir = $config['trainingsDir'] ?? null;
+    $settingsDir = $config['settingsDir'] ?? null;
+    $athletes = $state['athletes'] ?? [];
+    $athleteRows = is_array($athletes) ? sparta_build_training_athlete_rows($athletes, $settingsDir) : [];
+    $trainings = $trainingsDir ? load_trainings($trainingsDir) : [];
+    $rankingData = sparta_build_rankings_data($trainings, $athleteRows);
+
     render('rankings', [
         'currentAthleteName' => $state['currentAthleteName'] ?? null,
         'currentAthleteId' => $state['currentAthleteId'] ?? null,
         'currentAthletePhoto' => $state['currentAthletePhoto'] ?? null,
         'currentAction' => $action,
         'athleteRows' => $athleteRows,
-        'rankingDays' => $rankingDays,
-        'overallRanking' => $overallRanking,
-        'rankingWindows' => $rankingWindows,
+        'rankingDays' => $rankingData['rankingDays'],
+        'overallRanking' => $rankingData['overallRanking'],
+        'rankingWindows' => $rankingData['rankingWindows'],
     ]);
 }
 
