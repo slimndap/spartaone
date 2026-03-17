@@ -117,4 +117,62 @@ class TrainingMergeTest extends TestCase
         $this->assertCount(1, $merged);
         $this->assertCount(1, $merged[0]['entries']);
     }
+
+    public function testMergeTrainingsSummaryReportsAddedAndSkippedCounts(): void
+    {
+        $existing = [
+            [
+                'date' => '2026-03-01',
+                'entries' => [
+                    [
+                        'title' => 'Session A',
+                        'activity' => 'Weg',
+                        'distance' => '10 km',
+                        'notes' => '',
+                        'tempos' => [],
+                    ],
+                ],
+            ],
+        ];
+        $imported = [
+            [
+                'date' => '2026-03-01',
+                'entries' => [
+                    [
+                        'title' => 'Session A',
+                        'activity' => 'Weg',
+                        'distance' => '10 km',
+                        'notes' => '',
+                        'tempos' => [],
+                    ],
+                    [
+                        'title' => 'Session B',
+                        'activity' => 'Baan',
+                        'distance' => '8 km',
+                        'notes' => '',
+                        'tempos' => ['3K'],
+                    ],
+                ],
+            ],
+            [
+                'date' => '2026-03-02',
+                'entries' => [
+                    [
+                        'title' => 'Session C',
+                        'activity' => 'Weg',
+                        'distance' => '12 km',
+                        'notes' => '',
+                        'tempos' => ['Aeroob'],
+                    ],
+                ],
+            ],
+        ];
+
+        $result = sparta_merge_trainings_with_summary($existing, $imported);
+
+        $this->assertSame(1, $result['added_days']);
+        $this->assertSame(2, $result['added_entries']);
+        $this->assertSame(1, $result['skipped_duplicates']);
+        $this->assertCount(2, $result['trainings']);
+    }
 }

@@ -258,11 +258,14 @@ function save_trainings(string $dir, array $trainings, $scope = 'shared'): bool
  *
  * @param array<int,array<string,mixed>> $existingTrainings
  * @param array<int,array<string,mixed>> $importedTrainings
- * @return array<int,array<string,mixed>>
+ * @return array{trainings: array<int,array<string,mixed>>, added_days: int, added_entries: int, skipped_duplicates: int}
  */
-function sparta_merge_trainings(array $existingTrainings, array $importedTrainings): array
+function sparta_merge_trainings_with_summary(array $existingTrainings, array $importedTrainings): array
 {
     $mergedByDate = [];
+    $addedDays = 0;
+    $addedEntries = 0;
+    $skippedDuplicates = 0;
 
     $normalizeDay = static function (array $trainingDay): ?array {
         $date = trim((string)($trainingDay['date'] ?? ''));
@@ -309,6 +312,8 @@ function sparta_merge_trainings(array $existingTrainings, array $importedTrainin
         $date = $normalized['date'];
         if (!isset($mergedByDate[$date])) {
             $mergedByDate[$date] = $normalized;
+            $addedDays++;
+            $addedEntries += count($normalized['entries']);
             continue;
         }
 
@@ -323,17 +328,40 @@ function sparta_merge_trainings(array $existingTrainings, array $importedTrainin
 
         foreach ($normalized['entries'] as $entry) {
             $fingerprint = json_encode($entry);
-            if ($fingerprint === false || isset($existingFingerprints[$fingerprint])) {
+            if ($fingerprint === false) {
+                continue;
+            }
+            if (isset($existingFingerprints[$fingerprint])) {
+                $skippedDuplicates++;
                 continue;
             }
             $mergedByDate[$date]['entries'][] = $entry;
             $existingFingerprints[$fingerprint] = true;
+            $addedEntries++;
         }
     }
 
     ksort($mergedByDate);
 
-    return array_values($mergedByDate);
+    return [
+        'trainings' => array_values($mergedByDate),
+        'added_days' => $addedDays,
+        'added_entries' => $addedEntries,
+        'skipped_duplicates' => $skippedDuplicates,
+    ];
+}
+
+/**
+ * Backward-compatible training merge helper that returns only the merged schedule.
+ *
+ * @param array<int,array<string,mixed>> $existingTrainings
+ * @param array<int,array<string,mixed>> $importedTrainings
+ * @return array<int,array<string,mixed>>
+ */
+function sparta_merge_trainings(array $existingTrainings, array $importedTrainings): array
+{
+    $result = sparta_merge_trainings_with_summary($existingTrainings, $importedTrainings);
+    return $result['trainings'];
 }
 
 /**

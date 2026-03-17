@@ -429,11 +429,20 @@ function sparta_handle_training(array $state, array $config, string $action): vo
             } elseif (empty($result['trainings'])) {
                 $trainingError = 'No trainings returned from the CSV.';
             } else {
-                $trainings = sparta_merge_trainings($trainings, $result['trainings']);
+                $mergeResult = sparta_merge_trainings_with_summary($trainings, $result['trainings']);
+                $trainings = $mergeResult['trainings'];
                 if (!save_trainings($trainingsDir, $trainings)) {
                     $trainingError = 'Unable to save trainings.';
                 } else {
-                    $trainingMessage = 'Nieuwe trainingen toegevoegd.';
+                    $summaryParts = [];
+                    $summaryParts[] = (int)$mergeResult['added_entries'] . ' nieuwe training' . ((int)$mergeResult['added_entries'] === 1 ? '' : 'en') . ' toegevoegd';
+                    if ((int)$mergeResult['added_days'] > 0) {
+                        $summaryParts[] = 'op ' . (int)$mergeResult['added_days'] . ' ' . ((int)$mergeResult['added_days'] === 1 ? 'dag' : 'dagen');
+                    }
+                    if ((int)$mergeResult['skipped_duplicates'] > 0) {
+                        $summaryParts[] = (int)$mergeResult['skipped_duplicates'] . ' duplic' . ((int)$mergeResult['skipped_duplicates'] === 1 ? 'aat' : 'aten') . ' overgeslagen';
+                    }
+                    $trainingMessage = implode(', ', $summaryParts) . '.';
                 }
             }
         }
