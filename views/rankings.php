@@ -29,8 +29,19 @@ $rankingWindows = (isset($rankingWindows) && is_array($rankingWindows)) ? array_
                         </thead>
                         <tbody>
                             <?php foreach ($overallRanking as $index => $rankingRow): ?>
+                                <?php
+                                $position = (int)($index + 1);
+                                $positionLabel = (string)$position;
+                                if ($position === 1) {
+                                    $positionLabel = '🥇';
+                                } elseif ($position === 2) {
+                                    $positionLabel = '🥈';
+                                } elseif ($position === 3) {
+                                    $positionLabel = '🥉';
+                                }
+                                ?>
                                 <tr>
-                                    <td data-label="#"><?php echo (int)($index + 1); ?></td>
+                                    <td data-label="#"><?php echo htmlspecialchars($positionLabel, ENT_QUOTES, 'UTF-8'); ?></td>
                                     <td data-label="Sporter"><?php echo htmlspecialchars((string)($rankingRow['name'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></td>
                                     <td data-label="Resultaten" class="text-end fw-semibold"><?php echo (int)($rankingRow['result_count'] ?? 0); ?></td>
                                     <td data-label="Age Grade %" class="text-end"><?php echo htmlspecialchars(sparta_format_age_grade_percent($rankingRow['score'] ?? null), ENT_QUOTES, 'UTF-8'); ?></td>
