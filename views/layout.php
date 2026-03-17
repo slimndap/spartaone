@@ -53,6 +53,7 @@ $bodyClasses[] = 'page-' . ($actionSlug ?: 'home');
                         <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="athleteMenu">
                             <li><span class="dropdown-item-text fw-semibold"><?php echo htmlspecialchars($currentAthleteName, ENT_QUOTES, 'UTF-8'); ?></span></li>
                             <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="?action=tempos">Settings</a></li>
                             <li><a class="dropdown-item" href="?action=logout">Logout</a></li>
                         </ul>
                     </div>
@@ -71,7 +72,6 @@ $bodyClasses[] = 'page-' . ($actionSlug ?: 'home');
         ['action' => 'athletes', 'label' => 'Sporters', 'icon' => 'bi-people-fill'],
         ['action' => 'goals', 'label' => 'Goals', 'icon' => 'bi-bullseye'],
         ['action' => 'training', 'label' => 'Schema', 'icon' => 'bi-calendar2-week-fill'],
-        ['action' => 'tempos', 'label' => "Tempo's", 'icon' => 'bi-speedometer2'],
     ];
     ?>
     <nav class="bottom-nav">
