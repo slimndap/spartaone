@@ -68,7 +68,7 @@ $bodyClasses[] = 'page-' . ($actionSlug ?: 'home');
     $navAction = $currentAction ?? ($_GET['action'] ?? 'home');
     $navItems = [
         ['action' => 'home', 'label' => 'Home', 'icon' => 'bi-house-fill'],
-        ['action' => 'weekly-activities', 'label' => 'Activiteiten', 'icon' => 'bi-graph-up-arrow'],
+        ['action' => 'athletes', 'label' => 'Sporters', 'icon' => 'bi-people-fill'],
         ['action' => 'goals', 'label' => 'Goals', 'icon' => 'bi-bullseye'],
         ['action' => 'training', 'label' => 'Schema', 'icon' => 'bi-calendar2-week-fill'],
         ['action' => 'tempos', 'label' => "Tempo's", 'icon' => 'bi-speedometer2'],

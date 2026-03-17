@@ -253,6 +253,48 @@ main.container {
   background: var(--brand-accent);
 }
 
+.training-results-table-wrapper {
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(1, 1, 2, 0.28);
+}
+
+.training-results-table {
+  border-collapse: collapse;
+  width: 100%;
+  --bs-table-bg: transparent;
+  --bs-table-color: #f6f8ff;
+  --bs-table-border-color: rgba(255, 255, 255, 0.15);
+  --bs-table-striped-bg: rgba(255, 255, 255, 0.03);
+  --bs-table-striped-color: #f6f8ff;
+  --bs-table-hover-bg: rgba(255, 255, 255, 0.04);
+  --bs-table-hover-color: #f6f8ff;
+}
+
+.training-results-table thead th {
+  background: rgba(1, 1, 2, 0.9);
+  color: #f6f8ff;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+}
+
+.training-results-table tbody td,
+.training-results-table tbody th,
+.training-results-table thead th {
+  padding: 0.85rem 1rem;
+}
+
+.training-results-table tbody tr + tr td {
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.training-results-table tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.03);
+}
+
 .glass-card .form-control,
 .glass-card .form-select,
 .glass-card textarea {

@@ -152,13 +152,14 @@ foreach ($entries as $idx => $entry) {
         <?php if ($finishTimes): ?>
             <div class="mt-2">
                 <div class="home-block-label">Finishtijden</div>
-                <div class="table-responsive">
-                    <table class="table table-sm align-middle mb-0">
+                <div class="table-responsive training-results-table-wrapper">
+                    <table class="table table-borderless text-light align-middle mb-0 bg-transparent training-results-table">
                         <thead>
                             <tr>
                                 <th scope="col">Sporter</th>
                                 <th scope="col">Gender</th>
                                 <th scope="col">Leeftijd</th>
+                                <th scope="col">Age grade</th>
                                 <th scope="col" class="text-end">Tijd</th>
                             </tr>
                         </thead>
@@ -170,6 +171,7 @@ foreach ($entries as $idx => $entry) {
                                     <td><?php echo htmlspecialchars($athleteMeta['name'], ENT_QUOTES, 'UTF-8'); ?></td>
                                     <td><?php echo htmlspecialchars($athleteMeta['gender'] !== '' ? $athleteMeta['gender'] : '-', ENT_QUOTES, 'UTF-8'); ?></td>
                                     <td><?php echo $athleteMeta['age'] !== null ? (int)$athleteMeta['age'] : '-'; ?></td>
+                                    <td>-</td>
                                     <td class="text-end fw-semibold"><?php echo htmlspecialchars($finishTime, ENT_QUOTES, 'UTF-8'); ?></td>
                                 </tr>
                             <?php endforeach; ?>
