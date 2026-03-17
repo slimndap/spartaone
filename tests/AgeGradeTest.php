@@ -47,4 +47,23 @@ class AgeGradeTest extends TestCase
     {
         $this->assertNull(sparta_calculate_age_grade('10k', '45:00', 'non_binary', 35));
     }
+
+    public function testSelectBestRankedResultsAveragesBestFive(): void
+    {
+        $result = sparta_select_best_ranked_results([
+            ['date' => '2024-01-01', 'percent' => 92.0, 'weight' => 0.5, 'weighted_score' => 46.0],
+            ['date' => '2025-09-01', 'percent' => 88.0, 'weight' => 1.0, 'weighted_score' => 88.0],
+            ['date' => '2025-04-01', 'percent' => 70.0, 'weight' => 1.0, 'weighted_score' => 70.0],
+        ]);
+
+        $this->assertEqualsWithDelta(81.6, $result['score'], 0.0001);
+        $this->assertSame(3, $result['counted_results']);
+    }
+
+    public function testRecencyWeightPenalizesOlderResultsProgressively(): void
+    {
+        $this->assertEqualsWithDelta(1.0, sparta_ranking_recency_weight(0), 0.00001);
+        $this->assertLessThan(sparta_ranking_recency_weight(12), sparta_ranking_recency_weight(24));
+        $this->assertEqualsWithDelta(0.94, sparta_ranking_recency_weight(35), 0.00001);
+    }
 }

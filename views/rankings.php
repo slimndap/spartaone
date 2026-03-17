@@ -61,6 +61,9 @@ $rankingWindows = (isset($rankingWindows) && is_array($rankingWindows)) ? array_
                 <div class="form-text mt-1">
                     Age Grade % vergelijkt prestaties over leeftijd en geslacht heen. Hoe hoger het percentage, hoe sterker de prestatie ten opzichte van de WMA-standaard.
                 </div>
+                <div class="form-text mt-1">
+                    De overall score is het gemiddelde van de 5 beste gewogen resultaten uit de afgelopen 36 maanden. Oudere resultaten tellen geleidelijk iets minder mee.
+                </div>
                 <div class="form-text mt-2">
                     Richtlijn:
                     &gt; 100% = Wereldrecordniveau,

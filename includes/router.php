@@ -518,14 +518,16 @@ function sparta_build_rankings_data(array $trainings, array $athleteRows): array
             }
             $eventAgeMonths = $eventDate->diff($now)->y * 12 + $eventDate->diff($now)->m;
             if ($eventAgeMonths < 12) {
-                $weight = 1.0;
+                $windowWeight = 1.0;
             } elseif ($eventAgeMonths < 24) {
-                $weight = 0.75;
+                $windowWeight = 0.75;
             } elseif ($eventAgeMonths < 36) {
-                $weight = 0.5;
+                $windowWeight = 0.5;
             } else {
                 continue;
             }
+            $recencyWeight = sparta_ranking_recency_weight($eventAgeMonths);
+            $effectiveWeight = $windowWeight * $recencyWeight;
             foreach ($finishTimes as $athleteId => $finishTime) {
                 $athleteMeta = $athleteMetaMap[$athleteId] ?? null;
                 if ($athleteMeta === null) {
@@ -541,14 +543,19 @@ function sparta_build_rankings_data(array $trainings, array $athleteRows): array
                     $overallRanking[$athleteId] = [
                         'id' => $athleteId,
                         'name' => (string)($athleteMeta['name'] ?? $athleteId),
-                        'weighted_total' => 0.0,
-                        'weight_total' => 0.0,
+                        'results' => [],
                         'result_count' => 0,
                         'latest_result_date' => $date,
                     ];
                 }
-                $overallRanking[$athleteId]['weighted_total'] += ((float)$percent * $weight);
-                $overallRanking[$athleteId]['weight_total'] += $weight;
+                $overallRanking[$athleteId]['results'][] = [
+                    'date' => $date,
+                    'percent' => (float)$percent,
+                    'weight' => $effectiveWeight,
+                    'window_weight' => $windowWeight,
+                    'recency_weight' => $recencyWeight,
+                    'weighted_score' => (float)$percent * $effectiveWeight,
+                ];
                 $overallRanking[$athleteId]['result_count']++;
                 if ($date > $overallRanking[$athleteId]['latest_result_date']) {
                     $overallRanking[$athleteId]['latest_result_date'] = $date;
@@ -573,10 +580,12 @@ function sparta_build_rankings_data(array $trainings, array $athleteRows): array
     });
 
     $overallRanking = array_values(array_filter($overallRanking, static function ($row): bool {
-        return (float)($row['weight_total'] ?? 0.0) > 0.0;
+        return !empty($row['results']) && is_array($row['results']);
     }));
     foreach ($overallRanking as &$rankingRow) {
-        $rankingRow['score'] = $rankingRow['weighted_total'] / $rankingRow['weight_total'];
+        $bestScore = sparta_select_best_ranked_results($rankingRow['results']);
+        $rankingRow['score'] = $bestScore['score'];
+        $rankingRow['counted_results'] = $bestScore['counted_results'];
     }
     unset($rankingRow);
     usort($overallRanking, static function ($left, $right): int {
@@ -596,6 +605,59 @@ function sparta_build_rankings_data(array $trainings, array $athleteRows): array
         'overallRanking' => $overallRanking,
         'rankingWindows' => $rankingWindows,
     ];
+}
+
+/**
+ * Score athletes on the weighted average of their best 5 results.
+ *
+ * @param array<int,array<string,mixed>> $results
+ * @return array{score: float, counted_results: int}
+ */
+function sparta_select_best_ranked_results(array $results): array
+{
+    if ($results === []) {
+        return ['score' => 0.0, 'counted_results' => 0];
+    }
+
+    usort($results, static function ($left, $right): int {
+        $weightedCompare = ((float)($right['weighted_score'] ?? 0.0)) <=> ((float)($left['weighted_score'] ?? 0.0));
+        if ($weightedCompare !== 0) {
+            return $weightedCompare;
+        }
+        $percentCompare = ((float)($right['percent'] ?? 0.0)) <=> ((float)($left['percent'] ?? 0.0));
+        if ($percentCompare !== 0) {
+            return $percentCompare;
+        }
+        return strcmp((string)($right['date'] ?? ''), (string)($left['date'] ?? ''));
+    });
+
+    $limit = min(5, count($results));
+    $weightedTotal = 0.0;
+    $weightTotal = 0.0;
+
+    for ($i = 0; $i < $limit; $i++) {
+        $weightedTotal += (float)($results[$i]['weighted_score'] ?? 0.0);
+        $weightTotal += (float)($results[$i]['weight'] ?? 0.0);
+    }
+
+    if ($weightTotal <= 0.0) {
+        return ['score' => 0.0, 'counted_results' => 0];
+    }
+
+    $baseScore = $weightedTotal / $weightTotal;
+    return [
+        'score' => $baseScore,
+        'counted_results' => $limit,
+    ];
+}
+
+function sparta_ranking_recency_weight(int $eventAgeMonths): float
+{
+    $boundedMonths = max(0, min(35, $eventAgeMonths));
+    $maxPenalty = 0.06;
+    $progress = $boundedMonths / 35;
+
+    return 1.0 - ($maxPenalty * $progress);
 }
 
 function sparta_handle_rankings(array $state, array $config, string $action): void
