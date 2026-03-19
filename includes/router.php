@@ -15,6 +15,7 @@ function sparta_handle_request(string $action, array $state, array $config): voi
     $handlers = [
         'athletes' => 'sparta_handle_athletes',
         'athlete' => 'sparta_handle_athlete_detail',
+        'athlete-age-grades' => 'sparta_handle_athlete_age_grades',
         'goals' => 'sparta_handle_goals',
         'training' => 'sparta_handle_training',
         'rankings' => 'sparta_handle_rankings',
@@ -166,6 +167,56 @@ function sparta_handle_athlete_detail(array $state, array $config, string $actio
         'activitiesUpdatedAt' => $activitiesUpdatedAt,
         'tempoPaces' => $tempoPaces,
         'trainings' => $trainings,
+        'currentAthleteName' => $state['currentAthleteName'] ?? null,
+        'currentAthleteId' => $state['currentAthleteId'] ?? null,
+        'currentAthletePhoto' => $state['currentAthletePhoto'] ?? null,
+        'currentAction' => $action,
+    ]);
+}
+
+function sparta_handle_athlete_age_grades(array $state, array $config, string $action): void
+{
+    if (!sparta_require_login($state, 'Please log in to view athlete targets.')) {
+        return;
+    }
+
+    $athleteId = $_GET['id'] ?? null;
+    $athleteDetail = null;
+    if ($athleteId && !empty($state['athletes'])) {
+        foreach ($state['athletes'] as $item) {
+            if ((string)($item['id'] ?? '') === (string)$athleteId) {
+                $athleteDetail = $item;
+                break;
+            }
+        }
+    }
+
+    $settings = [];
+    $settingsDir = $config['settingsDir'] ?? null;
+    $isCurrent = $athleteId !== null
+        && !empty($state['currentAthleteId'])
+        && (string)$state['currentAthleteId'] === (string)$athleteId;
+    if ($isCurrent) {
+        $settings = is_array($state['athleteSettings'] ?? null) ? $state['athleteSettings'] : [];
+    } elseif ($settingsDir && $athleteId) {
+        $settings = load_athlete_settings($settingsDir, $athleteId);
+    }
+
+    $birthdate = trim((string)($settings['birthdate'] ?? ''));
+    $gender = trim((string)($settings['gender'] ?? ''));
+    $age = sparta_training_age_from_birthdate($birthdate);
+    $supportedGender = sparta_age_grade_normalize_gender($gender);
+    $targetTables = ($supportedGender !== '' && $age !== null)
+        ? sparta_build_age_grade_target_tables($supportedGender, $age)
+        : [];
+
+    render('athlete-age-grades', [
+        'athleteId' => $athleteId,
+        'athlete' => $athleteDetail,
+        'athleteSettings' => $settings,
+        'athleteAge' => $age,
+        'athleteGender' => $gender,
+        'targetTables' => $targetTables,
         'currentAthleteName' => $state['currentAthleteName'] ?? null,
         'currentAthleteId' => $state['currentAthleteId'] ?? null,
         'currentAthletePhoto' => $state['currentAthletePhoto'] ?? null,

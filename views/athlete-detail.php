@@ -27,6 +27,12 @@
                     </div>
                 </div>
                 <div class="d-flex flex-wrap gap-2">
+                    <?php if (!empty($athleteId)): ?>
+                        <a class="btn btn-primary btn-sm d-inline-flex align-items-center gap-1" href="?action=athlete-age-grades&id=<?php echo urlencode((string)$athleteId); ?>">
+                            <i class="bi bi-table"></i>
+                            <span>Age Grade doelen</span>
+                        </a>
+                    <?php endif; ?>
                     <?php if (!empty($athlete['id'])): ?>
                         <a class="btn btn-outline-light btn-sm d-inline-flex align-items-center gap-1" target="_blank" rel="noopener noreferrer" href="https://www.strava.com/athletes/<?php echo urlencode($athlete['id']); ?>">
                             <i class="bi bi-box-arrow-up-right"></i>

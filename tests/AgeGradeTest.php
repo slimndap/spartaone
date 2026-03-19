@@ -48,6 +48,31 @@ class AgeGradeTest extends TestCase
         $this->assertNull(sparta_calculate_age_grade('10k', '45:00', 'non_binary', 35));
     }
 
+    public function testFormatsElapsedSecondsForShortAndLongRaceTimes(): void
+    {
+        $this->assertSame('19:43', sparta_format_elapsed_time(1183));
+        $this->assertSame('1:24:05', sparta_format_elapsed_time(5045));
+    }
+
+    public function testCalculatesTargetTimeForAgeGradePercent(): void
+    {
+        $target = sparta_calculate_age_grade_target_time('5k', 'male', 40, 70);
+
+        $this->assertNotNull($target);
+        $this->assertSame(1159, $target['raw_seconds']);
+    }
+
+    public function testBuildsTargetTablesFromSixtyToOneHundredPercent(): void
+    {
+        $tables = sparta_build_age_grade_target_tables('female', 50);
+
+        $this->assertCount(5, $tables);
+        $this->assertSame('5k', $tables[0]['race_type']);
+        $this->assertCount(9, $tables[0]['rows']);
+        $this->assertSame(100.0, $tables[0]['rows'][0]['percent']);
+        $this->assertSame(60.0, $tables[0]['rows'][8]['percent']);
+    }
+
     public function testSelectBestRankedResultsAveragesBestFive(): void
     {
         $result = sparta_select_best_ranked_results([

@@ -112,6 +112,26 @@ function sparta_format_age_grade_percent(?float $percent): string
 }
 
 /**
+ * Format elapsed seconds for race result display.
+ */
+function sparta_format_elapsed_time(?int $seconds): string
+{
+    if ($seconds === null || $seconds < 0) {
+        return '-';
+    }
+
+    $hours = intdiv($seconds, 3600);
+    $minutes = intdiv($seconds % 3600, 60);
+    $remainingSeconds = $seconds % 60;
+
+    if ($hours > 0) {
+        return sprintf('%d:%02d:%02d', $hours, $minutes, $remainingSeconds);
+    }
+
+    return sprintf('%02d:%02d', $minutes, $remainingSeconds);
+}
+
+/**
  * Load and cache the 2025 road age-grade table data from the Excel workbooks.
  *
  * @return array<string,mixed>
@@ -390,4 +410,92 @@ function sparta_calculate_age_grade($raceType, $finishTime, $gender, $age): ?arr
         'age_graded_seconds' => $ageGradedSeconds,
         'percent' => ((int)$openStandard / $ageGradedSeconds) * 100,
     ];
+}
+
+/**
+ * Calculate the target raw time for a requested age-grade percentage.
+ *
+ * @param mixed $raceType
+ * @param mixed $gender
+ * @param mixed $age
+ * @param mixed $targetPercent
+ * @return array<string,float|int>|null
+ */
+function sparta_calculate_age_grade_target_time($raceType, $gender, $age, $targetPercent): ?array
+{
+    $raceType = sparta_normalize_training_race_type($raceType);
+    $gender = sparta_age_grade_normalize_gender($gender);
+    $age = is_numeric($age) ? (int)$age : null;
+    $targetPercent = is_numeric($targetPercent) ? (float)$targetPercent : null;
+
+    if ($raceType === '' || $gender === '' || $age === null || $targetPercent === null || $targetPercent <= 0.0) {
+        return null;
+    }
+
+    $data = sparta_age_grade_data();
+    $sexData = $data[$gender] ?? null;
+    $factor = $sexData['factors'][$age][$raceType] ?? null;
+    $openStandard = $sexData['open_standards'][$raceType] ?? null;
+    if (!is_numeric($factor) || !is_numeric($openStandard) || (float)$factor <= 0.0 || (int)$openStandard <= 0) {
+        return null;
+    }
+
+    $targetSeconds = ((int)$openStandard * 100) / ((float)$factor * $targetPercent);
+    if ($targetSeconds <= 0.0) {
+        return null;
+    }
+
+    return [
+        'age' => $age,
+        'factor' => (float)$factor,
+        'open_standard_seconds' => (int)$openStandard,
+        'target_percent' => $targetPercent,
+        'raw_seconds' => (int)round($targetSeconds),
+    ];
+}
+
+/**
+ * Build age-grade target ladders grouped by official road distance.
+ *
+ * @param array<int,int|float> $percentSteps
+ * @return array<int,array<string,mixed>>
+ */
+function sparta_build_age_grade_target_tables($gender, $age, array $percentSteps = []): array
+{
+    $gender = sparta_age_grade_normalize_gender($gender);
+    $age = is_numeric($age) ? (int)$age : null;
+    if ($gender === '' || $age === null) {
+        return [];
+    }
+
+    if ($percentSteps === []) {
+        $percentSteps = range(60, 100, 5);
+    }
+    rsort($percentSteps, SORT_NUMERIC);
+
+    $tables = [];
+    foreach (sparta_training_race_options() as $raceType => $label) {
+        $rows = [];
+        foreach ($percentSteps as $percent) {
+            $target = sparta_calculate_age_grade_target_time($raceType, $gender, $age, $percent);
+            if ($target === null) {
+                continue;
+            }
+            $rows[] = [
+                'percent' => (float)$percent,
+                'seconds' => (int)$target['raw_seconds'],
+                'time' => sparta_format_elapsed_time((int)$target['raw_seconds']),
+            ];
+        }
+        if ($rows === []) {
+            continue;
+        }
+        $tables[] = [
+            'race_type' => $raceType,
+            'label' => $label,
+            'rows' => $rows,
+        ];
+    }
+
+    return $tables;
 }
