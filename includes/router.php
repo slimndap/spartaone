@@ -180,7 +180,7 @@ function sparta_handle_athlete_age_grades(array $state, array $config, string $a
         return;
     }
 
-    $athleteId = $_GET['id'] ?? null;
+    $athleteId = $_GET['id'] ?? ($state['currentAthleteId'] ?? null);
     $athleteDetail = null;
     if ($athleteId && !empty($state['athletes'])) {
         foreach ($state['athletes'] as $item) {

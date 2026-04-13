@@ -72,6 +72,13 @@ $rankingWindows = (isset($rankingWindows) && is_array($rankingWindows)) ? array_
                     &gt; 70% = Regionale klasse,
                     &gt; 60% = Lokaal niveau.
                 </div>
+                <?php if (!empty($currentAthleteId)): ?>
+                    <div class="mt-3">
+                        <a class="btn btn-primary btn-sm" href="?action=athlete-age-grades&id=<?php echo urlencode((string)$currentAthleteId); ?>">
+                            Bekijk jouw persoonlijke Age Grade-doeltabellen
+                        </a>
+                    </div>
+                <?php endif; ?>
             <?php endif; ?>
         </div>
     </div>
