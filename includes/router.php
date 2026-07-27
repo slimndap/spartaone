@@ -415,11 +415,78 @@ function sparta_handle_training(array $state, array $config, string $action): vo
 
     $trainingMessage = null;
     $trainingError = null;
+    $trainingImportPreview = null;
     $trainings = load_trainings($trainingsDir);
     $settings = sparta_load_settings_for_athlete($state, $settingsDir);
     $tempoPaces = resolve_tempo_paces($settings, $state['currentAthleteId'] ?? null, $settingsDir, true);
     $athletes = $state['athletes'] ?? [];
     $athleteRows = is_array($athletes) ? sparta_build_training_athlete_rows($athletes, $settingsDir) : [];
+    $larsImportSource = sparta_prepare_lars_den_haag_import();
+    $larsSourceId = sparta_lars_den_haag_source_id();
+
+    if (isset($_POST['lars_import_action']) && empty($state['isAdmin'])) {
+        $trainingError = 'Alleen beheerders kunnen het Den Haag-schema importeren.';
+    }
+
+    if (!empty($state['isAdmin']) && isset($_POST['lars_import_action'])) {
+        $importAction = trim((string)$_POST['lars_import_action']);
+        if (!empty($larsImportSource['error'])) {
+            $trainingError = (string)$larsImportSource['error'];
+        } elseif ($importAction === 'preview' || $importAction === 'replace') {
+            $replacement = sparta_replace_training_source(
+                $trainings,
+                $larsImportSource['trainings'],
+                $larsSourceId
+            );
+            if ($importAction === 'preview') {
+                $trainingImportPreview = [
+                    'removed_entries' => (int)$replacement['removed_entries'],
+                    'added_entries' => (int)$replacement['added_entries'],
+                    'total_entries' => array_sum(array_map(
+                        static fn($day) => count((array)($day['entries'] ?? [])),
+                        $replacement['trainings']
+                    )),
+                    'total_days' => count($replacement['trainings']),
+                ];
+            } else {
+                $backupPath = sparta_backup_trainings($trainingsDir);
+                if ($backupPath === false) {
+                    $trainingError = 'De import is gestopt omdat geen veilige backup van het gedeelde schema kon worden gemaakt.';
+                } elseif (!save_trainings($trainingsDir, $replacement['trainings'])) {
+                    $trainingError = 'De import kon niet atomisch worden opgeslagen. De backup is behouden.';
+                } else {
+                    $trainings = $replacement['trainings'];
+                    $trainingMessage = sprintf(
+                        'Den Haag-schema geïmporteerd: %d eerdere bronitems vervangen door %d sessies. Backup: %s.',
+                        (int)$replacement['removed_entries'],
+                        (int)$replacement['added_entries'],
+                        basename($backupPath)
+                    );
+                }
+            }
+        } elseif ($importAction === 'remove') {
+            $removal = sparta_remove_training_source($trainings, $larsSourceId);
+            if ((int)$removal['removed_entries'] === 0) {
+                $trainingMessage = 'Er stonden geen Den Haag-bronitems in het gedeelde schema.';
+            } else {
+                $backupPath = sparta_backup_trainings($trainingsDir);
+                if ($backupPath === false) {
+                    $trainingError = 'Verwijderen is gestopt omdat geen veilige backup van het gedeelde schema kon worden gemaakt.';
+                } elseif (!save_trainings($trainingsDir, $removal['trainings'])) {
+                    $trainingError = 'Het Den Haag-schema kon niet atomisch worden verwijderd. De backup is behouden.';
+                } else {
+                    $trainings = $removal['trainings'];
+                    $trainingMessage = sprintf(
+                        'Den Haag-schema verwijderd: %d bronitems. Backup: %s.',
+                        (int)$removal['removed_entries'],
+                        basename($backupPath)
+                    );
+                }
+            }
+        } else {
+            $trainingError = 'Onbekende Den Haag-importactie.';
+        }
+    }
 
     if (!empty($state['isAdmin']) && isset($_POST['save_training'])) {
         $editDate = $_POST['edit_date'] ?? '';
@@ -439,8 +506,9 @@ function sparta_handle_training(array $state, array $config, string $action): vo
                 }
             }
         }
+        $updatedTrainings = $trainings;
         $updated = false;
-        foreach ($trainings as &$trainingDay) {
+        foreach ($updatedTrainings as &$trainingDay) {
             if (($trainingDay['date'] ?? '') !== $editDate) {
                 continue;
             }
@@ -459,9 +527,13 @@ function sparta_handle_training(array $state, array $config, string $action): vo
         }
         unset($trainingDay);
         if ($updated) {
-            if (!save_trainings($trainingsDir, $trainings)) {
+            $backupPath = sparta_backup_trainings($trainingsDir);
+            if ($backupPath === false) {
+                $trainingError = 'De wijziging is gestopt omdat geen veilige backup van het gedeelde schema kon worden gemaakt.';
+            } elseif (!save_trainings($trainingsDir, $updatedTrainings)) {
                 $trainingError = 'Unable to save updated training.';
             } else {
+                $trainings = $updatedTrainings;
                 $trainingMessage = 'Training bijgewerkt.';
             }
         } else {
@@ -481,10 +553,13 @@ function sparta_handle_training(array $state, array $config, string $action): vo
                 $trainingError = 'No trainings returned from the CSV.';
             } else {
                 $mergeResult = sparta_merge_trainings_with_summary($trainings, $result['trainings']);
-                $trainings = $mergeResult['trainings'];
-                if (!save_trainings($trainingsDir, $trainings)) {
+                $backupPath = sparta_backup_trainings($trainingsDir);
+                if ($backupPath === false) {
+                    $trainingError = 'De CSV-import is gestopt omdat geen veilige backup van het gedeelde schema kon worden gemaakt.';
+                } elseif (!save_trainings($trainingsDir, $mergeResult['trainings'])) {
                     $trainingError = 'Unable to save trainings.';
                 } else {
+                    $trainings = $mergeResult['trainings'];
                     $summaryParts = [];
                     $summaryParts[] = (int)$mergeResult['added_entries'] . ' nieuwe training' . ((int)$mergeResult['added_entries'] === 1 ? '' : 'en') . ' toegevoegd';
                     if ((int)$mergeResult['added_days'] > 0) {
@@ -510,6 +585,9 @@ function sparta_handle_training(array $state, array $config, string $action): vo
         'trainings' => $trainings ?? [],
         'trainingMessage' => $trainingMessage,
         'trainingError' => $trainingError,
+        'trainingImportPreview' => $trainingImportPreview,
+        'larsImportSource' => $larsImportSource,
+        'larsImportedCount' => sparta_count_training_source_entries($trainings, $larsSourceId),
         'tempoPaces' => $tempoPaces,
     ]);
 }

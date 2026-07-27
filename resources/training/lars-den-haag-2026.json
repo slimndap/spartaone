@@ -1,0 +1,1236 @@
+{
+  "source_id": "lars-den-haag-2026",
+  "source_file": "Marathonschema_DenHaag_2026_v1.xlsx",
+  "sessions": [
+    {
+      "week": 1,
+      "date": "2026-06-29",
+      "type": "Baan / Kracht",
+      "description": "Inloop + loopscholing op de baan, daanra 45 min op aerobe tempo op de weg met groep Amsterdam | EKIDEN-LOPERS: 6x400, rust 200m. + 4x80 m op 120% 5km tempo",
+      "zone": "Aeroob + techniek",
+      "notes": "Maandag = Sparta-training (techniek/loopscholing + aeroob).  Strides: 4–6 aan einde van training.  Krachttraining.",
+      "duration": "0:45",
+      "active": true
+    },
+    {
+      "week": 1,
+      "date": "2026-06-30",
+      "type": "Weg",
+      "description": "60 min op aerobe tempo | EKIDEN-LOPERS 35 min aeroob",
+      "zone": "Aeroob",
+      "notes": "",
+      "duration": "1:00",
+      "active": false
+    },
+    {
+      "week": 1,
+      "date": "2026-07-01",
+      "type": "Weg",
+      "description": "20 minutes aeroob, 4 x 5 minute intervals @10k pace, 3 minutes jog between intervals, 20 minutes cool down | EKIDEN-LOPERS 20 min Aeroob + 4 strides van 20 seconden)",
+      "zone": "10k tempo",
+      "notes": "Woensdag = Sparta-kwaliteitstraining.",
+      "duration": "1:10",
+      "active": true
+    },
+    {
+      "week": 1,
+      "date": "2026-07-02",
+      "type": "Weg",
+      "description": "30 min herstelloopje | EKIDEN-LOPERS: 45 min aeroob",
+      "zone": "Herstel",
+      "notes": "Krachttraining.  Optioneel: zwemmen / fietsen / wandelen ter aanvulling.",
+      "duration": "0:30",
+      "active": false
+    },
+    {
+      "week": 1,
+      "date": "2026-07-03",
+      "type": "Weg",
+      "description": "45 min aeroob | EKIDEN-LOPERS: 20 min hersel/loslopen",
+      "zone": "Aeroob",
+      "notes": "Strides: 4–6 aan einde van training.",
+      "duration": "0:45",
+      "active": true
+    },
+    {
+      "week": 1,
+      "date": "2026-07-04",
+      "type": "Weg",
+      "description": "tempo run, 20 min aeroob, 15 min moderate tempo, 15 min at aeroob, 15 min moderate, 20 min aeroob | EKIDEN",
+      "zone": "Aeroob / Moderate",
+      "notes": "",
+      "duration": "1:25",
+      "active": true
+    },
+    {
+      "week": 1,
+      "date": "2026-07-05",
+      "type": "Weg/Fiets",
+      "description": "Loslopen / fietsen / zwemmen / wandelen | EKIDEN-LOPERS 25 min herstel",
+      "zone": "Herstel",
+      "notes": "Optionele crosstraining op de rustdag.",
+      "duration": "—",
+      "active": false
+    },
+    {
+      "week": 2,
+      "date": "2026-07-06",
+      "type": "Weg",
+      "description": "60 min op aerobe tempo met groep Amsterdam",
+      "zone": "Aeroob",
+      "notes": "Maandag = Sparta-training (techniek/loopscholing + aeroob).  Strides: 4–6 aan einde van training.",
+      "duration": "1:00",
+      "active": true
+    },
+    {
+      "week": 2,
+      "date": "2026-07-07",
+      "type": "Weg",
+      "description": "50 min op aerobe tempo",
+      "zone": "Aeroob",
+      "notes": "",
+      "duration": "0:50",
+      "active": false
+    },
+    {
+      "week": 2,
+      "date": "2026-07-08",
+      "type": "Baan",
+      "description": "15 min aeroob, 4 x 1600 m op marathontempo (wat je nu kan, niet wat je beoogde tempo op race day is), p. 400m. 15 min cooldown",
+      "zone": "Marathontempo",
+      "notes": "Woensdag = Sparta-kwaliteitstraining.  Optioneel ochtendherstel: 30 minutes herstellooopje",
+      "duration": "1:15",
+      "active": true
+    },
+    {
+      "week": 2,
+      "date": "2026-07-09",
+      "type": "Weg",
+      "description": "30 min herstelloopje",
+      "zone": "Herstel",
+      "notes": "Optioneel: zwemmen / fietsen / wandelen ter aanvulling.",
+      "duration": "0:30",
+      "active": false
+    },
+    {
+      "week": 2,
+      "date": "2026-07-10",
+      "type": "Weg",
+      "description": "50 min aeroob",
+      "zone": "Aeroob",
+      "notes": "Strides: 4–6 aan einde van training.  Krachttraining.",
+      "duration": "0:50",
+      "active": true
+    },
+    {
+      "week": 2,
+      "date": "2026-07-11",
+      "type": "Weg",
+      "description": "long run: 100 min aeroob",
+      "zone": "Aeroob",
+      "notes": "Lange duurloop (zaterdag).",
+      "duration": "1:40",
+      "active": true
+    },
+    {
+      "week": 3,
+      "date": "2026-07-13",
+      "type": "Baan / Kracht",
+      "description": "80 min aeroob inclusief strides",
+      "zone": "Aeroob",
+      "notes": "Maandag = Sparta-training (techniek/loopscholing + aeroob).  Strides: 4–6 aan einde van training.  Krachttraining.",
+      "duration": "1:20",
+      "active": true
+    },
+    {
+      "week": 3,
+      "date": "2026-07-14",
+      "type": "Weg",
+      "description": "45 min op aerobe tempo",
+      "zone": "Aeroob",
+      "notes": "",
+      "duration": "0:45",
+      "active": false
+    },
+    {
+      "week": 3,
+      "date": "2026-07-15",
+      "type": "Weg",
+      "description": "Drempelloop (weg): inlopen 15 min, 4 x 8 min op drempeltempo (Tussen 10 k en HM-tempo), 90 sec dribbel tussen de reps, uitlopen 10 min",
+      "zone": "Drempel (10k–HM)",
+      "notes": "Woensdag = Sparta-kwaliteitstraining.  Optioneel ochtendherstel: 40 min herstellloopje",
+      "duration": "1:15",
+      "active": true
+    },
+    {
+      "week": 3,
+      "date": "2026-07-16",
+      "type": "Weg",
+      "description": "30 min herstelloopje",
+      "zone": "Herstel",
+      "notes": "Krachttraining.  Optioneel: zwemmen / fietsen / wandelen ter aanvulling.",
+      "duration": "0:30",
+      "active": false
+    },
+    {
+      "week": 3,
+      "date": "2026-07-17",
+      "type": "Weg",
+      "description": "45 min aeroob",
+      "zone": "Aeroob",
+      "notes": "Strides: 4–6 aan einde van training.",
+      "duration": "0:45",
+      "active": true
+    },
+    {
+      "week": 3,
+      "date": "2026-07-18",
+      "type": "Weg",
+      "description": "Strong finish run, 75 minutes aeroob, dan 25 minutes versnellen tot de finish op een tempo dat je kan vasthouden (sneller dan marathon pace)",
+      "zone": "Aeroob → snel",
+      "notes": "",
+      "duration": "1:40",
+      "active": true
+    },
+    {
+      "week": 3,
+      "date": "2026-07-19",
+      "type": "Weg/Fiets",
+      "description": "Loslopen / fietsen / zwemmen / wandelen",
+      "zone": "Herstel",
+      "notes": "Optionele crosstraining op de rustdag.",
+      "duration": "—",
+      "active": false
+    },
+    {
+      "week": 4,
+      "date": "2026-07-20",
+      "type": "Weg",
+      "description": "60 min op aerobe tempo",
+      "zone": "Aeroob",
+      "notes": "Maandag = Sparta-training (techniek/loopscholing + aeroob).",
+      "duration": "1:00",
+      "active": true
+    },
+    {
+      "week": 4,
+      "date": "2026-07-21",
+      "type": "Weg",
+      "description": "40 min op aerobe tempo",
+      "zone": "Aeroob",
+      "notes": "",
+      "duration": "0:40",
+      "active": false
+    },
+    {
+      "week": 4,
+      "date": "2026-07-22",
+      "type": "Baan",
+      "description": "Yasso 800 (baan): 10 x 800m, P = gelopen tijd (dribbel). Richttijd 800m ≈ je marathon-doeltijd op dit moment (min:sec ↔ uur:min)",
+      "zone": "Marathon-doeltijd",
+      "notes": "Woensdag = Sparta-kwaliteitstraining.",
+      "duration": "0:55",
+      "active": true
+    },
+    {
+      "week": 4,
+      "date": "2026-07-23",
+      "type": "Weg",
+      "description": "30 min herstelloopje",
+      "zone": "Herstel",
+      "notes": "Optioneel: zwemmen / fietsen / wandelen ter aanvulling.",
+      "duration": "0:30",
+      "active": false
+    },
+    {
+      "week": 4,
+      "date": "2026-07-24",
+      "type": "Weg",
+      "description": "40 min aeroob",
+      "zone": "Aeroob",
+      "notes": "Strides aan einde van training.",
+      "duration": "0:40",
+      "active": true
+    },
+    {
+      "week": 4,
+      "date": "2026-07-25",
+      "type": "Weg",
+      "description": "long run: 70 min aeroob",
+      "zone": "Aeroob",
+      "notes": "Lange duurloop (zaterdag).",
+      "duration": "1:10",
+      "active": true
+    },
+    {
+      "week": 4,
+      "date": "2026-07-26",
+      "type": "Weg/Fiets",
+      "description": "Loslopen / fietsen / zwemmen / wandelen",
+      "zone": "Herstel",
+      "notes": "Optionele crosstraining op de rustdag.",
+      "duration": "—",
+      "active": false
+    },
+    {
+      "week": 5,
+      "date": "2026-07-27",
+      "type": "Baan / Kracht",
+      "description": "60 min op aerobe tempo in de ochtend (of 100 min als je de avondtraining niet meedoet) — Inlopen + loopscholing, daarna 40 min aeroob",
+      "zone": "Aeroob + techniek",
+      "notes": "Maandag = Sparta-training (techniek/loopscholing + aeroob).  Strides: 6–8 aan einde van training.  Krachttraining.",
+      "duration": "1:40",
+      "active": true
+    },
+    {
+      "week": 5,
+      "date": "2026-07-28",
+      "type": "Weg",
+      "description": "45 min op aerobe tempo",
+      "zone": "Aeroob",
+      "notes": "",
+      "duration": "0:45",
+      "active": false
+    },
+    {
+      "week": 5,
+      "date": "2026-07-29",
+      "type": "Weg",
+      "description": "15 min wu - 4 x 5 minute intervals @10k pace, 2 minutes jog between intervals - 10 min cd",
+      "zone": "10k tempo",
+      "notes": "Woensdag = Sparta-kwaliteitstraining.  Optioneel ochtendherstel: 50 minutes herstellooopje",
+      "duration": "0:55",
+      "active": true
+    },
+    {
+      "week": 5,
+      "date": "2026-07-30",
+      "type": "Weg",
+      "description": "45 min herstelloopje",
+      "zone": "Herstel",
+      "notes": "Krachttraining.  Optioneel: zwemmen / fietsen / wandelen ter aanvulling.",
+      "duration": "0:45",
+      "active": false
+    },
+    {
+      "week": 5,
+      "date": "2026-07-31",
+      "type": "Weg",
+      "description": "45 min aeroob",
+      "zone": "Aeroob",
+      "notes": "Strides: 6–8 aan einde van training.",
+      "duration": "0:45",
+      "active": true
+    },
+    {
+      "week": 5,
+      "date": "2026-08-01",
+      "type": "Weg",
+      "description": "tempo run, 25 minutes aeroob, 20 minutes moderate tempo, 15 minutes aeroob, 20 min marathon pace! 25 minutes aeroob",
+      "zone": "Aeroob / Moderate",
+      "notes": "",
+      "duration": "1:45",
+      "active": true
+    },
+    {
+      "week": 5,
+      "date": "2026-08-02",
+      "type": "Weg/Fiets",
+      "description": "Loslopen / fietsen / zwemmen / wandelen",
+      "zone": "Herstel",
+      "notes": "Optionele crosstraining op de rustdag.",
+      "duration": "—",
+      "active": false
+    },
+    {
+      "week": 6,
+      "date": "2026-08-03",
+      "type": "Weg / Kracht",
+      "description": "40 min op aerobe tempo in de ochtend (of 100 min als je de avondtraining niet meedoet) — Inlopen + loopscholing, daarna 60 min aeroob",
+      "zone": "Aeroob + techniek",
+      "notes": "Maandag = Sparta-training (techniek/loopscholing + aeroob).  Strides: 6–8 aan einde van training.  Krachttraining.",
+      "duration": "1:40",
+      "active": true
+    },
+    {
+      "week": 6,
+      "date": "2026-08-04",
+      "type": "Weg",
+      "description": "50 min op aerobe tempo",
+      "zone": "Aeroob",
+      "notes": "",
+      "duration": "0:50",
+      "active": false
+    },
+    {
+      "week": 6,
+      "date": "2026-08-05",
+      "type": "Baan",
+      "description": "15 min WU- 3x2000m, HP 400m, 2x1000, hp 200m ; 2000m @10k, 1000m @ 5k - 15 min CD",
+      "zone": "5k tempo",
+      "notes": "Woensdag = Sparta-kwaliteitstraining.  Optioneel ochtendherstel: 50 minutes herstellooopje",
+      "duration": "1:10",
+      "active": true
+    },
+    {
+      "week": 6,
+      "date": "2026-08-06",
+      "type": "Weg",
+      "description": "60 min herstelloopje",
+      "zone": "Herstel",
+      "notes": "Krachttraining.  Optioneel: zwemmen / fietsen / wandelen ter aanvulling.",
+      "duration": "1:00",
+      "active": false
+    },
+    {
+      "week": 6,
+      "date": "2026-08-07",
+      "type": "Weg",
+      "description": "50 min aeroob",
+      "zone": "Aeroob",
+      "notes": "Strides: 6–8 aan einde van training.",
+      "duration": "0:50",
+      "active": true
+    },
+    {
+      "week": 6,
+      "date": "2026-08-08",
+      "type": "Weg",
+      "description": "long run: 120 min aeroob",
+      "zone": "Aeroob",
+      "notes": "Lange duurloop (zaterdag).",
+      "duration": "2:00",
+      "active": true
+    },
+    {
+      "week": 6,
+      "date": "2026-08-09",
+      "type": "Weg/Fiets",
+      "description": "Loslopen / fietsen / zwemmen / wandelen",
+      "zone": "Herstel",
+      "notes": "Optionele crosstraining op de rustdag.",
+      "duration": "—",
+      "active": false
+    },
+    {
+      "week": 7,
+      "date": "2026-08-10",
+      "type": "Baan / Kracht",
+      "description": "40 min op aerobe tempo in de ochtend (of 100 min als je de avondtraining niet meedoet) — Inlopen + loopscholing, daarna 60 min aeroob",
+      "zone": "Aeroob + techniek",
+      "notes": "Maandag = Sparta-training (techniek/loopscholing + aeroob).  Strides: 6–8 aan einde van training.  Krachttraining.",
+      "duration": "1:40",
+      "active": true
+    },
+    {
+      "week": 7,
+      "date": "2026-08-11",
+      "type": "Weg",
+      "description": "50 min op aerobe tempo",
+      "zone": "Aeroob",
+      "notes": "",
+      "duration": "0:50",
+      "active": false
+    },
+    {
+      "week": 7,
+      "date": "2026-08-12",
+      "type": "Weg",
+      "description": "15 min wu- 3 x 1,5 mile ( 2414 m) at marathon pace, 3 min recovery jog - 10 min cd",
+      "zone": "Marathontempo",
+      "notes": "Woensdag = Sparta-kwaliteitstraining.  Optioneel ochtendherstel: 30 minutes herstellooopje",
+      "duration": "0:25",
+      "active": true
+    },
+    {
+      "week": 7,
+      "date": "2026-08-13",
+      "type": "Weg",
+      "description": "60 min herstelloopje",
+      "zone": "Herstel",
+      "notes": "Krachttraining.  Optioneel: zwemmen / fietsen / wandelen ter aanvulling.",
+      "duration": "1:00",
+      "active": false
+    },
+    {
+      "week": 7,
+      "date": "2026-08-14",
+      "type": "Weg",
+      "description": "50 min aeroob",
+      "zone": "Aeroob",
+      "notes": "Strides: 6–8 aan einde van training.",
+      "duration": "0:50",
+      "active": true
+    },
+    {
+      "week": 7,
+      "date": "2026-08-15",
+      "type": "Weg",
+      "description": "Strong finish run, 85 minuten aeroob, dan 25 minuten versnellen tot de finish op een tempo dat je kan vasthouden (sneller dan marathon pace)",
+      "zone": "Aeroob → snel",
+      "notes": "",
+      "duration": "1:50",
+      "active": true
+    },
+    {
+      "week": 7,
+      "date": "2026-08-16",
+      "type": "Weg",
+      "description": "30 min herstelloopje",
+      "zone": "Herstel",
+      "notes": "Optioneel: zwemmen / fietsen / wandelen ter aanvulling.",
+      "duration": "0:30",
+      "active": false
+    },
+    {
+      "week": 8,
+      "date": "2026-08-17",
+      "type": "Weg",
+      "description": "60 min op aerobe tempo",
+      "zone": "Aeroob",
+      "notes": "Maandag = Sparta-training (techniek/loopscholing + aeroob).",
+      "duration": "1:00",
+      "active": true
+    },
+    {
+      "week": 8,
+      "date": "2026-08-18",
+      "type": "Weg",
+      "description": "45 min op aerobe tempo",
+      "zone": "Aeroob",
+      "notes": "",
+      "duration": "0:45",
+      "active": false
+    },
+    {
+      "week": 8,
+      "date": "2026-08-19",
+      "type": "Baan",
+      "description": "Yasso 800 (baan): 10 x 800m, P = gelopen tijd (dribbel). Zelfde richttijd als wk6, doel: gecontroleerder lopen",
+      "zone": "Marathon-doeltijd",
+      "notes": "Woensdag = Sparta-kwaliteitstraining.",
+      "duration": "0:55",
+      "active": true
+    },
+    {
+      "week": 8,
+      "date": "2026-08-20",
+      "type": "Weg",
+      "description": "30 min herstelloopje",
+      "zone": "Herstel",
+      "notes": "Optioneel: zwemmen / fietsen / wandelen ter aanvulling.",
+      "duration": "0:30",
+      "active": false
+    },
+    {
+      "week": 8,
+      "date": "2026-08-21",
+      "type": "Weg",
+      "description": "45 min aeroob",
+      "zone": "Aeroob",
+      "notes": "",
+      "duration": "0:45",
+      "active": true
+    },
+    {
+      "week": 8,
+      "date": "2026-08-22",
+      "type": "Weg",
+      "description": "long run: 90 min aeroob",
+      "zone": "Aeroob",
+      "notes": "Lange duurloop (zaterdag).",
+      "duration": "1:30",
+      "active": true
+    },
+    {
+      "week": 8,
+      "date": "2026-08-23",
+      "type": "Weg/Fiets",
+      "description": "Loslopen / fietsen / zwemmen / wandelen",
+      "zone": "Herstel",
+      "notes": "Optionele crosstraining op de rustdag.",
+      "duration": "—",
+      "active": false
+    },
+    {
+      "week": 9,
+      "date": "2026-08-24",
+      "type": "Baan / Kracht",
+      "description": "40 min op aerobe tempo in de ochtend (of 100 min als je de avondtraining niet meedoet) — Inlopen + loopscholing, daarna 60 min aeroob",
+      "zone": "Aeroob + techniek",
+      "notes": "Maandag = Sparta-training (techniek/loopscholing + aeroob).  Strides: 6–8 aan einde van training.  Krachttraining.",
+      "duration": "1:40",
+      "active": true
+    },
+    {
+      "week": 9,
+      "date": "2026-08-25",
+      "type": "Weg",
+      "description": "50 min op aerobe tempo",
+      "zone": "Aeroob",
+      "notes": "",
+      "duration": "0:50",
+      "active": false
+    },
+    {
+      "week": 9,
+      "date": "2026-08-26",
+      "type": "Weg",
+      "description": "15 min wu- 4 x 6 minute intervals @10k pace, 3 minutes jog between intervals- 10 min cd",
+      "zone": "10k tempo",
+      "notes": "Woensdag = Sparta-kwaliteitstraining.  Optioneel ochtendherstel: 50 minutes herstellooopje",
+      "duration": "1:00",
+      "active": true
+    },
+    {
+      "week": 9,
+      "date": "2026-08-27",
+      "type": "Weg",
+      "description": "60 min herstelloopje",
+      "zone": "Herstel",
+      "notes": "Krachttraining.  Optioneel: zwemmen / fietsen / wandelen ter aanvulling.",
+      "duration": "1:00",
+      "active": false
+    },
+    {
+      "week": 9,
+      "date": "2026-08-28",
+      "type": "Weg",
+      "description": "50 min aeroob",
+      "zone": "Aeroob",
+      "notes": "Strides: 6–8 aan einde van training.",
+      "duration": "0:50",
+      "active": true
+    },
+    {
+      "week": 9,
+      "date": "2026-08-29",
+      "type": "Weg",
+      "description": "26 km aeroob met km 5-,8, km 12-15 en km 20-23 op marathon pace.",
+      "zone": "Aeroob / M-tempo",
+      "notes": "Lange duurloop (zaterdag).",
+      "duration": "2:10",
+      "active": true
+    },
+    {
+      "week": 9,
+      "date": "2026-08-30",
+      "type": "Weg",
+      "description": "30 min herstelloopje",
+      "zone": "Herstel",
+      "notes": "Optioneel: zwemmen / fietsen / wandelen ter aanvulling.",
+      "duration": "0:30",
+      "active": false
+    },
+    {
+      "week": 10,
+      "date": "2026-08-31",
+      "type": "Weg / Kracht",
+      "description": "40 min op aerobe tempo in de ochtend (of 115 min als je de avondtraining niet meedoet) — Inlopen + loopscholing, daarna 75 min aeroob",
+      "zone": "Aeroob + techniek",
+      "notes": "Maandag = Sparta-training (techniek/loopscholing + aeroob).  Strides: 6–8 aan einde van training.  Krachttraining.",
+      "duration": "1:55",
+      "active": true
+    },
+    {
+      "week": 10,
+      "date": "2026-09-01",
+      "type": "Weg",
+      "description": "60 min op aerobe tempo",
+      "zone": "Aeroob",
+      "notes": "",
+      "duration": "1:00",
+      "active": false
+    },
+    {
+      "week": 10,
+      "date": "2026-09-02",
+      "type": "Baan",
+      "description": "15 min wu 4 X 1600m a marathon pace, p. 400 m -15 min CD",
+      "zone": "Marathontempo",
+      "notes": "Woensdag = Sparta-kwaliteitstraining.  Optioneel ochtendherstel: 50 min herstellloopje",
+      "duration": "0:30",
+      "active": true
+    },
+    {
+      "week": 10,
+      "date": "2026-09-03",
+      "type": "Weg",
+      "description": "60 min herstelloopje",
+      "zone": "Herstel",
+      "notes": "Krachttraining.  Optioneel: zwemmen / fietsen / wandelen ter aanvulling.",
+      "duration": "1:00",
+      "active": false
+    },
+    {
+      "week": 10,
+      "date": "2026-09-04",
+      "type": "Weg",
+      "description": "60 min aeroob",
+      "zone": "Aeroob",
+      "notes": "Strides: 6–8 aan einde van training.",
+      "duration": "1:00",
+      "active": true
+    },
+    {
+      "week": 10,
+      "date": "2026-09-05",
+      "type": "Weg",
+      "description": "long run: 120 min aeroob",
+      "zone": "Aeroob",
+      "notes": "Lange duurloop (zaterdag).",
+      "duration": "2:00",
+      "active": true
+    },
+    {
+      "week": 10,
+      "date": "2026-09-06",
+      "type": "Weg",
+      "description": "30 min herstelloopje",
+      "zone": "Herstel",
+      "notes": "",
+      "duration": "0:30",
+      "active": false
+    },
+    {
+      "week": 11,
+      "date": "2026-09-07",
+      "type": "Baan / Kracht",
+      "description": "40 min op aerobe tempo in de ochtend (of 120 min als je de avondtraining niet meedoet) — Inlopen + loopscholing, daarna 80 min aeroob",
+      "zone": "Aeroob + techniek",
+      "notes": "Maandag = Sparta-training (techniek/loopscholing + aeroob).  Strides: 6–8 aan einde van training.  Krachttraining.",
+      "duration": "2:00",
+      "active": true
+    },
+    {
+      "week": 11,
+      "date": "2026-09-08",
+      "type": "Weg",
+      "description": "60 min op aerobe tempo",
+      "zone": "Aeroob",
+      "notes": "",
+      "duration": "1:00",
+      "active": false
+    },
+    {
+      "week": 11,
+      "date": "2026-09-09",
+      "type": "Weg",
+      "description": "Drempel/tempo (weg): inlopen 15 min, 5 x 2000m op 10k pace, P. 90 sec dribbel, uitlopen 10 min",
+      "zone": "Drempel (10k–HM)",
+      "notes": "Woensdag = Sparta-kwaliteitstraining.  Optioneel ochtendherstel: 60 minutes recovery run below MAF",
+      "duration": "1:30",
+      "active": true
+    },
+    {
+      "week": 11,
+      "date": "2026-09-10",
+      "type": "Weg",
+      "description": "70 min herstelloopje",
+      "zone": "Herstel",
+      "notes": "Krachttraining.  Optioneel: zwemmen / fietsen / wandelen ter aanvulling.",
+      "duration": "1:10",
+      "active": false
+    },
+    {
+      "week": 11,
+      "date": "2026-09-11",
+      "type": "Weg",
+      "description": "60 min aeroob",
+      "zone": "Aeroob",
+      "notes": "Strides: 6–8 aan einde van training.",
+      "duration": "1:00",
+      "active": true
+    },
+    {
+      "week": 11,
+      "date": "2026-09-12",
+      "type": "Weg",
+      "description": "30 km aeroob met km 22-26 op marathon pace",
+      "zone": "Aeroob / M-tempo",
+      "notes": "Lange duurloop (zaterdag).",
+      "duration": "2:30",
+      "active": true
+    },
+    {
+      "week": 11,
+      "date": "2026-09-13",
+      "type": "Weg",
+      "description": "30 min herstelloopje",
+      "zone": "Herstel",
+      "notes": "Optioneel: zwemmen / fietsen / wandelen ter aanvulling.",
+      "duration": "0:30",
+      "active": false
+    },
+    {
+      "week": 12,
+      "date": "2026-09-14",
+      "type": "Weg",
+      "description": "60 min op aerobe tempo",
+      "zone": "Aeroob",
+      "notes": "Maandag = Sparta-training (techniek/loopscholing + aeroob).",
+      "duration": "1:00",
+      "active": true
+    },
+    {
+      "week": 12,
+      "date": "2026-09-15",
+      "type": "Weg",
+      "description": "50 min op aerobe tempo",
+      "zone": "Aeroob",
+      "notes": "",
+      "duration": "0:50",
+      "active": false
+    },
+    {
+      "week": 12,
+      "date": "2026-09-16",
+      "type": "Baan",
+      "description": "Scherpstellen (baan): inlopen 15 min, 6 x 200m op 5k-tempo, ruime P., uitlopen. Ingehouden - wedstrijdweek",
+      "zone": "5k tempo",
+      "notes": "Woensdag = Sparta-kwaliteitstraining.  Optioneel ochtendherstel: 40 min herstelloopje",
+      "duration": "0:25",
+      "active": true
+    },
+    {
+      "week": 12,
+      "date": "2026-09-17",
+      "type": "Weg",
+      "description": "40 min herstelloopje",
+      "zone": "Herstel",
+      "notes": "Optioneel: zwemmen / fietsen / wandelen ter aanvulling.",
+      "duration": "0:40",
+      "active": false
+    },
+    {
+      "week": 12,
+      "date": "2026-09-18",
+      "type": "Weg",
+      "description": "50 min aeroob",
+      "zone": "Aeroob",
+      "notes": "",
+      "duration": "0:50",
+      "active": true
+    },
+    {
+      "week": 12,
+      "date": "2026-09-19",
+      "type": "Weg",
+      "description": "35 min rustig + 4 strides (dag voor de wedstrijd)",
+      "zone": "Aeroob",
+      "notes": "",
+      "duration": "0:40",
+      "active": true
+    },
+    {
+      "week": 12,
+      "date": "2026-09-20",
+      "type": "Wedstrijd",
+      "description": "TUNE-UP WEDSTRIJD: Rotterdam Halve Marathon (Halve van Zuid, 21,1 km) op HM-/wedstrijdtempo (± 6 weken voor de marathon). OF Halve van Antwerpen https://www.keeponrunning.be/en/events/great-half-antwerpen/",
+      "zone": "HM-/wedstrijdtempo",
+      "notes": "Tune-up race ± 6 weken voor de marathon.",
+      "duration": "—",
+      "active": false
+    },
+    {
+      "week": 13,
+      "date": "2026-09-21",
+      "type": "Baan / Kracht",
+      "description": "40 min op aerobe tempo in de ochtend (of 120 min als je de avondtraining niet meedoet) — Inlopen + loopscholing, daarna 80 min aeroob",
+      "zone": "Aeroob + techniek",
+      "notes": "Maandag = Sparta-training (techniek/loopscholing + aeroob).  Strides: 8–10 aan einde van training.  Krachttraining.",
+      "duration": "2:00",
+      "active": true
+    },
+    {
+      "week": 13,
+      "date": "2026-09-22",
+      "type": "Weg",
+      "description": "60 min op aerobe tempo",
+      "zone": "Aeroob",
+      "notes": "",
+      "duration": "1:00",
+      "active": false
+    },
+    {
+      "week": 13,
+      "date": "2026-09-23",
+      "type": "Weg",
+      "description": "20 min WU - Heuveltraining 5x kort en lange zijde Sijbrandij viaduct - 15 min CD",
+      "zone": "Kracht / heuvel",
+      "notes": "Woensdag = Sparta-kwaliteitstraining.  Optioneel ochtendherstel: 60 min herstellloopje",
+      "duration": "0:35",
+      "active": true
+    },
+    {
+      "week": 13,
+      "date": "2026-09-24",
+      "type": "Weg",
+      "description": "70 min herstelloopje",
+      "zone": "Herstel",
+      "notes": "Krachttraining.  Optioneel: zwemmen / fietsen / wandelen ter aanvulling.",
+      "duration": "1:10",
+      "active": false
+    },
+    {
+      "week": 13,
+      "date": "2026-09-25",
+      "type": "Weg",
+      "description": "60 min aeroob",
+      "zone": "Aeroob",
+      "notes": "Strides: 8–10 aan einde van training.",
+      "duration": "1:00",
+      "active": true
+    },
+    {
+      "week": 13,
+      "date": "2026-09-26",
+      "type": "Weg",
+      "description": "32 km aeroob, waarvan km 24-30 op marathontempo op marathon parcours",
+      "zone": "Aeroob / M-tempo",
+      "notes": "Lange duurloop (zaterdag).",
+      "duration": "2:30",
+      "active": true
+    },
+    {
+      "week": 13,
+      "date": "2026-09-27",
+      "type": "Weg",
+      "description": "30 min herstelloopje",
+      "zone": "Herstel",
+      "notes": "Optioneel: zwemmen / fietsen / wandelen ter aanvulling.",
+      "duration": "0:30",
+      "active": false
+    },
+    {
+      "week": 14,
+      "date": "2026-09-28",
+      "type": "Weg / Kracht",
+      "description": "40 min op aerobe tempo in de ochtend (of 120 min als je de avondtraining niet meedoet) — Inlopen + loopscholing, daarna 80 min aeroob",
+      "zone": "Aeroob + techniek",
+      "notes": "Maandag = Sparta-training (techniek/loopscholing + aeroob).  Strides: 8–10 aan einde van training.  Krachttraining.",
+      "duration": "2:00",
+      "active": true
+    },
+    {
+      "week": 14,
+      "date": "2026-09-29",
+      "type": "Weg",
+      "description": "60 min op aerobe tempo",
+      "zone": "Aeroob",
+      "notes": "",
+      "duration": "1:00",
+      "active": false
+    },
+    {
+      "week": 14,
+      "date": "2026-09-30",
+      "type": "Baan",
+      "description": "Yasso 800 (baan): 10 x 800m, P = gelopen tijd (dribbel). Piek-sessie, richttijd op of net onder marathon-doeltijd",
+      "zone": "Marathon-doeltijd",
+      "notes": "Woensdag = Sparta-kwaliteitstraining.  Optioneel ochtendherstel: 50 min herstellloopje",
+      "duration": "0:55",
+      "active": true
+    },
+    {
+      "week": 14,
+      "date": "2026-10-01",
+      "type": "Weg",
+      "description": "60 min herstelloopje",
+      "zone": "Herstel",
+      "notes": "Krachttraining.  Optioneel: zwemmen / fietsen / wandelen ter aanvulling.",
+      "duration": "1:00",
+      "active": false
+    },
+    {
+      "week": 14,
+      "date": "2026-10-02",
+      "type": "Weg",
+      "description": "60 min aeroob",
+      "zone": "Aeroob",
+      "notes": "Strides: 8–10 aan einde van training.",
+      "duration": "1:00",
+      "active": true
+    },
+    {
+      "week": 14,
+      "date": "2026-10-03",
+      "type": "Weg",
+      "description": "Trainingsweekend long run: 140 min aeroob",
+      "zone": "Aeroob",
+      "notes": "Lange duurloop (zaterdag).",
+      "duration": "2:20",
+      "active": true
+    },
+    {
+      "week": 14,
+      "date": "2026-10-04",
+      "type": "Weg",
+      "description": "Trainingsweekend",
+      "zone": "Herstel",
+      "notes": "Optioneel: zwemmen / fietsen / wandelen ter aanvulling.",
+      "duration": "0:00",
+      "active": false
+    },
+    {
+      "week": 15,
+      "date": "2026-10-05",
+      "type": "Weg / Kracht",
+      "description": "40 min op aerobe tempo in de ochtend (of 120 min als je de avondtraining niet meedoet) — Inlopen + loopscholing, daarna 80 min aeroob",
+      "zone": "Aeroob + techniek",
+      "notes": "Maandag = Sparta-training (techniek/loopscholing + aeroob).  Strides: 8–10 aan einde van training.  Krachttraining.",
+      "duration": "2:00",
+      "active": true
+    },
+    {
+      "week": 15,
+      "date": "2026-10-06",
+      "type": "Weg",
+      "description": "60 min op aerobe tempo",
+      "zone": "Aeroob",
+      "notes": "",
+      "duration": "1:00",
+      "active": false
+    },
+    {
+      "week": 15,
+      "date": "2026-10-07",
+      "type": "Weg",
+      "description": "60 min fartlek, iedere brommer of scooter is 100m op 5k pace + segmenten (instructie volgt vanuit trainers",
+      "zone": "5k tempo",
+      "notes": "Woensdag = Sparta-kwaliteitstraining.  Optioneel ochtendherstel: 40 min herstelloopje",
+      "duration": "1:00",
+      "active": true
+    },
+    {
+      "week": 15,
+      "date": "2026-10-08",
+      "type": "Weg",
+      "description": "60 min herstelloopje",
+      "zone": "Herstel",
+      "notes": "Krachttraining.  Optioneel: zwemmen / fietsen / wandelen ter aanvulling.",
+      "duration": "1:00",
+      "active": false
+    },
+    {
+      "week": 15,
+      "date": "2026-10-09",
+      "type": "Weg",
+      "description": "60 min aeroob",
+      "zone": "Aeroob",
+      "notes": "Strides: 8–10 aan einde van training.",
+      "duration": "1:00",
+      "active": true
+    },
+    {
+      "week": 15,
+      "date": "2026-10-10",
+      "type": "Weg",
+      "description": "Piek-duurloop 36 km, van km 26-34 (8km )op marathontempo (3 weken voor de race) op marathon Parcours!",
+      "zone": "Aeroob / M-tempo",
+      "notes": "Lange duurloop (zaterdag).",
+      "duration": "2:50",
+      "active": true
+    },
+    {
+      "week": 15,
+      "date": "2026-10-11",
+      "type": "Weg/Fiets",
+      "description": "Loslopen / fietsen / zwemmen / wandelen",
+      "zone": "Herstel",
+      "notes": "Optionele crosstraining op de rustdag.",
+      "duration": "—",
+      "active": false
+    },
+    {
+      "week": 16,
+      "date": "2026-10-12",
+      "type": "Weg",
+      "description": "40 min op aerobe tempo in de ochtend (of 100 min als je de avondtraining niet meedoet) — Inlopen + loopscholing, daarna 60 min aeroob",
+      "zone": "Aeroob + techniek",
+      "notes": "Maandag = Sparta-training (techniek/loopscholing + aeroob).  Strides: 6–8 aan einde van training.",
+      "duration": "1:40",
+      "active": true
+    },
+    {
+      "week": 16,
+      "date": "2026-10-13",
+      "type": "Weg",
+      "description": "50 min op aerobe tempo",
+      "zone": "Aeroob",
+      "notes": "",
+      "duration": "0:50",
+      "active": false
+    },
+    {
+      "week": 16,
+      "date": "2026-10-14",
+      "type": "Baan",
+      "description": "3x2400m @ marathon pace, 5 min recovery",
+      "zone": "Marathontempo",
+      "notes": "Woensdag = Sparta-kwaliteitstraining.  Optioneel ochtendherstel: 40 min herstelloopje",
+      "duration": "0:50",
+      "active": true
+    },
+    {
+      "week": 16,
+      "date": "2026-10-15",
+      "type": "Weg",
+      "description": "45 min herstelloopje",
+      "zone": "Herstel",
+      "notes": "Optioneel: zwemmen / fietsen / wandelen ter aanvulling.",
+      "duration": "0:45",
+      "active": false
+    },
+    {
+      "week": 16,
+      "date": "2026-10-16",
+      "type": "Weg",
+      "description": "50 min aeroob",
+      "zone": "Aeroob",
+      "notes": "Strides: 6–8 aan einde van training.",
+      "duration": "0:50",
+      "active": true
+    },
+    {
+      "week": 16,
+      "date": "2026-10-17",
+      "type": "Weg",
+      "description": "tempo run, 30 minutes aeroob, 15 minutes at marathon pace, 15 minutes recovery, 15 min at marathon pace, 30 minutes aeroob op marathon parcours",
+      "zone": "Aeroob / Moderate",
+      "notes": "",
+      "duration": "1:45",
+      "active": true
+    },
+    {
+      "week": 16,
+      "date": "2026-10-18",
+      "type": "Weg/Fiets",
+      "description": "Loslopen / fietsen / zwemmen / wandelen",
+      "zone": "Herstel",
+      "notes": "Optionele crosstraining op de rustdag.",
+      "duration": "—",
+      "active": false
+    },
+    {
+      "week": 17,
+      "date": "2026-10-19",
+      "type": "Baan / Kracht",
+      "description": "60 min op aerobe tempo",
+      "zone": "Aeroob",
+      "notes": "Maandag = Sparta-training (techniek/loopscholing + aeroob).  Strides: 4–6 aan einde van training.  Krachttraining.",
+      "duration": "1:00",
+      "active": true
+    },
+    {
+      "week": 17,
+      "date": "2026-10-20",
+      "type": "Weg",
+      "description": "40 min op aerobe tempo",
+      "zone": "Aeroob",
+      "notes": "",
+      "duration": "0:40",
+      "active": false
+    },
+    {
+      "week": 17,
+      "date": "2026-10-21",
+      "type": "Weg",
+      "description": "15 min wu- intervals: 6 x 1 mile (1609 meters) @ marathon pace 3 minutes jog between intervals - 15 min CD",
+      "zone": "Marathontempo",
+      "notes": "Woensdag = Sparta-kwaliteitstraining.",
+      "duration": "0:30",
+      "active": true
+    },
+    {
+      "week": 17,
+      "date": "2026-10-22",
+      "type": "Weg",
+      "description": "30 min herstelloopje",
+      "zone": "Herstel",
+      "notes": "Krachttraining.  Optioneel: zwemmen / fietsen / wandelen ter aanvulling.",
+      "duration": "0:30",
+      "active": false
+    },
+    {
+      "week": 17,
+      "date": "2026-10-23",
+      "type": "Weg",
+      "description": "40 min aeroob",
+      "zone": "Aeroob",
+      "notes": "Strides: 4–6 aan einde van training.",
+      "duration": "0:40",
+      "active": true
+    },
+    {
+      "week": 17,
+      "date": "2026-10-24",
+      "type": "Weg",
+      "description": "70 min aeroob",
+      "zone": "Aeroob",
+      "notes": "",
+      "duration": "1:10",
+      "active": true
+    },
+    {
+      "week": 17,
+      "date": "2026-10-25",
+      "type": "Weg/Fiets",
+      "description": "Loslopen / fietsen / zwemmen / wandelen",
+      "zone": "Herstel",
+      "notes": "Optionele crosstraining op de rustdag.",
+      "duration": "—",
+      "active": false
+    },
+    {
+      "week": 18,
+      "date": "2026-10-26",
+      "type": "Weg",
+      "description": "50 min op aerobe tempo",
+      "zone": "Aeroob",
+      "notes": "Maandag = Sparta-training (techniek/loopscholing + aeroob).",
+      "duration": "0:50",
+      "active": true
+    },
+    {
+      "week": 18,
+      "date": "2026-10-28",
+      "type": "Baan",
+      "description": "5 x 1000m at marathon pace, p. 400 m of 3 min",
+      "zone": "Marathontempo",
+      "notes": "Woensdag = Sparta-kwaliteitstraining.",
+      "duration": "0:35",
+      "active": true
+    },
+    {
+      "week": 18,
+      "date": "2026-10-29",
+      "type": "Weg",
+      "description": "30 min herstelloopje",
+      "zone": "Herstel",
+      "notes": "Optioneel: zwemmen / fietsen / wandelen ter aanvulling.",
+      "duration": "0:30",
+      "active": false
+    },
+    {
+      "week": 18,
+      "date": "2026-10-31",
+      "type": "Weg",
+      "description": "30 minute shakeout run",
+      "zone": "Aeroob",
+      "notes": "",
+      "duration": "0:35",
+      "active": true
+    },
+    {
+      "week": 18,
+      "date": "2026-11-01",
+      "type": "Wedstrijd",
+      "description": "MARATHON DEN HAAG — wedstrijddag! 42,195 km",
+      "zone": "Wedstrijdtempo",
+      "notes": "A-race! Alles geven.",
+      "duration": "—",
+      "active": false
+    }
+  ]
+}

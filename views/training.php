@@ -187,6 +187,64 @@ foreach ($sortedDates as $dateKey):
                 <div class="alert alert-danger"><?php echo htmlspecialchars($trainingError, ENT_QUOTES, 'UTF-8'); ?></div>
             <?php endif; ?>
 
+            <?php
+            $larsImportSource = (isset($larsImportSource) && is_array($larsImportSource)) ? $larsImportSource : [];
+            $trainingImportPreview = (isset($trainingImportPreview) && is_array($trainingImportPreview)) ? $trainingImportPreview : [];
+            $larsImportedCount = isset($larsImportedCount) ? (int)$larsImportedCount : 0;
+            ?>
+            <div class="border rounded p-3 mb-4">
+                <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap mb-3">
+                    <div>
+                        <div class="section-label mb-1">Bronimport</div>
+                        <div class="fw-semibold">Marathon Den Haag 2026</div>
+                        <?php if (empty($larsImportSource['error'])): ?>
+                            <div class="text-muted small">
+                                <?php echo (int)($larsImportSource['source_count'] ?? 0); ?> sessies,
+                                <?php echo htmlspecialchars((string)($larsImportSource['start_date'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>
+                                t/m
+                                <?php echo htmlspecialchars((string)($larsImportSource['end_date'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                    <span class="badge text-bg-secondary"><?php echo $larsImportedCount; ?> geïmporteerd</span>
+                </div>
+
+                <?php if (!empty($larsImportSource['error'])): ?>
+                    <div class="alert alert-danger mb-0"><?php echo htmlspecialchars((string)$larsImportSource['error'], ENT_QUOTES, 'UTF-8'); ?></div>
+                <?php else: ?>
+                    <?php if ($trainingImportPreview): ?>
+                        <div class="alert alert-info">
+                            Voorbeeld: <?php echo (int)$trainingImportPreview['removed_entries']; ?> bestaande bronitems worden vervangen
+                            door <?php echo (int)$trainingImportPreview['added_entries']; ?> sessies.
+                            Het gedeelde schema komt uit op <?php echo (int)$trainingImportPreview['total_days']; ?> dagen
+                            en <?php echo (int)$trainingImportPreview['total_entries']; ?> trainingsitems.
+                        </div>
+                    <?php endif; ?>
+                    <p class="text-muted small">
+                        Opnieuw importeren vervangt alleen items met bron
+                        <code>lars-den-haag-2026</code>. Andere gedeelde trainingen blijven staan en vooraf wordt een backup gemaakt.
+                    </p>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <form method="post" action="?action=training">
+                            <input type="hidden" name="lars_import_action" value="preview">
+                            <button type="submit" class="btn btn-outline-light btn-sm">Voorbeeld</button>
+                        </form>
+                        <form method="post" action="?action=training">
+                            <input type="hidden" name="lars_import_action" value="replace">
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <?php echo $larsImportedCount > 0 ? 'Opnieuw importeren' : 'Importeren'; ?>
+                            </button>
+                        </form>
+                        <?php if ($larsImportedCount > 0): ?>
+                            <form method="post" action="?action=training" onsubmit="return confirm('Alleen de geïmporteerde Den Haag-trainingen verwijderen? Er wordt eerst een backup gemaakt.');">
+                                <input type="hidden" name="lars_import_action" value="remove">
+                                <button type="submit" class="btn btn-outline-danger btn-sm">Import verwijderen</button>
+                            </form>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
+            </div>
+
             <form method="post" action="?action=training" class="mb-4">
                 <div class="mb-3">
                     <label for="training_csv" class="form-label">Paste training CSV</label>

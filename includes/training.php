@@ -248,7 +248,54 @@ function save_trainings(string $dir, array $trainings, $scope = 'shared'): bool
     if ($json === false) {
         return false;
     }
-    return file_put_contents($path, $json, LOCK_EX) !== false;
+    $tempPath = tempnam($dir, '.sparta-trainings-');
+    if ($tempPath === false) {
+        return false;
+    }
+    if (file_put_contents($tempPath, $json, LOCK_EX) === false) {
+        @unlink($tempPath);
+        return false;
+    }
+    if (is_file($path)) {
+        $permissions = @fileperms($path);
+        if ($permissions !== false) {
+            @chmod($tempPath, $permissions & 0777);
+        }
+    }
+    if (!rename($tempPath, $path)) {
+        @unlink($tempPath);
+        return false;
+    }
+    return true;
+}
+
+/**
+ * Make a timestamped recovery copy before changing a stored schedule.
+ *
+ * @return string|false Backup path, or false when no safe backup could be made.
+ */
+function sparta_backup_trainings(string $dir, $scope = 'shared')
+{
+    $id = $scope ?? 'shared';
+    $path = rtrim($dir, '/\\') . '/' . $id . '.json';
+    if (!is_readable($path)) {
+        return false;
+    }
+    $backupDir = rtrim($dir, '/\\') . '/backups';
+    if (!is_dir($backupDir) && !mkdir($backupDir, 0775, true) && !is_dir($backupDir)) {
+        return false;
+    }
+    try {
+        $suffix = bin2hex(random_bytes(3));
+    } catch (Exception $e) {
+        $suffix = str_replace('.', '', uniqid('', true));
+    }
+    $backupPath = $backupDir . '/' . $id . '-' . date('Ymd-His') . '-' . $suffix . '.json';
+    $contents = file_get_contents($path);
+    if ($contents === false || file_put_contents($backupPath, $contents, LOCK_EX) === false) {
+        return false;
+    }
+    return $backupPath;
 }
 
 /**
@@ -279,7 +326,7 @@ function sparta_merge_trainings_with_summary(array $existingTrainings, array $im
             if (!is_array($entry)) {
                 continue;
             }
-            $normalizedEntries[] = [
+            $normalizedEntry = [
                 'title' => (string)($entry['title'] ?? ''),
                 'activity' => (string)($entry['activity'] ?? ''),
                 'distance' => (string)($entry['distance'] ?? ''),
@@ -288,6 +335,13 @@ function sparta_merge_trainings_with_summary(array $existingTrainings, array $im
                 'finish_times' => sparta_normalize_training_finish_times($entry['finish_times'] ?? []),
                 'tempos' => is_array($entry['tempos'] ?? null) ? array_values($entry['tempos']) : [],
             ];
+            foreach (['source_id', 'source_key'] as $sourceField) {
+                $sourceValue = trim((string)($entry[$sourceField] ?? ''));
+                if ($sourceValue !== '') {
+                    $normalizedEntry[$sourceField] = $sourceValue;
+                }
+            }
+            $normalizedEntries[] = $normalizedEntry;
         }
 
         return [
@@ -362,6 +416,269 @@ function sparta_merge_trainings(array $existingTrainings, array $importedTrainin
 {
     $result = sparta_merge_trainings_with_summary($existingTrainings, $importedTrainings);
     return $result['trainings'];
+}
+
+function sparta_lars_den_haag_source_id(): string
+{
+    return 'lars-den-haag-2026';
+}
+
+function sparta_lars_den_haag_source_path(): string
+{
+    return __DIR__ . '/../resources/training/lars-den-haag-2026.json';
+}
+
+/**
+ * Map a Lars zone to the tempo labels understood by SpartaOne.
+ *
+ * @return array<int,string>
+ */
+function sparta_lars_den_haag_tempos(string $zone): array
+{
+    $zone = strtolower($zone);
+    $tempos = [];
+    $add = static function (string $tempo) use (&$tempos): void {
+        if (!in_array($tempo, $tempos, true)) {
+            $tempos[] = $tempo;
+        }
+    };
+    if (strpos($zone, '5k') !== false) {
+        $add('5K');
+    }
+    if (strpos($zone, '10k') !== false) {
+        $add('10K');
+    }
+    if (strpos($zone, 'hm') !== false || strpos($zone, 'halve') !== false || strpos($zone, 'drempel') !== false) {
+        $add('Half Marathon');
+    }
+    if (strpos($zone, 'marathon') !== false || strpos($zone, 'm-tempo') !== false) {
+        $add('Marathon');
+    }
+    if (strpos($zone, 'aeroob') !== false || strpos($zone, 'moderate') !== false) {
+        $add('Aeroob');
+    }
+    if (strpos($zone, 'herstel') !== false) {
+        $add('Recovery');
+    }
+    return $tempos;
+}
+
+/**
+ * Convert and validate the reusable Lars source payload.
+ *
+ * @param array<string,mixed> $payload
+ * @return array<string,mixed>
+ */
+function sparta_convert_lars_den_haag_source(array $payload): array
+{
+    $sourceId = sparta_lars_den_haag_source_id();
+    if (($payload['source_id'] ?? '') !== $sourceId) {
+        return ['error' => 'De Lars-bron heeft een onverwachte source_id.'];
+    }
+    $sessions = $payload['sessions'] ?? null;
+    if (!is_array($sessions) || count($sessions) !== 123) {
+        return ['error' => 'De Lars-bron moet exact 123 sessies bevatten.'];
+    }
+
+    $trainings = [];
+    $seenKeys = [];
+    foreach ($sessions as $session) {
+        if (!is_array($session)) {
+            return ['error' => 'De Lars-bron bevat een ongeldige sessie.'];
+        }
+        $date = trim((string)($session['date'] ?? ''));
+        $dateValue = DateTimeImmutable::createFromFormat('!Y-m-d', $date);
+        if (!$dateValue || $dateValue->format('Y-m-d') !== $date) {
+            return ['error' => 'De Lars-bron bevat een ongeldige datum.'];
+        }
+        $sourceKey = $sourceId . ':' . $date;
+        if (isset($seenKeys[$sourceKey])) {
+            return ['error' => 'De Lars-bron bevat een dubbele source_key: ' . $sourceKey . '.'];
+        }
+        $seenKeys[$sourceKey] = true;
+
+        $description = trim((string)($session['description'] ?? ''));
+        $description = preg_replace('/\s*\|\s*EKIDEN(?:-LOPERS)?\b.*$/iu', '', $description);
+        $description = trim((string)$description);
+        if ($description === '') {
+            return ['error' => 'De Lars-bron bevat een sessie zonder omschrijving op ' . $date . '.'];
+        }
+
+        $activity = trim((string)($session['type'] ?? ''));
+        $activity = str_replace([' / Kracht', 'Kracht / '], '', $activity);
+        $activity = trim($activity);
+
+        $notes = str_replace('Krachttraining.', '', (string)($session['notes'] ?? ''));
+        $notes = trim((string)preg_replace('/\s+/u', ' ', $notes));
+        if (empty($session['active']) && $date !== '2026-11-01' && stripos($notes, 'optioneel') !== 0) {
+            $notes = trim('Optioneel. ' . $notes);
+        }
+
+        $duration = trim((string)($session['duration'] ?? ''));
+        $distance = ($duration === '' || $duration === '—') ? '' : 'Duur ' . $duration;
+        $raceType = '';
+        if ($date === '2026-09-20') {
+            $raceType = 'half-marathon';
+        } elseif ($date === '2026-11-01') {
+            $raceType = 'marathon';
+        }
+        $tempos = sparta_lars_den_haag_tempos((string)($session['zone'] ?? ''));
+        if ($raceType === 'half-marathon' && !in_array('Half Marathon', $tempos, true)) {
+            $tempos[] = 'Half Marathon';
+        }
+        if ($raceType === 'marathon' && !in_array('Marathon', $tempos, true)) {
+            $tempos[] = 'Marathon';
+        }
+
+        $trainings[] = [
+            'date' => $date,
+            'entries' => [[
+                'title' => 'Den Haag — ' . $description,
+                'activity' => $activity,
+                'distance' => $distance,
+                'notes' => $notes,
+                'race_type' => $raceType,
+                'finish_times' => [],
+                'tempos' => $tempos,
+                'source_id' => $sourceId,
+                'source_key' => $sourceKey,
+            ]],
+        ];
+    }
+
+    usort($trainings, static fn($left, $right) => strcmp((string)$left['date'], (string)$right['date']));
+    if (($trainings[0]['date'] ?? '') !== '2026-06-29' || ($trainings[count($trainings) - 1]['date'] ?? '') !== '2026-11-01') {
+        return ['error' => 'Het datumbereik van de Lars-bron is niet 29 juni t/m 1 november 2026.'];
+    }
+
+    return [
+        'error' => '',
+        'source_id' => $sourceId,
+        'source_count' => count($trainings),
+        'start_date' => $trainings[0]['date'],
+        'end_date' => $trainings[count($trainings) - 1]['date'],
+        'trainings' => $trainings,
+    ];
+}
+
+/**
+ * Load the reusable source artifact and prepare it for an import preview or write.
+ *
+ * @return array<string,mixed>
+ */
+function sparta_prepare_lars_den_haag_import(?string $path = null): array
+{
+    $path = $path ?: sparta_lars_den_haag_source_path();
+    if (!is_readable($path)) {
+        return ['error' => 'De Lars-importbron kan niet worden gelezen.'];
+    }
+    $contents = file_get_contents($path);
+    $payload = $contents === false ? null : json_decode($contents, true);
+    if (!is_array($payload)) {
+        return ['error' => 'De Lars-importbron bevat geen geldige JSON.'];
+    }
+    return sparta_convert_lars_den_haag_source($payload);
+}
+
+/**
+ * Remove only entries owned by one import source.
+ *
+ * @param array<int,array<string,mixed>> $trainings
+ * @return array{trainings: array<int,array<string,mixed>>, removed_entries: int, removed_days: int}
+ */
+function sparta_remove_training_source(array $trainings, string $sourceId): array
+{
+    $remaining = [];
+    $removedEntries = 0;
+    $removedDays = 0;
+    foreach ($trainings as $trainingDay) {
+        if (!is_array($trainingDay)) {
+            continue;
+        }
+        $entries = is_array($trainingDay['entries'] ?? null) ? $trainingDay['entries'] : [];
+        $keptEntries = [];
+        foreach ($entries as $entry) {
+            if (is_array($entry) && (string)($entry['source_id'] ?? '') === $sourceId) {
+                $removedEntries++;
+                continue;
+            }
+            $keptEntries[] = $entry;
+        }
+        if ($keptEntries === []) {
+            if ($entries !== []) {
+                $removedDays++;
+            }
+            continue;
+        }
+        $trainingDay['entries'] = array_values($keptEntries);
+        $remaining[] = $trainingDay;
+    }
+    usort($remaining, static fn($left, $right) => strcmp((string)($left['date'] ?? ''), (string)($right['date'] ?? '')));
+    return [
+        'trainings' => $remaining,
+        'removed_entries' => $removedEntries,
+        'removed_days' => $removedDays,
+    ];
+}
+
+/**
+ * Replace one source atomically in memory while preserving every unrelated entry.
+ *
+ * @param array<int,array<string,mixed>> $existingTrainings
+ * @param array<int,array<string,mixed>> $importedTrainings
+ * @return array<string,mixed>
+ */
+function sparta_replace_training_source(array $existingTrainings, array $importedTrainings, string $sourceId): array
+{
+    $removed = sparta_remove_training_source($existingTrainings, $sourceId);
+    $byDate = [];
+    foreach ($removed['trainings'] as $trainingDay) {
+        $date = trim((string)($trainingDay['date'] ?? ''));
+        if ($date !== '') {
+            $byDate[$date] = $trainingDay;
+        }
+    }
+    $addedEntries = 0;
+    $addedDays = 0;
+    foreach ($importedTrainings as $trainingDay) {
+        $date = trim((string)($trainingDay['date'] ?? ''));
+        $entries = is_array($trainingDay['entries'] ?? null) ? $trainingDay['entries'] : [];
+        if ($date === '' || $entries === []) {
+            continue;
+        }
+        if (!isset($byDate[$date])) {
+            $byDate[$date] = ['date' => $date, 'entries' => []];
+            $addedDays++;
+        }
+        foreach ($entries as $entry) {
+            $byDate[$date]['entries'][] = $entry;
+            $addedEntries++;
+        }
+    }
+    ksort($byDate);
+    return [
+        'trainings' => array_values($byDate),
+        'removed_entries' => $removed['removed_entries'],
+        'removed_days' => $removed['removed_days'],
+        'added_entries' => $addedEntries,
+        'added_days' => $addedDays,
+    ];
+}
+
+/**
+ * Count entries currently owned by an import source.
+ */
+function sparta_count_training_source_entries(array $trainings, string $sourceId): int
+{
+    $count = 0;
+    foreach ($trainings as $trainingDay) {
+        foreach ((array)($trainingDay['entries'] ?? []) as $entry) {
+            if (is_array($entry) && (string)($entry['source_id'] ?? '') === $sourceId) {
+                $count++;
+            }
+        }
+    }
+    return $count;
 }
 
 /**
